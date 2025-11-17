@@ -15,4 +15,9 @@ maintainers:
 - email: terrywu25@gmail.com
   name: terry
 name: otterscale
-version: 0.1.5
+version: 0.1.6-dev1
+dependencies:
+- condition: keycloak.enabled
+  repository: "oci://registry-1.docker.io/bitnamicharts"
+  name: keycloak
+  version: 25.2.5

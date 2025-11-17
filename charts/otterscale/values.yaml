@@ -30,7 +30,7 @@ postgres:
   # Database username
   # Corresponds to POSTGRES_USER in environment configuration
   user: otterscale
-  
+
   # Database password (consider using external secrets in production)
   # Corresponds to POSTGRES_PASSWORD in environment configuration
   password: otterscale
@@ -331,4 +331,72 @@ istio:
       consecutiveErrors: 5
       interval: 30s
       baseEjectionTime: 30s
-      maxEjectionPercent: 50      
+      maxEjectionPercent: 50
+
+# -----------------------------------------------------------------------------
+# Keycloak Configuration
+# -----------------------------------------------------------------------------
+keycloak:
+  enabled: true
+
+  image:
+    repository: bitnamilegacy/keycloak
+
+  auth:
+    adminUser: admin
+    adminPassword: "ReplacPassword8299"
+
+  ## External Postgres
+  postgresql:
+    enabled: false
+
+  externalDatabase:
+    host: "otterscale-postgres.otterscale.svc.cluster.local"
+    port: 5432
+    user: otterscale
+    database: otterscale
+    schema: public
+    password: "otterscale"
+
+  ## Config realm
+  keycloakConfigCli:
+    enabled: true
+    image:
+      repository: bitnamilegacy/keycloak-config-cli
+    configuration:
+      phison-realm.json: |
+        {
+          "realm": "Phison",
+          "enabled": true,
+          "registrationAllowed": true,
+          "rememberMe": true,
+          "resetPasswordAllowed": true,
+          "clients": [
+            {
+              "enabled": true,
+              "clientId": "otterscale",
+              "clientAuthenticatorType": "client-secret",
+              "secret": "ReplaceYourSecretHere",
+              "protocol": "openid-connect",
+              "authorizationServicesEnabled": false,
+              "directAccessGrantsEnabled": false,
+              "publicClient": false,
+              "serviceAccountsEnabled": false,
+              "standardFlowEnabled": true,
+              "implicitFlowEnabled": true,
+              "frontchannelLogout": true,
+              "adminUrl": "https://otters.phison.com",
+              "rootUrl": "https://otters.phison.com",
+              "redirectUris": [
+                "https://otters.phison.com/api/auth/sso/callback/otterscale-oidc"
+              ],
+              "webOrigins": [
+                "https://otters.phison.com"
+              ],
+              "attributes": {
+                "frontchannel.logout.session.required": "true",
+                "pkce.code.challenge.method": "S256"
+              }
+            }
+          ]
+        }
