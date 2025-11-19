@@ -20,49 +20,19 @@ global:
 appVersion: latest
 
 # -----------------------------------------------------------------------------
-# PostgreSQL Database Configuration
+# OtterScale PostgreSQL Database Configuration (Bitnami)
 # -----------------------------------------------------------------------------
-postgres:
-  # Database name to create
-  # Corresponds to POSTGRES_DB in environment configuration
-  db: otterscale
-  
-  # Database username
-  # Corresponds to POSTGRES_USER in environment configuration
-  user: otterscale
-
-  # Database password (consider using external secrets in production)
-  # Corresponds to POSTGRES_PASSWORD in environment configuration
-  password: otterscale
-  
-  # PostgreSQL image configuration
+# This PostgreSQL instance is dedicated for OtterScale application
+# Keycloak uses a separate PostgreSQL instance configured under keycloak.postgresql
+postgresql:
+  enabled: true
   image:
-    repository: postgres
-    tag: "15"
-    pullPolicy: IfNotPresent
-  
-  # Number of replicas (recommend keeping at 1 for single-instance PostgreSQL)
-  replicas: 1
-  
-  # Host path storage configuration for single-node deployment
-  # Data will be stored directly on the host node at the specified path
-  hostPath:
-    path: /usr/local/otterscale
-  
-  resources:
-    requests:
-      memory: "256Mi"
-      cpu: "250m"
-    limits:
-      memory: "1Gi"
-      cpu: "1000m"
-  
-  healthCheck:
-    enabled: true
-    initialDelaySeconds: 5
-    periodSeconds: 5
-    timeoutSeconds: 10
-    failureThreshold: 3
+    repository: bitnamilegacy/postgresql
+  auth:
+    postgresPassword: "ReplacePassword"
+    username: "otterscale"
+    password: "ReplacePassword"
+    database: "otterscale"
 
 # -----------------------------------------------------------------------------
 # OtterScale Service Configuration
@@ -171,12 +141,12 @@ otterscaleWeb:
     # Public URL for the web application
     # Corresponds to PUBLIC_URL in environment configuration
     # Must match the actual URL users will use to access the application
-    publicUrl: "http://172.20.10.7/"
+    publicUrl: "http://192.168.0.0/"
     
     # Public API URL for backend service
     # Corresponds to PUBLIC_API_URL in environment configuration
     # Must include protocol (http/https) and port number
-    publicApiUrl: "http://172.20.10.7/api"
+    publicApiUrl: "http://192.168.0.0/api"
     
     # Secret key for authentication (generate a strong random string)
     # Corresponds to AUTH_SECRET in environment configuration
@@ -338,65 +308,25 @@ istio:
 # -----------------------------------------------------------------------------
 keycloak:
   enabled: true
-
   image:
     repository: bitnamilegacy/keycloak
+  httpEnabled: true
+  httpRelativePath: "/auth/"
 
   auth:
     adminUser: admin
-    adminPassword: "ReplacPassword8299"
+    adminPassword: "ReplacePassword"
 
   ## External Postgres
   postgresql:
-    enabled: false
-
-  externalDatabase:
-    host: "otterscale-postgres.otterscale.svc.cluster.local"
-    port: 5432
-    user: otterscale
-    database: otterscale
-    schema: public
-    password: "otterscale"
+    enabled: true
+    nameOverride: "keycloak-postgres"
+    image:
+      repository: bitnamilegacy/postgresql
 
   ## Config realm
   keycloakConfigCli:
     enabled: true
     image:
       repository: bitnamilegacy/keycloak-config-cli
-    configuration:
-      phison-realm.json: |
-        {
-          "realm": "Phison",
-          "enabled": true,
-          "registrationAllowed": true,
-          "rememberMe": true,
-          "resetPasswordAllowed": true,
-          "clients": [
-            {
-              "enabled": true,
-              "clientId": "otterscale",
-              "clientAuthenticatorType": "client-secret",
-              "secret": "ReplaceYourSecretHere",
-              "protocol": "openid-connect",
-              "authorizationServicesEnabled": false,
-              "directAccessGrantsEnabled": false,
-              "publicClient": false,
-              "serviceAccountsEnabled": false,
-              "standardFlowEnabled": true,
-              "implicitFlowEnabled": true,
-              "frontchannelLogout": true,
-              "adminUrl": "https://otters.phison.com",
-              "rootUrl": "https://otters.phison.com",
-              "redirectUris": [
-                "https://otters.phison.com/api/auth/sso/callback/otterscale-oidc"
-              ],
-              "webOrigins": [
-                "https://otters.phison.com"
-              ],
-              "attributes": {
-                "frontchannel.logout.session.required": "true",
-                "pkce.code.challenge.method": "S256"
-              }
-            }
-          ]
-        }
+    configuration: {}
