@@ -84,6 +84,40 @@ entries:
     version: 0.1.0
   otterscale:
   - apiVersion: v2
+    created: "2025-11-20T03:15:42.826050021Z"
+    dependencies:
+    - condition: keycloak.enabled
+      name: keycloak
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: 25.x.x
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: 16.x.x
+    description: A Helm chart for OtterScale
+    digest: 0e714c9d4c7a6773fb566310767d59242e8aec440a14df705f80a7b993462bd5
+    keywords:
+    - kubernetes
+    - containers
+    - virtualization
+    - storage
+    - gpu-management
+    - maas
+    - juju
+    - ceph
+    - aidaptiv-cache
+    kubeVersion: '>= 1.30.0'
+    maintainers:
+    - email: terrywu25@gmail.com
+      name: terry
+    name: otterscale
+    sources:
+    - https://github.com/bitnami/charts/tree/main/bitnami/keycloak
+    - https://github.com/bitnami/charts/tree/main/bitnami/postgresql
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-0.1.6-dev2/otterscale-0.1.6-dev2.tgz
+    version: 0.1.6-dev2
+  - apiVersion: v2
     created: "2025-10-31T03:25:11.108117021Z"
     description: A Helm chart for OtterScale
     digest: 31605647e42ca5d70747aeeae2e5be7bf3214f643d1270211215dbcbfcea7433
@@ -116,4 +150,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/samba-operator-0.1.0/samba-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2025-10-31T03:25:11.269025304Z"
+generated: "2025-11-20T03:15:42.826068055Z"
