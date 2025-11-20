@@ -23,24 +23,24 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
-      {{- with .Values.dockerRegistry.nodeSelector }}
+      {{- with include "otterscale.nodeSelector" (dict "component" .Values.dockerRegistry "global" .Values.global) }}
       nodeSelector:
-        {{- toYaml . | nindent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}
-      {{- with .Values.dockerRegistry.affinity }}
+      {{- with include "otterscale.affinity" (dict "component" .Values.dockerRegistry "global" .Values.global) }}
       affinity:
-        {{- toYaml . | nindent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}
-      {{- with .Values.dockerRegistry.tolerations }}
+      {{- with include "otterscale.tolerations" (dict "component" .Values.dockerRegistry "global" .Values.global) }}
       tolerations:
-        {{- toYaml . | nindent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}
       securityContext:
         {{- toYaml .Values.dockerRegistry.securityContext | nindent 8 }}
       containers:
         - name: docker-registry
           image: "{{ .Values.dockerRegistry.image.repository }}:{{ .Values.dockerRegistry.image.tag }}"
-          imagePullPolicy: {{ .Values.dockerRegistry.image.pullPolicy }}
+          imagePullPolicy: {{ include "otterscale.imagePullPolicy" (dict "pullPolicy" .Values.dockerRegistry.image.pullPolicy "global" .Values.global) }}
           ports:
             - name: http
               containerPort: 5000

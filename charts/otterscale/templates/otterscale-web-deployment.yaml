@@ -25,28 +25,14 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      # Init container to wait for PostgreSQL to be ready
       {{- if .Values.postgresql.enabled }}
       initContainers:
-        - name: wait-for-postgres
-          image: postgres:15
-          command:
-            - sh
-            - -c
-            - |
-              until pg_isready -h {{ .Release.Name }}-postgresql -p 5432 -U {{ .Values.postgresql.auth.username }}; do
-                echo "Waiting for PostgreSQL to be ready..."
-                sleep 2
-              done
-              echo "PostgreSQL is ready!"
-          env:
-            - name: PGPASSWORD
-              value: {{ .Values.postgresql.auth.postgresPassword | quote }}
+        {{- include "otterscale.postgresql.waitInitContainer" . | nindent 8 }}
       {{- end }}
       containers:
         - name: otterscale-web
           image: "{{ .Values.otterscaleWeb.image.repository }}:{{ .Values.otterscaleWeb.image.tag | default .Values.appVersion }}"
-          imagePullPolicy: {{ .Values.otterscaleWeb.image.pullPolicy }}
+          imagePullPolicy: {{ include "otterscale.imagePullPolicy" (dict "pullPolicy" .Values.otterscaleWeb.image.pullPolicy "global" .Values.global) }}
           ports:
             - name: http
               containerPort: 3000
@@ -55,45 +41,44 @@ spec:
             {{- if .Values.postgresql.enabled }}
             - name: DATABASE_URL
               value: {{ printf "postgresql://%s:%s@%s-postgresql:5432/%s" .Values.postgresql.auth.username .Values.postgresql.auth.password .Release.Name .Values.postgresql.auth.database | quote }}
-            - name: POSTGRES_USER
-              value: {{ .Values.postgresql.auth.username | quote }}
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-postgresql
-                  key: password
-            - name: POSTGRES_DB
-              value: {{ .Values.postgresql.auth.database | quote }}
             {{- end }}
-            - name: PUBLIC_URL
-              value: {{ .Values.otterscaleWeb.env.publicUrl | quote }}
+            - name: PUBLIC_WEB_URL
+              value: {{ .Values.otterscaleWeb.env.publicWebUrl | quote }}
             - name: PUBLIC_API_URL
               value: {{ if .Values.otterscaleWeb.env.publicApiUrl }}{{ .Values.otterscaleWeb.env.publicApiUrl | quote }}{{ else }}"http://{{ include "otterscale.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:8299"{{ end }}
-            - name: AUTH_SECRET
-              value: {{ .Values.otterscaleWeb.env.authSecret | quote }}
-            - name: AUTH_TRUSTED_PROVIDERS
-              value: {{ .Values.otterscaleWeb.env.authTrustedProviders | quote }}
-            - name: AUTH_OIDC_PROVIDER
-              value: {{ .Values.otterscaleWeb.env.authOidcProvider | quote }}
-            - name: GITHUB_CLIENT_ID
-              value: {{ .Values.otterscaleWeb.env.githubClientId | quote }}
-            - name: GITHUB_CLIENT_SECRET
-              value: {{ .Values.otterscaleWeb.env.githubClientSecret | quote }}
-            - name: GITHUB_ACCESS_TOKEN
-              value: {{ .Values.otterscaleWeb.env.githubAccessToken | quote }}
-            - name: SSO_LOGIN_PROMPT
-              value: {{ .Values.otterscaleWeb.env.ssoLoginPrompt | quote }}
+            - name: KEYCLOAK_REALM_URL
+              value: {{ .Values.otterscaleWeb.env.keycloakRealmUrl | quote }}
+            - name: KEYCLOAK_CLIENT_ID
+              value: {{ .Values.otterscaleWeb.env.keycloakClientID | quote }}
+            - name: KEYCLOAK_CLIENT_SECRET
+              value: {{ .Values.otterscaleWeb.env.keycloakClientSecret | quote }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
           resources:
             {{- toYaml .Values.otterscaleWeb.resources | nindent 12 }}
-      {{- with .Values.otterscaleWeb.nodeSelector }}
+      {{- with include "otterscale.nodeSelector" (dict "component" .Values.otterscaleWeb "global" .Values.global) }}
       nodeSelector:
-        {{- toYaml . | nindent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}
-      {{- with .Values.otterscaleWeb.affinity }}
+      {{- with include "otterscale.affinity" (dict "component" .Values.otterscaleWeb "global" .Values.global) }}
       affinity:
-        {{- toYaml . | nindent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}
-      {{- with .Values.otterscaleWeb.tolerations }}
+      {{- with include "otterscale.tolerations" (dict "component" .Values.otterscaleWeb "global" .Values.global) }}
       tolerations:
-        {{- toYaml . | nindent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}

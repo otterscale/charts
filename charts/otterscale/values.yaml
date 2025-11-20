@@ -12,12 +12,18 @@ global:
   # Options: Always, IfNotPresent, Never
   imagePullPolicy: IfNotPresent
   
+  # Common pod configurations (can be overridden per component)
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  
 # -----------------------------------------------------------------------------
 # Application Version
 # -----------------------------------------------------------------------------
 # Version tag for OtterScale service and web images
 # This corresponds to APP_VERSION in the environment configuration
-appVersion: latest
+appVersion: 0.6.0-alpha.3
 
 # -----------------------------------------------------------------------------
 # OtterScale PostgreSQL Database Configuration (Bitnami)
@@ -42,13 +48,14 @@ otterscale:
   image:
     repository: ghcr.io/otterscale/otterscale/service
     tag: ""
-    pullPolicy: IfNotPresent
   
   replicas: 1
-  podAnnotations: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
+  
+  # Override global settings if needed
+  # podAnnotations: {}
+  # nodeSelector: {}
+  # tolerations: []
+  # affinity: {}
   
   # Service port configuration
   # Corresponds to SERVICE_PORT in environment configuration
@@ -109,13 +116,14 @@ otterscaleWeb:
   image:
     repository: ghcr.io/otterscale/otterscale/web
     tag: ""
-    pullPolicy: IfNotPresent
   
   replicas: 1
-  podAnnotations: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
+  
+  # Override global settings if needed
+  # podAnnotations: {}
+  # nodeSelector: {}
+  # tolerations: []
+  # affinity: {}
   
   # Service port configuration
   # Corresponds to WEB_PORT in environment configuration
@@ -135,53 +143,12 @@ otterscaleWeb:
       memory: "256Mi"
       cpu: "200m"
   
-  
-  # Environment variables for OtterScale Web
   env:
-    # Public URL for the web application
-    # Corresponds to PUBLIC_URL in environment configuration
-    # Must match the actual URL users will use to access the application
-    publicUrl: "http://192.168.0.0/"
-    
-    # Public API URL for backend service
-    # Corresponds to PUBLIC_API_URL in environment configuration
-    # Must include protocol (http/https) and port number
-    publicApiUrl: "http://192.168.0.0/api"
-    
-    # Secret key for authentication (generate a strong random string)
-    # Corresponds to AUTH_SECRET in environment configuration
-    # IMPORTANT: Generate with: openssl rand -base64 32
-    # Example: openssl rand -base64 32
-    authSecret: "please_change_this_to_a_secure_random_string"
-    
-    # Comma-separated list of trusted authentication providers
-    # Corresponds to AUTH_TRUSTED_PROVIDERS in environment configuration
-    # Example: "github,google,oidc"
-    authTrustedProviders: "otterscale,otterscale-oidc"
-    
-    # OIDC provider identifier
-    # Corresponds to AUTH_OIDC_PROVIDER in environment configuration
-    # Example: https://accounts.google.com
-    authOidcProvider: "otterscale-oidc"
-    
-    # GitHub OAuth application client ID
-    # Corresponds to GITHUB_CLIENT_ID in environment configuration
-    # Get this from GitHub Developer Settings > OAuth Apps
-    githubClientId: ""
-    
-    # GitHub OAuth application client secret
-    # Corresponds to GITHUB_CLIENT_SECRET in environment configuration
-    # Get this from GitHub Developer Settings > OAuth Apps
-    githubClientSecret: ""
-    
-    # GitHub personal access token for API access (optional)
-    # Not in original env file - leave empty unless needed
-    githubAccessToken: ""
-    
-    # SSO login prompt
-    # Corresponds to SSO_LOGIN_PROMPT in environment configuration
-    # Set to "true" to enable SSO login interface
-    ssoLoginPrompt: "false"
+    publicWebUrl: ""
+    publicApiUrl: ""
+    keycloakRealmUrl: ""
+    keycloakClientID: ""
+    keycloakClientSecret: ""
 
 # -----------------------------------------------------------------------------
 # Docker Registry Configuration
@@ -194,7 +161,6 @@ dockerRegistry:
   image:
     repository: registry
     tag: "3"
-    pullPolicy: IfNotPresent
   
   # Number of replicas
   replicas: 1
@@ -223,17 +189,11 @@ dockerRegistry:
       memory: "512Mi"
       cpu: "500m"
   
-  # Pod annotations
-  podAnnotations: {}
-  
-  # Node selector
-  nodeSelector: {}
-  
-  # Tolerations
-  tolerations: []
-  
-  # Affinity rules
-  affinity: {}
+  # Override global settings if needed
+  # podAnnotations: {}
+  # nodeSelector: {}
+  # tolerations: []
+  # affinity: {}
   
   # Security context
   securityContext:
