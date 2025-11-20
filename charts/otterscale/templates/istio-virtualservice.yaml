@@ -2,7 +2,7 @@
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
 metadata:
-  name: {{ include "otterscale.fullname" . }}-web
+  name: {{ include "otterscale.fullname" . }}
   namespace: istio-system
   labels:
     {{- include "otterscale.labels" . | nindent 4 }}
@@ -13,6 +13,14 @@ spec:
   gateways:
     - {{ $.Values.istio.gateway.name }}
   http:
+    - match:
+      - uri:
+          prefix: /auth/
+      route:
+      - destination:
+          host: {{ include "otterscale.fullname" $ }}-keycloak.{{ .Release.Namespace }}.svc.cluster.local
+          port:
+            number: 80
     - match:
       - uri:
           prefix: /api/

@@ -21,12 +21,12 @@ spec:
         sidecar.istio.io/inject: "true"
         {{- end }}
       annotations:
-        checksum/secret: {{ include (print $.Template.BasePath "/postgres-secret.yaml") . | sha256sum }}
         {{- with .Values.otterscaleWeb.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
       # Init container to wait for PostgreSQL to be ready
+      {{- if .Values.postgresql.enabled }}
       initContainers:
         - name: wait-for-postgres
           image: postgres:15
@@ -34,17 +34,15 @@ spec:
             - sh
             - -c
             - |
-              until pg_isready -h {{ include "otterscale.fullname" . }}-postgres -p 5432 -U {{ .Values.postgres.user }}; do
+              until pg_isready -h {{ .Release.Name }}-postgresql -p 5432 -U {{ .Values.postgresql.auth.username }}; do
                 echo "Waiting for PostgreSQL to be ready..."
                 sleep 2
               done
               echo "PostgreSQL is ready!"
           env:
             - name: PGPASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "otterscale.fullname" . }}-postgres
-                  key: postgres-password
+              value: {{ .Values.postgresql.auth.postgresPassword | quote }}
+      {{- end }}
       containers:
         - name: otterscale-web
           image: "{{ .Values.otterscaleWeb.image.repository }}:{{ .Values.otterscaleWeb.image.tag | default .Values.appVersion }}"
@@ -54,26 +52,19 @@ spec:
               containerPort: 3000
               protocol: TCP
           env:
+            {{- if .Values.postgresql.enabled }}
             - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "otterscale.fullname" . }}-postgres
-                  key: postgres-url
+              value: {{ printf "postgresql://%s:%s@%s-postgresql:5432/%s" .Values.postgresql.auth.username .Values.postgresql.auth.password .Release.Name .Values.postgresql.auth.database | quote }}
             - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "otterscale.fullname" . }}-postgres
-                  key: postgres-user
+              value: {{ .Values.postgresql.auth.username | quote }}
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "otterscale.fullname" . }}-postgres
-                  key: postgres-password
+                  name: {{ .Release.Name }}-postgresql
+                  key: password
             - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "otterscale.fullname" . }}-postgres
-                  key: postgres-db
+              value: {{ .Values.postgresql.auth.database | quote }}
+            {{- end }}
             - name: PUBLIC_URL
               value: {{ .Values.otterscaleWeb.env.publicUrl | quote }}
             - name: PUBLIC_API_URL
