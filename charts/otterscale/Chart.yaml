@@ -15,7 +15,7 @@ maintainers:
 - email: terrywu25@gmail.com
   name: terry
 name: otterscale
-version: 0.1.6-dev2
+version: 0.1.7
 sources:
   - https://github.com/bitnami/charts/tree/main/bitnami/keycloak
   - https://github.com/bitnami/charts/tree/main/bitnami/postgresql
