@@ -77,9 +77,11 @@ otterscale:
   openfeature:
     sidecar:
       enabled: true
-    flagconfiguration: ""
+    # Name of the FeatureFlagSource resource
+    # This will be used in the pod annotation: openfeature.dev/featureflagsource
+    flagsource: "otterscale-flags"
     # Feature flag configurations
-    # Each entry will create a separate FeatureFlagConfiguration resource
+    # Each entry will create a separate FeatureFlag resource
     flags:
       # Example: Add more flag configurations as needed
       # default-flags:

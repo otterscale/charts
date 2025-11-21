@@ -24,7 +24,7 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/otterscale-configmap.yaml") . | sha256sum }}
         {{- if .Values.otterscale.openfeature.sidecar.enabled }}
         openfeature.dev/enabled: "true"
-        openfeature.dev/featureflagsource: {{ include "otterscale.fullname" . }}-feature-flag-source
+        openfeature.dev/featureflagsource: {{ .Values.otterscale.openfeature.flagsource }}
         {{- end }}
         {{- with .Values.otterscale.podAnnotations }}
         {{- toYaml . | nindent 8 }}
