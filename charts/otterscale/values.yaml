@@ -74,6 +74,24 @@ otterscale:
       memory: "512Mi"
       cpu: "500m"
 
+  openfeature:
+    sidecar:
+      enabled: true
+    flagconfiguration: ""
+    # Feature flag configurations
+    # Each entry will create a separate FeatureFlagConfiguration resource
+    flags:
+      # Example: Add more flag configurations as needed
+      # default-flags:
+      #   enabled: false
+      #   spec:
+      #     some-feature:
+      #       state: ENABLED
+      #       variants:
+      #         "on": true
+      #         "off": false
+      #       defaultVariant: "off"
+
 # -----------------------------------------------------------------------------
 # OtterScale Configuration File Content
 # -----------------------------------------------------------------------------
@@ -149,57 +167,6 @@ otterscaleWeb:
     keycloakRealmUrl: ""
     keycloakClientID: ""
     keycloakClientSecret: ""
-
-# -----------------------------------------------------------------------------
-# Docker Registry Configuration
-# -----------------------------------------------------------------------------
-dockerRegistry:
-  # Enable or disable Docker Registry deployment
-  enabled: true
-  
-  # Image configuration
-  image:
-    repository: registry
-    tag: "3"
-  
-  # Number of replicas
-  replicas: 1
-  
-  # Service configuration
-  service:
-    type: NodePort
-    port: 5000
-    nodePort: 32000
-    # Additional service annotations
-    annotations: {}
-  
-  # Storage configuration using hostPath
-  storage:
-    # Host path storage configuration for single-node deployment
-    # Registry data will be stored directly on the host node at the specified path
-    hostPath:
-      path: /usr/local/otterscale/registry
-  
-  # Resource limits and requests
-  resources:
-    requests:
-      memory: "256Mi"
-      cpu: "250m"
-    limits:
-      memory: "512Mi"
-      cpu: "500m"
-  
-  # Override global settings if needed
-  # podAnnotations: {}
-  # nodeSelector: {}
-  # tolerations: []
-  # affinity: {}
-  
-  # Security context
-  securityContext:
-    runAsNonRoot: false
-    runAsUser: 0
-    fsGroup: 0
 
 # -----------------------------------------------------------------------------
 # Istio Configuration

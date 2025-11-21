@@ -22,6 +22,10 @@ spec:
         {{- end }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/otterscale-configmap.yaml") . | sha256sum }}
+        {{- if .Values.otterscale.openfeature.sidecar.enabled }}
+        openfeature.dev/enabled: "true"
+        openfeature.dev/featureflagsource: {{ include "otterscale.fullname" . }}-feature-flag-source
+        {{- end }}
         {{- with .Values.otterscale.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -44,22 +48,22 @@ spec:
               mountPath: /etc/app/otterscale.yaml
               subPath: otterscale.yaml
               readOnly: true
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 3
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
-            initialDelaySeconds: 5
-            periodSeconds: 5
-            timeoutSeconds: 3
-            failureThreshold: 3
+          #livenessProbe:
+          #  httpGet:
+          #    path: /
+          #    port: http
+          #  initialDelaySeconds: 30
+          #  periodSeconds: 10
+          #  timeoutSeconds: 5
+          #  failureThreshold: 3
+          #readinessProbe:
+          #  httpGet:
+          #    path: /
+          #    port: http
+          #  initialDelaySeconds: 5
+          #  periodSeconds: 5
+          #  timeoutSeconds: 3
+          #  failureThreshold: 3
           resources:
             {{- toYaml .Values.otterscale.resources | nindent 12 }}
       volumes:

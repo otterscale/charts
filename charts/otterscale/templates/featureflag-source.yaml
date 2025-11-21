@@ -1,0 +1,19 @@
+{{- if .Values.otterscale.openfeature.sidecar.enabled }}
+apiVersion: core.openfeature.dev/v1beta1
+kind: FeatureFlagSource
+metadata:
+  name: {{ include "otterscale.fullname" . }}-feature-flag-source
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+    app.kubernetes.io/component: openfeature
+spec:
+  sources:
+    {{- range $name, $config := .Values.otterscale.openfeature.flags }}
+    {{- if $config.enabled }}
+    - source: {{ $name }}
+      provider: kubernetes
+    {{- end }}
+    {{- end }}
+  port: 8013
+{{- end }}
