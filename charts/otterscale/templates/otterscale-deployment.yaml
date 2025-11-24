@@ -1,3 +1,4 @@
+{{- include "otterscale.validateValues" . }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -36,7 +37,7 @@ spec:
       {{- end }}
       containers:
         - name: otterscale
-          image: "{{ .Values.otterscale.image.repository }}:{{ .Values.otterscale.image.tag | default .Values.appVersion }}"
+          image: {{ include "otterscale.image" (dict "image" .Values.otterscale.image "defaultTag" .Values.appVersion) }}
           imagePullPolicy: {{ include "otterscale.imagePullPolicy" (dict "pullPolicy" .Values.otterscale.image.pullPolicy "global" .Values.global) }}
           {{- if .Values.openfeature.sidecar.enabled }}
           command: ["/bin/sh", "-c"]
@@ -76,27 +77,21 @@ spec:
             - name: http
               containerPort: 8299
               protocol: TCP
+          {{- if or .Values.otterscale.env .Values.otterscale.envFrom }}
+          {{- with .Values.otterscale.env }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.otterscale.envFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- end }}
           volumeMounts:
             - name: config
               mountPath: /etc/app/otterscale.yaml
               subPath: otterscale.yaml
               readOnly: true
-          #livenessProbe:
-          #  httpGet:
-          #    path: /
-          #    port: http
-          #  initialDelaySeconds: 30
-          #  periodSeconds: 10
-          #  timeoutSeconds: 5
-          #  failureThreshold: 3
-          #readinessProbe:
-          #  httpGet:
-          #    path: /
-          #    port: http
-          #  initialDelaySeconds: 5
-          #  periodSeconds: 5
-          #  timeoutSeconds: 3
-          #  failureThreshold: 3
           resources:
             {{- toYaml .Values.otterscale.resources | nindent 12 }}
       volumes:

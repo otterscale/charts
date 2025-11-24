@@ -20,3 +20,6 @@ spec:
       port: {{ .Values.otterscale.service.port }}
       targetPort: {{ .Values.otterscale.service.targetPort }}
       protocol: TCP
+      {{- if and (eq .Values.otterscale.service.type "NodePort") .Values.otterscale.service.nodePort }}
+      nodePort: {{ .Values.otterscale.service.nodePort }}
+      {{- end }}

@@ -31,13 +31,11 @@ spec:
     spec:
       {{- if .Values.postgresql.enabled }}
       initContainers:
-        {{- if .Values.postgresql.enabled }}
         {{- include "otterscale.postgresql.waitInitContainer" . | nindent 8 }}
-        {{- end }}
       {{- end }}
       containers:
         - name: otterscale-web
-          image: "{{ .Values.otterscaleWeb.image.repository }}:{{ .Values.otterscaleWeb.image.tag | default .Values.appVersion }}"
+          image: {{ include "otterscale.image" (dict "image" .Values.otterscaleWeb.image "defaultTag" .Values.appVersion) }}
           imagePullPolicy: {{ include "otterscale.imagePullPolicy" (dict "pullPolicy" .Values.otterscaleWeb.image.pullPolicy "global" .Values.global) }}
           ports:
             - name: http
@@ -62,22 +60,13 @@ spec:
               value: {{ .Values.otterscaleWeb.env.keycloakClientID | quote }}
             - name: KEYCLOAK_CLIENT_SECRET
               value: {{ .Values.otterscaleWeb.env.keycloakClientSecret | quote }}
-          #livenessProbe:
-          #  httpGet:
-          #    path: /
-          #    port: http
-          #  initialDelaySeconds: 30
-          #  periodSeconds: 10
-          #  timeoutSeconds: 5
-          #  failureThreshold: 3
-          #readinessProbe:
-          #  httpGet:
-          #    path: /
-          #    port: http
-          #  initialDelaySeconds: 5
-          #  periodSeconds: 5
-          #  timeoutSeconds: 3
-          #  failureThreshold: 3
+            {{- with .Values.otterscaleWeb.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- with .Values.otterscaleWeb.envFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           resources:
             {{- toYaml .Values.otterscaleWeb.resources | nindent 12 }}
       {{- with include "otterscale.nodeSelector" (dict "component" .Values.otterscaleWeb "global" .Values.global) }}

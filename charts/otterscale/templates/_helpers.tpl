@@ -67,6 +67,17 @@ Get image pull policy from component or global
 {{- end }}
 
 {{/*
+Generate full image name
+Usage: include "otterscale.image" (dict "image" .Values.otterscale.image "defaultTag" .Values.appVersion)
+*/}}
+{{- define "otterscale.image" -}}
+{{- $tag := .image.tag | default .defaultTag | default "latest" }}
+{{- printf "%s:%s" .image.repository $tag }}
+{{- end }}
+
+
+
+{{/*
 Get podAnnotations from component or global
 */}}
 {{- define "otterscale.podAnnotations" -}}
@@ -106,6 +117,8 @@ Get affinity from component or global
 {{- end }}
 {{- end }}
 
+
+
 {{/*
 PostgreSQL wait initContainer
 */}}
@@ -124,4 +137,16 @@ PostgreSQL wait initContainer
   env:
     - name: PGPASSWORD
       value: {{ .Values.postgresql.auth.postgresPassword | quote }}
+{{- end }}
+
+{{/*
+Validate required values
+*/}}
+{{- define "otterscale.validateValues" -}}
+{{- if and .Values.postgresql.enabled (not .Values.postgresql.auth.password) }}
+{{- fail "PostgreSQL password is required when PostgreSQL is enabled. Please set postgresql.auth.password" }}
+{{- end }}
+{{- if and .Values.keycloak.enabled (not .Values.keycloak.auth.adminPassword) }}
+{{- fail "Keycloak admin password is required when Keycloak is enabled. Please set keycloak.auth.adminPassword" }}
+{{- end }}
 {{- end }}
