@@ -20,6 +20,6 @@ spec:
       port: {{ .Values.otterscaleWeb.service.port }}
       targetPort: {{ .Values.otterscaleWeb.service.targetPort }}
       protocol: TCP
-      {{- if eq .Values.otterscaleWeb.service.type "NodePort" }}
+      {{- if and (eq .Values.otterscaleWeb.service.type "NodePort") .Values.otterscaleWeb.service.nodePort }}
       nodePort: {{ .Values.otterscaleWeb.service.nodePort }}
       {{- end }}

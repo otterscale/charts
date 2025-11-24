@@ -1,3 +1,4 @@
+{{- include "otterscale.validateValues" . }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -22,37 +23,70 @@ spec:
         {{- end }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/otterscale-configmap.yaml") . | sha256sum }}
+        {{- if .Values.openfeature.sidecar.enabled }}
+        openfeature.dev/enabled: "true"
+        openfeature.dev/featureflagsource: {{ .Values.openfeature.flagsource }}
+        {{- end }}
         {{- with .Values.otterscale.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      # Init container to wait for PostgreSQL to be ready
       {{- if .Values.postgresql.enabled }}
       initContainers:
-        - name: wait-for-postgres
-          image: postgres:15
-          command:
-            - sh
-            - -c
-            - |
-              until pg_isready -h {{ .Release.Name }}-postgresql -p 5432 -U {{ .Values.postgresql.auth.username }}; do
-                echo "Waiting for PostgreSQL to be ready..."
-                sleep 2
-              done
-              echo "PostgreSQL is ready!"
-          env:
-            - name: PGPASSWORD
-              value: {{ .Values.postgresql.auth.postgresPassword | quote }}
+        {{- include "otterscale.postgresql.waitInitContainer" . | nindent 8 }}
       {{- end }}
       containers:
         - name: otterscale
-          image: "{{ .Values.otterscale.image.repository }}:{{ .Values.otterscale.image.tag | default .Values.appVersion }}"
-          imagePullPolicy: {{ .Values.otterscale.image.pullPolicy }}
+          image: {{ include "otterscale.image" (dict "image" .Values.otterscale.image "defaultTag" .Values.appVersion) }}
+          imagePullPolicy: {{ include "otterscale.imagePullPolicy" (dict "pullPolicy" .Values.otterscale.image.pullPolicy "global" .Values.global) }}
+          {{- if .Values.openfeature.sidecar.enabled }}
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              echo "Waiting for flagd sidecar to be ready..."
+              max_attempts=30
+              attempt=0
+              while [ $attempt -lt $max_attempts ]; do
+                # Try to connect to flagd using /dev/tcp (works in most shells)
+                if timeout 1 sh -c "echo > /dev/tcp/localhost/8013" 2>/dev/null; then
+                  echo "flagd is ready!"
+                  break
+                fi
+                # Fallback: check if port is listening using netstat if available
+                if command -v netstat >/dev/null 2>&1; then
+                  if netstat -tln 2>/dev/null | grep -q ":8013 "; then
+                    echo "flagd is ready (detected via netstat)!"
+                    break
+                  fi
+                fi
+                # Another fallback: just wait a reasonable time
+                if [ $attempt -ge 10 ]; then
+                  echo "Waited 20 seconds, assuming flagd is ready..."
+                  break
+                fi
+                attempt=$((attempt + 1))
+                echo "Attempt $attempt/$max_attempts: flagd not ready yet, waiting..."
+                sleep 2
+              done
+              echo "Starting otterscale service..."
+              exec /app/otterscale serve
+          {{- else }}
           command: ["/app/otterscale", "serve"]
+          {{- end }}
           ports:
             - name: http
               containerPort: 8299
               protocol: TCP
+          {{- if or .Values.otterscale.env .Values.otterscale.envFrom }}
+          {{- with .Values.otterscale.env }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.otterscale.envFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- end }}
           volumeMounts:
             - name: config
               mountPath: /etc/app/otterscale.yaml
@@ -64,15 +98,15 @@ spec:
         - name: config
           configMap:
             name: {{ include "otterscale.fullname" . }}-config
-      {{- with .Values.otterscale.nodeSelector }}
+      {{- with include "otterscale.nodeSelector" (dict "component" .Values.otterscale "global" .Values.global) }}
       nodeSelector:
-        {{- toYaml . | nindent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}
-      {{- with .Values.otterscale.affinity }}
+      {{- with include "otterscale.affinity" (dict "component" .Values.otterscale "global" .Values.global) }}
       affinity:
-        {{- toYaml . | nindent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}
-      {{- with .Values.otterscale.tolerations }}
+      {{- with include "otterscale.tolerations" (dict "component" .Values.otterscale "global" .Values.global) }}
       tolerations:
-        {{- toYaml . | nindent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}

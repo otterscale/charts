@@ -5,6 +5,14 @@
 # Modify these values according to your environment and requirements.
 
 # -----------------------------------------------------------------------------
+# Chart Naming
+# -----------------------------------------------------------------------------
+# Override the chart name used in labels and resource names
+nameOverride: ""
+# Override the fully qualified app name
+fullnameOverride: ""
+
+# -----------------------------------------------------------------------------
 # Global Settings
 # -----------------------------------------------------------------------------
 global:
@@ -12,12 +20,18 @@ global:
   # Options: Always, IfNotPresent, Never
   imagePullPolicy: IfNotPresent
   
+  # Common pod configurations (can be overridden per component)
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  
 # -----------------------------------------------------------------------------
 # Application Version
 # -----------------------------------------------------------------------------
 # Version tag for OtterScale service and web images
 # This corresponds to APP_VERSION in the environment configuration
-appVersion: latest
+appVersion: 0.6.0-alpha.3
 
 # -----------------------------------------------------------------------------
 # OtterScale PostgreSQL Database Configuration (Bitnami)
@@ -42,22 +56,34 @@ otterscale:
   image:
     repository: ghcr.io/otterscale/otterscale/service
     tag: ""
-    pullPolicy: IfNotPresent
+    pullPolicy: ""
   
   replicas: 1
+  
+  # Override global settings if needed
   podAnnotations: {}
   nodeSelector: {}
   tolerations: []
   affinity: {}
   
   # Service port configuration
-  # Corresponds to SERVICE_PORT in environment configuration
   service:
     type: ClusterIP
     port: 8299
     targetPort: 8299
-    # Additional service annotations
     annotations: {}
+    # NodePort (only used if type is NodePort)
+    nodePort: ""
+  
+  # Additional environment variables
+  env: []
+  # - name: CUSTOM_VAR
+  #   value: "value"
+  
+  # Environment variables from secrets or configmaps
+  envFrom: []
+  # - secretRef:
+  #     name: my-secret
   
   resources:
     requests:
@@ -66,6 +92,26 @@ otterscale:
     limits:
       memory: "512Mi"
       cpu: "500m"
+
+openfeature:
+  sidecar:
+    enabled: true
+  # Name of the FeatureFlagSource resource
+  # This will be used in the pod annotation: openfeature.dev/featureflagsource
+  flagsource: "otterscale-flags"
+  # Feature flag configurations
+  # Each entry will create a separate FeatureFlag resource
+  flags:
+    # Example: Add more flag configurations as needed
+    # default-flags:
+    #   enabled: false
+    #   spec:
+    #     some-feature:
+    #       state: ENABLED
+    #       variants:
+    #         "on": true
+    #         "off": false
+    #       defaultVariant: "off"
 
 # -----------------------------------------------------------------------------
 # OtterScale Configuration File Content
@@ -109,21 +155,21 @@ otterscaleWeb:
   image:
     repository: ghcr.io/otterscale/otterscale/web
     tag: ""
-    pullPolicy: IfNotPresent
+    pullPolicy: ""
   
   replicas: 1
+  
+  # Override global settings if needed
   podAnnotations: {}
   nodeSelector: {}
   tolerations: []
   affinity: {}
   
   # Service port configuration
-  # Corresponds to WEB_PORT in environment configuration
   service:
     type: ClusterIP
     port: 3000
     targetPort: 3000
-    # Additional service annotations
     annotations: {}
     nodePort: ""
   
@@ -135,122 +181,32 @@ otterscaleWeb:
       memory: "256Mi"
       cpu: "200m"
   
-  
-  # Environment variables for OtterScale Web
+  # Application environment variables
   env:
-    # Public URL for the web application
-    # Corresponds to PUBLIC_URL in environment configuration
-    # Must match the actual URL users will use to access the application
-    publicUrl: "http://192.168.0.0/"
-    
-    # Public API URL for backend service
-    # Corresponds to PUBLIC_API_URL in environment configuration
-    # Must include protocol (http/https) and port number
-    publicApiUrl: "http://192.168.0.0/api"
-    
-    # Secret key for authentication (generate a strong random string)
-    # Corresponds to AUTH_SECRET in environment configuration
-    # IMPORTANT: Generate with: openssl rand -base64 32
-    # Example: openssl rand -base64 32
-    authSecret: "please_change_this_to_a_secure_random_string"
-    
-    # Comma-separated list of trusted authentication providers
-    # Corresponds to AUTH_TRUSTED_PROVIDERS in environment configuration
-    # Example: "github,google,oidc"
-    authTrustedProviders: "otterscale,otterscale-oidc"
-    
-    # OIDC provider identifier
-    # Corresponds to AUTH_OIDC_PROVIDER in environment configuration
-    # Example: https://accounts.google.com
-    authOidcProvider: "otterscale-oidc"
-    
-    # GitHub OAuth application client ID
-    # Corresponds to GITHUB_CLIENT_ID in environment configuration
-    # Get this from GitHub Developer Settings > OAuth Apps
-    githubClientId: ""
-    
-    # GitHub OAuth application client secret
-    # Corresponds to GITHUB_CLIENT_SECRET in environment configuration
-    # Get this from GitHub Developer Settings > OAuth Apps
-    githubClientSecret: ""
-    
-    # GitHub personal access token for API access (optional)
-    # Not in original env file - leave empty unless needed
-    githubAccessToken: ""
-    
-    # SSO login prompt
-    # Corresponds to SSO_LOGIN_PROMPT in environment configuration
-    # Set to "true" to enable SSO login interface
-    ssoLoginPrompt: "false"
-
-# -----------------------------------------------------------------------------
-# Docker Registry Configuration
-# -----------------------------------------------------------------------------
-dockerRegistry:
-  # Enable or disable Docker Registry deployment
-  enabled: true
+    publicWebUrl: ""
+    publicApiUrl: ""
+    keycloakRealmUrl: ""
+    keycloakClientID: ""
+    keycloakClientSecret: ""
   
-  # Image configuration
-  image:
-    repository: registry
-    tag: "3"
-    pullPolicy: IfNotPresent
+  # Additional environment variables
+  extraEnv: []
+  # - name: CUSTOM_VAR
+  #   value: "value"
   
-  # Number of replicas
-  replicas: 1
-  
-  # Service configuration
-  service:
-    type: NodePort
-    port: 5000
-    nodePort: 32000
-    # Additional service annotations
-    annotations: {}
-  
-  # Storage configuration using hostPath
-  storage:
-    # Host path storage configuration for single-node deployment
-    # Registry data will be stored directly on the host node at the specified path
-    hostPath:
-      path: /usr/local/otterscale/registry
-  
-  # Resource limits and requests
-  resources:
-    requests:
-      memory: "256Mi"
-      cpu: "250m"
-    limits:
-      memory: "512Mi"
-      cpu: "500m"
-  
-  # Pod annotations
-  podAnnotations: {}
-  
-  # Node selector
-  nodeSelector: {}
-  
-  # Tolerations
-  tolerations: []
-  
-  # Affinity rules
-  affinity: {}
-  
-  # Security context
-  securityContext:
-    runAsNonRoot: false
-    runAsUser: 0
-    fsGroup: 0
+  # Environment variables from secrets or configmaps
+  envFrom: []
+  # - secretRef:
+  #     name: my-secret
 
 # -----------------------------------------------------------------------------
 # Istio Configuration
 # -----------------------------------------------------------------------------
 istio:
   # Enable or disable Istio integration
-  # When enabled, will install Istio base + istiod via Helm dependencies
   enabled: true
   
   # Automatic sidecar injection
-  # If true, enables automatic sidecar injection for the namespace
   sidecarInjection:
     enabled: true
 
@@ -286,22 +242,11 @@ istio:
   virtualService:
     enabled: true
 
-  # Destination rules for traffic policies (optional)
-  destinationRule:
-    enabled: false
-    # Connection pool settings
-    connectionPool:
-      tcp:
-        maxConnections: 100
-      http:
-        http1MaxPendingRequests: 100
-        http2MaxRequests: 100
-    # Outlier detection for circuit breaking
-    outlierDetection:
-      consecutiveErrors: 5
-      interval: 30s
-      baseEjectionTime: 30s
-      maxEjectionPercent: 50
+  # Cookie Secure flag override for HTTP-only environments
+  # WARNING: Only enable this for development/testing with HTTP
+  # In production, use HTTPS instead
+  cookieSecureOverride:
+    enabled: true
 
 # -----------------------------------------------------------------------------
 # Keycloak Configuration
