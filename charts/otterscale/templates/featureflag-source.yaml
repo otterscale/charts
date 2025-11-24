@@ -1,18 +1,14 @@
-{{- if .Values.otterscale.openfeature.sidecar.enabled }}
+{{- if .Values.openfeature.sidecar.enabled }}
 apiVersion: core.openfeature.dev/v1beta1
 kind: FeatureFlagSource
 metadata:
-  name: {{ .Values.otterscale.openfeature.flagsource }}
+  name: {{ .Values.openfeature.flagsource }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "otterscale.labels" . | nindent 4 }}
     app.kubernetes.io/component: openfeature
 spec:
   sources:
-    {{- range $name, $config := .Values.otterscale.openfeature.flags }}
-    {{- if $config.enabled }}
-    - source: {{ $.Release.Namespace }}/{{ $name }}
+    - source: {{ .Release.Namespace }}/otterscale-flags
       provider: kubernetes
-    {{- end }}
-    {{- end }}
 {{- end }}

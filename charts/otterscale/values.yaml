@@ -74,25 +74,25 @@ otterscale:
       memory: "512Mi"
       cpu: "500m"
 
-  openfeature:
-    sidecar:
-      enabled: true
-    # Name of the FeatureFlagSource resource
-    # This will be used in the pod annotation: openfeature.dev/featureflagsource
-    flagsource: "otterscale-flags"
-    # Feature flag configurations
-    # Each entry will create a separate FeatureFlag resource
-    flags:
-      # Example: Add more flag configurations as needed
-      # default-flags:
-      #   enabled: false
-      #   spec:
-      #     some-feature:
-      #       state: ENABLED
-      #       variants:
-      #         "on": true
-      #         "off": false
-      #       defaultVariant: "off"
+openfeature:
+  sidecar:
+    enabled: true
+  # Name of the FeatureFlagSource resource
+  # This will be used in the pod annotation: openfeature.dev/featureflagsource
+  flagsource: "otterscale-flags"
+  # Feature flag configurations
+  # Each entry will create a separate FeatureFlag resource
+  flags:
+    # Example: Add more flag configurations as needed
+    # default-flags:
+    #   enabled: false
+    #   spec:
+    #     some-feature:
+    #       state: ENABLED
+    #       variants:
+    #         "on": true
+    #         "off": false
+    #       defaultVariant: "off"
 
 # -----------------------------------------------------------------------------
 # OtterScale Configuration File Content
@@ -231,6 +231,12 @@ istio:
       interval: 30s
       baseEjectionTime: 30s
       maxEjectionPercent: 50
+
+  # Cookie Secure flag override for HTTP-only environments
+  # WARNING: Only enable this for development/testing with HTTP
+  # In production, use HTTPS instead
+  cookieSecureOverride:
+    enabled: true
 
 # -----------------------------------------------------------------------------
 # Keycloak Configuration
