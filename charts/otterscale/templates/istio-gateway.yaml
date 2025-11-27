@@ -8,7 +8,7 @@ metadata:
     {{- include "otterscale.labels" . | nindent 4 }}
 spec:
   selector:
-    istio: ingressgateway
+    istio: istiod-ingress
   servers:
     {{- toYaml .Values.istio.gateway.servers | nindent 4 }}
 {{- end }}
