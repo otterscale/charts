@@ -15,8 +15,8 @@ maintainers:
 - email: terrywu25@gmail.com
   name: terry
 name: otterscale
-version: 0.1.8
-appVersion: "0.6.0-alpha.3"
+version: 0.1.7
+appVersion: "0.6.0-alpha.10"
 sources:
   - https://github.com/otterscale/charts
 home: https://github.com/otterscale
