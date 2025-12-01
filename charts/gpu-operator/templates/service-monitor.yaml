@@ -16,12 +16,13 @@ spec:
     matchNames:
     - {{ .Release.Namespace }}
   endpoints:
-  - honorLabels: true
+  - honorLabels: false
+    honorTimestamps: false
     port: monitorport
     path: /metrics
     interval: {{ .Values.hami.prometheus.serviceMonitor.interval | default "15s" }}
     scrapeTimeout: {{ .Values.hami.prometheus.serviceMonitor.scrapeTimeout | default "15s" }}
-  - honorLabels: true
+  - honorLabels: false
     port: monitor
     path: /metrics
     interval: {{ .Values.hami.prometheus.serviceMonitor.interval | default "15s" }}
