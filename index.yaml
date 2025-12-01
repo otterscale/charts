@@ -2,6 +2,33 @@ apiVersion: v1
 entries:
   gpu-operator:
   - apiVersion: v2
+    created: "2025-12-01T09:18:01.372729489Z"
+    dependencies:
+    - condition: gpu-operator.enabled
+      name: gpu-operator
+      repository: ""
+      version: v25.3.2
+    - condition: hami.enabled
+      name: hami
+      repository: ""
+      version: 2.6.1
+    description: GPU operator
+    digest: b5d891946c6c4f343fc3b298e57d8ff36473981aeb51dd024ca6ed1caad5f361
+    keywords:
+    - vgpu
+    - gpu
+    - compute
+    kubeVersion: '>= 1.30.0'
+    maintainers:
+    - email: bryant_chu@phison.com
+      name: infra-team
+    - email: terry_wu@phison.com
+      name: terry
+    name: gpu-operator
+    urls:
+    - https://github.com/otterscale/charts/releases/download/gpu-operator-1.0.6/gpu-operator-1.0.6.tgz
+    version: 1.0.6
+  - apiVersion: v2
     created: "2025-10-31T03:25:10.462956647Z"
     dependencies:
     - condition: gpu-operator.enabled
@@ -61,6 +88,16 @@ entries:
     - https://github.com/otterscale/charts/releases/download/infra-0.1.0/infra-0.1.0.tgz
     version: 0.1.0
   kubevirt-infra:
+  - apiVersion: v2
+    appVersion: "1.0"
+    created: "2025-12-01T09:18:01.676479135Z"
+    description: A Helm chart to install KubeVirt
+    digest: b384cfa0007dc91b1fa17255bba42df0931b2cb7cacfaa7bf62dcd786e599688
+    name: kubevirt-infra
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/kubevirt-infra-0.1.1/kubevirt-infra-0.1.1.tgz
+    version: 0.1.1
   - apiVersion: v2
     appVersion: "1.0"
     created: "2025-10-31T03:25:10.790657413Z"
@@ -254,4 +291,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/samba-operator-0.1.0/samba-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2025-11-27T12:26:00.358229967Z"
+generated: "2025-12-01T09:18:01.67650451Z"
