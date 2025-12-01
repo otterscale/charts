@@ -4,6 +4,7 @@ metadata:
   name: {{ include "registry.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
+    otterscale.com/type: registry
     {{- include "registry.labels" . | nindent 4 }}
     {{- with .Values.dockerRegistry.labels }}
     {{- toYaml . | nindent 4 }}
@@ -15,19 +16,17 @@ metadata:
 spec:
   type: {{ .Values.dockerRegistry.service.type }}
   ports:
-    - port: {{ .Values.dockerRegistry.service.port }}
+    - port: 5000
       targetPort: http
       protocol: TCP
       name: http
       {{- if and (eq .Values.dockerRegistry.service.type "NodePort") .Values.dockerRegistry.service.nodePort }}
       nodePort: {{ .Values.dockerRegistry.service.nodePort }}
       {{- end }}
-      {{- if .Values.dockerRegistry.metrics.enabled }}
-    - port: {{ .Values.dockerRegistry.metrics.port }}
+    - port: 5001
       targetPort: metrics
       protocol: TCP
       name: metrics
-    {{- end }}
   selector:
     {{- include "registry.selectorLabels" . | nindent 4 }}
     {{- with .Values.dockerRegistry.labels }}

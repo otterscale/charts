@@ -1,9 +1,9 @@
-{{- if .Values.dockerRegistry.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ include "registry.fullname" . }}-config
   labels:
+    otterscale.com/type: registry
     {{- include "registry.labels" . | nindent 4 }}
 data:
   config.yml: |
@@ -13,23 +13,19 @@ data:
         service: registry
       level: info
     http:
-      addr: :{{ .Values.dockerRegistry.service.port }}
+      addr: 5000
       headers:
         X-Content-Type-Options: [nosniff]
-      {{- if .Values.dockerRegistry.metrics.enabled }}
       debug:
-        addr: :{{ .Values.dockerRegistry.metrics.port }}
+        addr: 5001
         prometheus:
           enabled: true
           path: /metrics
-      {{- end }}
     storage:
-      {{ .Values.dockerRegistry.storage }}:
+      filesystem:
         rootdirectory: /var/lib/registry
     delete:
       enabled: true
     otel:
       traces:
         exporter: none
-
-{{- end }}

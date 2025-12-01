@@ -3,17 +3,16 @@ kind: Deployment
 metadata:
   name: {{ include "registry.fullname" . }}
   labels:
+    otterscale.com/type: registry
     {{- include "registry.labels" . | nindent 4 }}
     {{- with .Values.dockerRegistry.labels }} 
     {{- toYaml . | nindent 4 }}
     {{- end }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.dockerRegistry.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
-      {{- include "registry.selectorLabels" . | nindent 6 }}
+      otterscale.com/type: registry
   template:
     metadata:
       {{- with .Values.dockerRegistry.podAnnotations }}
@@ -21,76 +20,74 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
+        otterscale.com/type: registry
         {{- include "registry.labels" . | nindent 8 }}
         {{- with .Values.dockerRegistry.labels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      {{- with .Values.dockerRegistry.securityContext }}
       securityContext:
-        {{- omit . "enabled" | toYaml | nindent 8 }}
-      {{- end }}
+        fsGroup: 1000
       containers:
         - name: registry
-          {{- with .Values.dockerRegistry.containerSecurityContext }}
           securityContext:
-            {{- omit . "enabled" | toYaml | nindent 12 }}
-          {{- end }}
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
           image: "{{ .Values.dockerRegistry.image.repository }}:{{ .Values.dockerRegistry.image.tag }}"
-          imagePullPolicy: {{ .Values.dockerRegistry.image.pullPolicy }}
+          imagePullPolicy: IfNotPresent
           env:
             - name: REGISTRY_STORAGE
-              value: {{ .Values.dockerRegistry.storage | quote }}
+              value: filesystem
           {{- with .Values.dockerRegistry.extraEnv }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
-
           ports:
             - name: http
-              containerPort: {{ .Values.dockerRegistry.service.port }}
+              containerPort: 5000
               protocol: TCP
-            {{- if .Values.dockerRegistry.metrics.enabled }}
             - name: metrics
-              containerPort: {{ .Values.dockerRegistry.metrics.port }}
+              containerPort: 5001
               protocol: TCP
-            {{- end }}
-          {{- with .Values.dockerRegistry.livenessProbe }}
           livenessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.dockerRegistry.readinessProbe }}
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 5
           readinessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
           {{- with .Values.dockerRegistry.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           volumeMounts:
-            {{- if .Values.dockerRegistry.persistence.enabled }}
             - name: registry-storage
               mountPath: /var/lib/registry 
             - name: config-volume
               mountPath: /etc/docker/registry 
               readOnly: true
-            {{- end }}
       volumes:
-        {{- if .Values.dockerRegistry.persistence.enabled }}
         - name: registry-storage
           persistentVolumeClaim:
-            {{- if .Values.dockerRegistry.persistence.existingClaim }}
-            claimName: {{ .Values.dockerRegistry.persistence.existingClaim }}
-            {{- else }}
-            claimName: {{ include "registry.fullname" . }} 
-            {{- end }}
-        {{- end }}
+            claimName: {{ include "registry.fullname" . }}
         - name: config-volume
           configMap:
             name: {{ include "registry.fullname" . }}-config
             items:
               - key: config.yml
                 path: config.yml
-
       {{- with .Values.dockerRegistry.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
