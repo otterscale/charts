@@ -1,0 +1,25 @@
+{{- if .Values.kubevirt.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "kubevirt-infra.name" . }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: kubevirt
+      prometheus.kubevirt.io: "true"
+  endpoints:
+    - honorLabels: false
+      honorTimestamps: false
+      scheme: https
+      port: metrics
+      path: /metrics
+      interval: 15s
+      scrapeTimeout: 15s
+      tlsConfig:
+        insecureSkipVerify: true
+{{- end }}

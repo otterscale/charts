@@ -1,5 +1,7 @@
 commLabels: {}
 kubevirt:
-  version: "v1.6.2"   
+  version: "v1.6.2"
+  serviceMonitor:
+    enabled: false
 cdi:
-  version: "v1.63.1"   
+  version: "v1.63.1"
