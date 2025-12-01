@@ -1,0 +1,35 @@
+{{- if .Values.dockerRegistry.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "registry.fullname" . }}-config
+  labels:
+    {{- include "registry.labels" . | nindent 4 }}
+data:
+  config.yml: |
+    version: 0.1
+    log:
+      fields:
+        service: registry
+      level: info
+    http:
+      addr: :{{ .Values.dockerRegistry.service.port }}
+      headers:
+        X-Content-Type-Options: [nosniff]
+      {{- if .Values.dockerRegistry.metrics.enabled }}
+      debug:
+        addr: :{{ .Values.dockerRegistry.metrics.port }}
+        prometheus:
+          enabled: true
+          path: /metrics
+      {{- end }}
+    storage:
+      {{ .Values.dockerRegistry.storage }}:
+        rootdirectory: /var/lib/registry
+    delete:
+      enabled: true
+    otel:
+      traces:
+        exporter: none
+
+{{- end }}

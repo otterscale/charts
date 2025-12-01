@@ -1,0 +1,81 @@
+{{- if .Values.dockerRegistry.garbageCollect.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "registry.fullname" . }}-gc
+  labels:
+    {{- include "registry.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.dockerRegistry.garbageCollect.schedule | quote }}
+  concurrencyPolicy: Forbid
+  
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            {{- include "registry.selectorLabels" . | nindent 12 }}
+          {{- with .Values.dockerRegistry.garbageCollect.podLabels }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.dockerRegistry.garbageCollect.podAnnotations }}
+          annotations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        spec:
+          restartPolicy: OnFailure
+          
+          {{- with .Values.dockerRegistry.securityContext }}
+          securityContext:
+            {{- omit . | toYaml | nindent 12 }}
+          {{- end }}
+
+          containers:
+          - name: registry-gc
+            image: "{{ .Values.dockerRegistry.image.repository }}:{{ .Values.dockerRegistry.image.tag }}"
+            imagePullPolicy: {{ .Values.dockerRegistry.image.pullPolicy }}
+            
+            command:
+            - /bin/registry
+            - garbage-collect
+            - /etc/docker/registry/config.yml
+            {{- if .Values.dockerRegistry.garbageCollect.deleteUntagged }}
+            - --delete-untagged
+            {{- end }}
+            
+            env:
+              - name: REGISTRY_STORAGE
+                value: {{ .Values.dockerRegistry.storage | quote }}
+            {{- with .Values.dockerRegistry.extraEnv }}
+            {{- toYaml . | nindent 14 }}
+            {{- end }}
+            
+            {{- with .Values.dockerRegistry.garbageCollect.resources }}
+            resources:
+              {{- toYaml . | nindent 16 }}
+            {{- end }}
+            
+            volumeMounts:
+              {{- if .Values.dockerRegistry.persistence.enabled }}
+              - name: registry-storage
+                mountPath: /var/lib/registry
+              {{- end }}
+              - name: config-volume
+                mountPath: /etc/docker/registry
+                readOnly: true
+          
+          volumes:
+            {{- if .Values.dockerRegistry.persistence.enabled }}
+            - name: registry-storage
+              persistentVolumeClaim:
+                claimName: {{ include "registry.fullname" . }} 
+            {{- end }}
+            - name: config-volume
+              configMap:
+                name: {{ include "registry.fullname" . }}-config
+                items:
+                  - key: config.yml
+                    path: config.yml
+
+{{- end }}

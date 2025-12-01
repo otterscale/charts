@@ -1,0 +1,129 @@
+# Override the chart name used in labels and resource names
+nameOverride: ""
+# Override the fully qualified app name
+fullnameOverride: ""
+
+labels: 
+  otterscale.com/type: registry
+
+autoscaling:
+  enabled: false
+
+dockerRegistry:
+  # Enable or disable Docker Registry deployment
+  enabled: true
+
+  labels:
+    otterscale.com/type: registry
+
+  # Image configuration
+  image:
+    repository: registry
+    tag: "3"
+    pullPolicy: IfNotPresent
+
+  # Additional environment variables
+  extraEnv: 
+  # - name: CUSTOM_VAR
+  #   value: "value"
+
+  # Number of replicas
+  replicaCount: 1
+  
+  # Service configuration
+  service:
+    name: registry
+    type: NodePort
+    port: 5000
+    nodePort: 32000
+    # Additional service annotations
+    annotations: {}
+  
+  persistence:
+    enabled: true
+    #annotations: {}
+    ## A manually managed Persistent Volume and Claim
+    ## Requires persistence.enabled: true
+    ## If defined, PVC must be created manually before volume will be bound
+    existingClaim: ""
+
+    ## minio data Persistent Volume Storage Class
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    ##   GKE, AWS & OpenStack)
+    ##
+    ## Storage class of PV to bind. By default it looks for standard storage class.
+    ## If the PV uses a different storage class, specify that here.
+    storageClass: "ceph-ext4"
+    accessMode: ReadWriteOnce
+    size: 600Gi
+
+  storage: filesystem
+  
+  # Resource limits and requests
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+  livenessProbe:
+    httpGet:
+      path: /
+      port: 5000
+    initialDelaySeconds: 15
+    periodSeconds: 20
+    timeoutSeconds: 5
+  readinessProbe:
+    httpGet:
+      path: /
+      port: 5000
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+  
+  # Pod annotations
+  podAnnotations: {}
+  
+  # Node selector
+  nodeSelector: {}
+  
+  # Tolerations
+  tolerations: []
+  
+  # Affinity rules
+  affinity: {}
+  
+  # Security context
+  containerSecurityContext:
+    enabled: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    runAsNonRoot: true
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+
+  securityContext:
+    enabled: true
+    fsGroup: 1000
+
+  metrics:
+    enabled: false
+    port: 5001
+
+  garbageCollect:
+    enabled: false
+    deleteUntagged: true
+    schedule: "0 1 * * *"
+    podAnnotations: {}
+    podLabels: {}
+    resources: {}
+
+

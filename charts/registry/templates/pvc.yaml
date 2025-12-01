@@ -1,0 +1,26 @@
+{{- if and .Values.dockerRegistry.persistence.enabled (not .Values.dockerRegistry.persistence.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "registry.fullname" . }}
+  labels:
+    {{- include "registry.labels" . | nindent 4 }}
+    {{- with .Values.dockerRegistry.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.dockerRegistry.persistence.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    - {{ .Values.dockerRegistry.persistence.accessMode }}
+  
+  {{- if .Values.dockerRegistry.persistence.storageClass }}
+  storageClassName: {{ .Values.dockerRegistry.persistence.storageClass }}
+  {{- end }}
+  
+  resources:
+    requests:
+      storage: {{ .Values.dockerRegistry.persistence.size }}
+{{- end }}
