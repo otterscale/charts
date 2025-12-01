@@ -3,7 +3,7 @@ gpu-operator:
   enabled: true      
   driver:
     enabled: true
-    version: "570.148.08"
+    version: "580.95.05"
     ## kernelModuleType
     #auto: Default and recommended option.
     #open: Use the NVIDIA Open GPU kernel module driver.
