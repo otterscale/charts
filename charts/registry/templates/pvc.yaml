@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "registry.fullname" . }}
+  labels:
+    otterscale.com/type: registry
+    {{- include "registry.labels" . | nindent 4 }}
+    {{- with .Values.dockerRegistry.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.dockerRegistry.persistence.storageClass }}
+  resources:
+    requests:
+      storage: {{ .Values.dockerRegistry.persistence.size }}

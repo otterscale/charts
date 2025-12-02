@@ -1,0 +1,60 @@
+# Override the chart name used in labels and resource names
+nameOverride: ""
+# Override the fully qualified app name
+fullnameOverride: ""
+
+labels: 
+
+dockerRegistry:
+  labels:
+
+  # Image configuration
+  image:
+    repository: registry
+    tag: "3"
+
+  # Additional environment variables
+  extraEnv: []
+  # - name: CUSTOM_VAR
+  #   value: "value"
+
+  # Number of replicas
+  replicaCount: 1
+  
+  # Service configuration
+  service:
+    type: NodePort
+    nodePort: 32000
+    # Additional service annotations
+    annotations: {}
+  
+  persistence:
+    size: 600Gi
+    storageClass: "ceph-ext4"
+
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+  
+  # Pod annotations
+  podAnnotations: {}
+  
+  # Node selector
+  nodeSelector: {}
+  
+  # Tolerations
+  tolerations: []
+  
+  # Affinity rules
+  affinity: {}
+
+  garbageCollect:
+    podAnnotations: {}
+    podLabels: {}
+    resources: {}
+
+

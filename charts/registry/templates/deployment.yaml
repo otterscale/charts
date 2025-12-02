@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "registry.fullname" . }}
+  labels:
+    otterscale.com/type: registry
+    {{- include "registry.labels" . | nindent 4 }}
+    {{- with .Values.dockerRegistry.labels }} 
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: {{ .Values.dockerRegistry.replicaCount }}
+  selector:
+    matchLabels:
+      otterscale.com/type: registry
+  template:
+    metadata:
+      {{- with .Values.dockerRegistry.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        otterscale.com/type: registry
+        {{- include "registry.labels" . | nindent 8 }}
+        {{- with .Values.dockerRegistry.labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      securityContext:
+        fsGroup: 1000
+      containers:
+        - name: registry
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          image: "{{ .Values.dockerRegistry.image.repository }}:{{ .Values.dockerRegistry.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: REGISTRY_STORAGE
+              value: filesystem
+          {{- with .Values.dockerRegistry.extraEnv }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: 5000
+              protocol: TCP
+            - name: metrics
+              containerPort: 5001
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+          {{- with .Values.dockerRegistry.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: registry-storage
+              mountPath: /var/lib/registry 
+            - name: config-volume
+              mountPath: /etc/docker/registry 
+              readOnly: true
+      volumes:
+        - name: registry-storage
+          persistentVolumeClaim:
+            claimName: {{ include "registry.fullname" . }}
+        - name: config-volume
+          configMap:
+            name: {{ include "registry.fullname" . }}-config
+            items:
+              - key: config.yml
+                path: config.yml
+      {{- with .Values.dockerRegistry.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      {{- with .Values.dockerRegistry.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      {{- with .Values.dockerRegistry.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

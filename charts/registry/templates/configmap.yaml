@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "registry.fullname" . }}-config
+  labels:
+    otterscale.com/type: registry
+    {{- include "registry.labels" . | nindent 4 }}
+data:
+  config.yml: |
+    version: 0.1
+    log:
+      fields:
+        service: registry
+      level: info
+    http:
+      addr: 5000
+      headers:
+        X-Content-Type-Options: [nosniff]
+      debug:
+        addr: 5001
+        prometheus:
+          enabled: true
+          path: /metrics
+    storage:
+      filesystem:
+        rootdirectory: /var/lib/registry
+    delete:
+      enabled: true
+    otel:
+      traces:
+        exporter: none

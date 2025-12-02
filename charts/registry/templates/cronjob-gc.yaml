@@ -1,0 +1,66 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "registry.fullname" . }}-gc
+  labels:
+    otterscale.com/type: registry
+    {{- include "registry.labels" . | nindent 4 }}
+spec:
+  schedule: "0 1 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            {{- include "registry.selectorLabels" . | nindent 12 }}
+          {{- with .Values.dockerRegistry.garbageCollect.podLabels }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.dockerRegistry.garbageCollect.podAnnotations }}
+          annotations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        spec:
+          restartPolicy: OnFailure
+          securityContext:
+            fsGroup: 1000
+          containers:
+          - name: registry-gc
+            image: "{{ .Values.dockerRegistry.image.repository }}:{{ .Values.dockerRegistry.image.tag }}"
+            imagePullPolicy: IfNotPresent
+            command:
+            - /bin/registry
+            - garbage-collect
+            - /etc/docker/registry/config.yml
+            - --delete-untagged
+            env:
+              - name: REGISTRY_STORAGE
+                value: filesystem
+            {{- with .Values.dockerRegistry.extraEnv }}
+            {{- toYaml . | nindent 14 }}
+            {{- end }}
+            resources:
+              requests:
+                memory: "128Mi"
+                cpu: "250m"
+              limits:
+                memory: "512Mi"
+                cpu: "500m"
+            volumeMounts:
+              - name: registry-storage
+                mountPath: /var/lib/registry
+              - name: config-volume
+                mountPath: /etc/docker/registry
+                readOnly: true
+          volumes:
+            - name: registry-storage
+              persistentVolumeClaim:
+                claimName: {{ include "registry.fullname" . }} 
+            - name: config-volume
+              configMap:
+                name: {{ include "registry.fullname" . }}-config
+                items:
+                  - key: config.yml
+                    path: config.yml
