@@ -6,9 +6,6 @@ fullnameOverride: ""
 labels: 
 
 dockerRegistry:
-  # Enable or disable Docker Registry deployment
-  enabled: true
-
   labels:
 
   # Image configuration
