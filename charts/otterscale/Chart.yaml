@@ -1,31 +1,28 @@
 apiVersion: v2
-description: A Helm chart for OtterScale - Cloud infrastructure management platform
-keywords:
-- kubernetes
-- containers
-- virtualization
-- storage
-- gpu-management
-- maas
-- juju
-- ceph
-- aidaptiv-cache
-kubeVersion: '>= 1.30.0'
-maintainers:
-- email: terrywu25@gmail.com
-  name: terry
 name: otterscale
-version: 0.1.9
-appVersion: "0.6.0-alpha.10"
+# renovate: github=otterscale/otterscale
+version: 0.1.10
+appVersion: "v0.5.3"
+kubeVersion: ">= 1.30.0"
+description: A Helm chart for OtterScale - Cloud infrastructure management platform
+home: https://otterscale.github.io
+icon: https://github.com/otterscale.png
 sources:
-  - https://github.com/otterscale/charts
-home: https://github.com/otterscale
+  - https://github.com/otterscale/otterscale
+maintainers:
+  - name: terry
+    email: terrywu25@gmail.com
+  - name: Chung-Hsuan Tsai
+    email: paul_tsai@phison.com
+keywords:
+  - otterscale
+type: application
 dependencies:
-- condition: keycloak.enabled
-  repository: oci://registry-1.docker.io/bitnamicharts
-  name: keycloak
-  version: 25.x.x
-- condition: postgresql.enabled
-  name: postgresql
-  repository: oci://registry-1.docker.io/bitnamicharts
-  version: 16.x.x
+  - condition: keycloak.enabled
+    repository: oci://registry-1.docker.io/bitnamicharts
+    name: keycloak
+    version: 25.x.x
+  - condition: postgresql.enabled
+    name: postgresql
+    repository: oci://registry-1.docker.io/bitnamicharts
+    version: 16.x.x

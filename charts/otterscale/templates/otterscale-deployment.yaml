@@ -37,8 +37,8 @@ spec:
       {{- end }}
       containers:
         - name: otterscale
-          image: {{ include "otterscale.image" (dict "image" .Values.otterscale.image "defaultTag" .Values.appVersion) }}
-          imagePullPolicy: {{ include "otterscale.imagePullPolicy" (dict "pullPolicy" .Values.otterscale.image.pullPolicy "global" .Values.global) }}
+          image: "{{ tpl .Values.otterscale.image.repository . }}:{{ tpl .Values.otterscale.image.tag . | default .Chart.AppVersion}}"
+          imagePullPolicy: "{{ .Values.otterscale.image.pullPolicy }}"
           {{- if .Values.openfeature.sidecar.enabled }}
           command: ["/bin/sh", "-c"]
           args:

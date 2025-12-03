@@ -5,6 +5,7 @@ A Helm chart for deploying OtterScale - A comprehensive cloud infrastructure man
 ## Introduction
 
 OtterScale is a cloud infrastructure management platform that provides:
+
 - Kubernetes container orchestration
 - Virtualization management
 - Storage management
@@ -47,15 +48,15 @@ helm install otterscale ./otterscale \
 
 The following parameters must be configured in values.yaml or via `--set`:
 
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `postgresql.auth.password` | PostgreSQL password | `""` |
-| `postgresql.auth.postgresPassword` | PostgreSQL admin password | `""` |
-| `keycloak.auth.adminPassword` | Keycloak admin password | `""` |
-| `otterscaleWeb.env.publicWebUrl` | Frontend URL | `""` |
-| `otterscaleWeb.env.keycloakRealmUrl` | Keycloak Realm URL | `""` |
-| `otterscaleWeb.env.keycloakClientID` | Keycloak Client ID | `""` |
-| `otterscaleWeb.env.keycloakClientSecret` | Keycloak Client Secret | `""` |
+| Parameter                                | Description               | Default |
+| ---------------------------------------- | ------------------------- | ------- |
+| `postgresql.auth.password`               | PostgreSQL password       | `""`    |
+| `postgresql.auth.postgresPassword`       | PostgreSQL admin password | `""`    |
+| `keycloak.auth.adminPassword`            | Keycloak admin password   | `""`    |
+| `otterscaleWeb.env.publicWebUrl`         | Frontend URL              | `""`    |
+| `otterscaleWeb.env.keycloakRealmUrl`     | Keycloak Realm URL        | `""`    |
+| `otterscaleWeb.env.keycloakClientID`     | Keycloak Client ID        | `""`    |
+| `otterscaleWeb.env.keycloakClientSecret` | Keycloak Client Secret    | `""`    |
 
 ### Core Component Configuration
 
@@ -66,7 +67,7 @@ otterscale:
   replicas: 1
   image:
     repository: ghcr.io/otterscale/otterscale/service
-    tag: ""  # Uses appVersion as default
+    tag: "" # Uses appVersion as default
   resources:
     requests:
       memory: "256Mi"
@@ -75,9 +76,9 @@ otterscale:
       memory: "512Mi"
       cpu: "500m"
   service:
-    type: ClusterIP  # Options: ClusterIP, NodePort
+    type: ClusterIP # Options: ClusterIP, NodePort
     port: 8299
-    nodePort: ""  # Only used when type is NodePort
+    nodePort: "" # Only used when type is NodePort
 ```
 
 #### OtterScale Frontend
@@ -87,7 +88,7 @@ otterscaleWeb:
   replicas: 1
   image:
     repository: ghcr.io/otterscale/otterscale/web
-    tag: ""
+    tag: "" # Uses appVersion as default
   resources:
     requests:
       memory: "128Mi"
@@ -96,9 +97,9 @@ otterscaleWeb:
       memory: "256Mi"
       cpu: "200m"
   service:
-    type: ClusterIP  # Options: ClusterIP, NodePort
+    type: ClusterIP # Options: ClusterIP, NodePort
     port: 3000
-    nodePort: ""  # Only used when type is NodePort
+    nodePort: "" # Only used when type is NodePort
 ```
 
 #### PostgreSQL Database
@@ -108,7 +109,7 @@ postgresql:
   enabled: true
   auth:
     username: "otterscale"
-    password: ""  # Must be set
+    password: "" # Must be set
     database: "otterscale"
 ```
 
@@ -119,7 +120,7 @@ keycloak:
   enabled: true
   auth:
     adminUser: admin
-    adminPassword: ""  # Must be set
+    adminPassword: "" # Must be set
 ```
 
 ### Istio Integration
