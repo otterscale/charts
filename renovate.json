@@ -36,11 +36,6 @@
   ],
   "packageRules": [
     {
-      "description": "Trim leading v from version",
-      "matchDepNames": ["otterscale/otterscale"],
-      "extractVersion": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
-    },
-    {
       "enabled": true,
       "matchFileNames": ["charts/**"],
       "commitMessagePrefix": "[{{ lookup (split packageFileDir '/') 1 }}] ",
