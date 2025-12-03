@@ -121,6 +121,37 @@ entries:
     version: 0.1.0
   otterscale:
   - apiVersion: v2
+    appVersion: v0.5.3
+    created: "2025-12-03T09:19:23.616710266Z"
+    dependencies:
+    - condition: keycloak.enabled
+      name: keycloak
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: 25.x.x
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: oci://registry-1.docker.io/bitnamicharts
+      version: 16.x.x
+    description: A Helm chart for OtterScale - Cloud infrastructure management platform
+    digest: f56e527b5edddeb25aa4c34bfd1ede85e6e8a96f52cdf91eac230f8f16691a16
+    home: https://otterscale.github.io
+    icon: https://github.com/otterscale.png
+    keywords:
+    - otterscale
+    kubeVersion: '>= 1.30.0'
+    maintainers:
+    - email: terrywu25@gmail.com
+      name: terry
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale
+    sources:
+    - https://github.com/otterscale/otterscale
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-0.1.15/otterscale-0.1.15.tgz
+    version: 0.1.15
+  - apiVersion: v2
     appVersion: 0.5.4
     created: "2025-12-03T09:15:47.863011387Z"
     dependencies:
@@ -457,4 +488,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/samba-operator-0.1.0/samba-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2025-12-03T09:15:47.863065508Z"
+generated: "2025-12-03T09:19:23.616759548Z"
