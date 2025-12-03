@@ -35,8 +35,8 @@ spec:
       {{- end }}
       containers:
         - name: otterscale-web
-          image: {{ include "otterscale.image" (dict "image" .Values.otterscaleWeb.image "defaultTag" .Values.appVersion) }}
-          imagePullPolicy: {{ include "otterscale.imagePullPolicy" (dict "pullPolicy" .Values.otterscaleWeb.image.pullPolicy "global" .Values.global) }}
+          image: "{{ tpl .Values.otterscaleWeb.image.repository . }}:{{ tpl .Values.otterscaleWeb.image.tag . | default .Chart.AppVersion}}"
+          imagePullPolicy: "{{ .Values.otterscaleWeb.image.pullPolicy }}"
           ports:
             - name: http
               containerPort: 3000

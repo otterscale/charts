@@ -34,9 +34,7 @@ Common labels
 {{- define "otterscale.labels" -}}
 helm.sh/chart: {{ include "otterscale.chart" . }}
 {{ include "otterscale.selectorLabels" . }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
-{{- end }}
+app.kubernetes.io/version: {{ .Chart.AppVersion }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
@@ -58,24 +56,6 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
-
-{{/*
-Get image pull policy from component or global
-*/}}
-{{- define "otterscale.imagePullPolicy" -}}
-{{- .pullPolicy | default .global.imagePullPolicy | default "IfNotPresent" }}
-{{- end }}
-
-{{/*
-Generate full image name
-Usage: include "otterscale.image" (dict "image" .Values.otterscale.image "defaultTag" .Values.appVersion)
-*/}}
-{{- define "otterscale.image" -}}
-{{- $tag := .image.tag | default .defaultTag | default "latest" }}
-{{- printf "%s:%s" .image.repository $tag }}
-{{- end }}
-
-
 
 {{/*
 Get podAnnotations from component or global

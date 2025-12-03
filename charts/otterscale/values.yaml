@@ -19,19 +19,12 @@ global:
   # Image pull policy for all containers
   # Options: Always, IfNotPresent, Never
   imagePullPolicy: IfNotPresent
-  
+
   # Common pod configurations (can be overridden per component)
   podAnnotations: {}
   nodeSelector: {}
   tolerations: []
   affinity: {}
-  
-# -----------------------------------------------------------------------------
-# Application Version
-# -----------------------------------------------------------------------------
-# Version tag for OtterScale service and web images
-# This corresponds to APP_VERSION in the environment configuration
-appVersion: 0.6.0-alpha.10
 
 # -----------------------------------------------------------------------------
 # OtterScale PostgreSQL Database Configuration (Bitnami)
@@ -56,16 +49,16 @@ otterscale:
   image:
     repository: ghcr.io/otterscale/otterscale/service
     tag: ""
-    pullPolicy: ""
-  
+    pullPolicy: "IfNotPresent"
+
   replicas: 1
-  
+
   # Override global settings if needed
   podAnnotations: {}
   nodeSelector: {}
   tolerations: []
   affinity: {}
-  
+
   # Service port configuration
   service:
     type: ClusterIP
@@ -74,17 +67,17 @@ otterscale:
     annotations: {}
     # NodePort (only used if type is NodePort)
     nodePort: ""
-  
+
   # Additional environment variables
   env: []
   # - name: CUSTOM_VAR
   #   value: "value"
-  
+
   # Environment variables from secrets or configmaps
   envFrom: []
   # - secretRef:
   #     name: my-secret
-  
+
   resources:
     requests:
       memory: "256Mi"
@@ -155,16 +148,16 @@ otterscaleWeb:
   image:
     repository: ghcr.io/otterscale/otterscale/web
     tag: ""
-    pullPolicy: ""
-  
+    pullPolicy: "IfNotPresent"
+
   replicas: 1
-  
+
   # Override global settings if needed
   podAnnotations: {}
   nodeSelector: {}
   tolerations: []
   affinity: {}
-  
+
   # Service port configuration
   service:
     type: ClusterIP
@@ -172,7 +165,7 @@ otterscaleWeb:
     targetPort: 3000
     annotations: {}
     nodePort: ""
-  
+
   resources:
     requests:
       memory: "128Mi"
@@ -180,7 +173,7 @@ otterscaleWeb:
     limits:
       memory: "256Mi"
       cpu: "200m"
-  
+
   # Application environment variables
   env:
     publicWebUrl: ""
@@ -188,12 +181,12 @@ otterscaleWeb:
     keycloakRealmUrl: ""
     keycloakClientID: ""
     keycloakClientSecret: ""
-  
+
   # Additional environment variables
   extraEnv: []
   # - name: CUSTOM_VAR
   #   value: "value"
-  
+
   # Environment variables from secrets or configmaps
   envFrom: []
   # - secretRef:
@@ -205,7 +198,7 @@ otterscaleWeb:
 istio:
   # Enable or disable Istio integration
   enabled: true
-  
+
   # Automatic sidecar injection
   sidecarInjection:
     enabled: true
@@ -237,7 +230,7 @@ istio:
       #   tls:
       #     mode: SIMPLE
       #     credentialName: otterscale-tls-cert
-  
+
   # VirtualService configuration for traffic routing
   virtualService:
     enabled: true
