@@ -1,4 +1,3 @@
-{{- include "otterscale.validateValues" . }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -31,10 +30,6 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      {{- if .Values.postgresql.enabled }}
-      initContainers:
-        {{- include "otterscale.postgresql.waitInitContainer" . | nindent 8 }}
-      {{- end }}
       containers:
         - name: otterscale
           image: "{{ tpl .Values.otterscale.image.repository . }}:{{ tpl .Values.otterscale.image.tag . | default .Chart.AppVersion}}"

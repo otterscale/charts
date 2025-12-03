@@ -18,7 +18,7 @@ spec:
           prefix: /auth/
       route:
       - destination:
-          host: {{ include "otterscale.fullname" $ }}-keycloak.{{ .Release.Namespace }}.svc.cluster.local
+          host: {{ .Release.Name }}-keycloakx-http.{{ .Release.Namespace }}.svc.cluster.local
           port:
             number: 80
     - match:

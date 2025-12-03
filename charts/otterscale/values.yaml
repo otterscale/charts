@@ -27,20 +27,6 @@ global:
   affinity: {}
 
 # -----------------------------------------------------------------------------
-# OtterScale PostgreSQL Database Configuration (Bitnami)
-# -----------------------------------------------------------------------------
-# This PostgreSQL instance is dedicated for OtterScale application
-# Keycloak uses a separate PostgreSQL instance configured under keycloak.postgresql
-postgresql:
-  enabled: true
-  image:
-    repository: bitnamilegacy/postgresql
-  auth:
-    postgresPassword: ""
-    username: "otterscale"
-    password: ""
-    database: "otterscale"
-
 # -----------------------------------------------------------------------------
 # OtterScale Service Configuration
 # -----------------------------------------------------------------------------
@@ -152,6 +138,29 @@ otterscaleWeb:
 
   replicas: 1
 
+  # PostgreSQL Database Configuration (CloudNative)
+  # This PostgreSQL instance is dedicated for OtterScale Web application
+  cloudnative-pg:
+    enabled: true
+    cluster:
+      name: otterscale-postgres-cluster
+      instances: 1
+      imageName: ghcr.io/cloudnative-pg/postgresql:17.6
+    auth:
+      username: ""
+      password: ""
+      database: ""
+      port: "5432"
+    bootstrap:
+      initdb:
+        database: otterscale
+        owner: otterscale
+        secret:
+          name: otterscale-pg-secret
+    storage:
+      size: 1Gi
+      storageClass: ""
+
   # Override global settings if needed
   podAnnotations: {}
   nodeSelector: {}
@@ -244,27 +253,71 @@ istio:
 # -----------------------------------------------------------------------------
 # Keycloak Configuration
 # -----------------------------------------------------------------------------
-keycloak:
+keycloakx:
   enabled: true
+
+  replicas: 1
   image:
-    repository: bitnamilegacy/keycloak
-  httpEnabled: true
-  httpRelativePath: "/auth/"
+    repository: quay.io/keycloak/keycloak
+    tag: "26.4.5"
 
-  auth:
-    adminUser: admin
-    adminPassword: ""
+  extraEnv: |
+    - name: KEYCLOAK_ADMIN
+      valueFrom:
+        secretKeyRef:
+          name: {{ include "keycloak.fullname" . }}-admin-creds
+          key: user
+    - name: KEYCLOAK_ADMIN_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: {{ include "keycloak.fullname" . }}-admin-creds
+          key: password
+    - name: JAVA_OPTS_APPEND
+      value: >-
+        -XX:MaxRAMPercentage=50.0
+        -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
+    - name: KC_DB_URL_HOST
+      valueFrom:
+        secretKeyRef:
+          name: keycloak-pg-secret
+          key: host
+    - name: KC_DB_URL_PORT
+      valueFrom:
+        secretKeyRef:
+          name: keycloak-pg-secret
+          key: port
+    - name: KC_DB_URL_DATABASE
+      valueFrom:
+        secretKeyRef:
+          name: keycloak-pg-secret
+          key: dbname
+    - name: KC_DB_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: keycloak-pg-secret
+          key: username
 
-  ## External Postgres
+  database:
+    existingSecret: "keycloak-pg-secret"
+    existingSecretKey: "password"
+    vendor: postgres
+
   postgresql:
-    enabled: true
-    nameOverride: "keycloak-postgres"
-    image:
-      repository: bitnamilegacy/postgresql
-
-  ## Config realm
-  keycloakConfigCli:
-    enabled: true
-    image:
-      repository: bitnamilegacy/keycloak-config-cli
-    configuration: {}
+    cluster:
+      name: keycloak-postgres-cluster
+      instances: 1
+      imageName: ghcr.io/cloudnative-pg/postgresql:17.6
+    auth:
+      username: ""
+      password: ""
+      database: ""
+      port: "5432"
+    bootstrap:
+      initdb:
+        database: keycloak
+        owner: keycloak
+        secret:
+          name: keycloak-pg-secret
+    storage:
+      size: 1Gi
+      storageClass: ""
