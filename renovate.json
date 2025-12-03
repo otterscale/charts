@@ -36,8 +36,9 @@
   ],
   "packageRules": [
     {
-      "enabled": false,
-      "matchPackageNames": ["*"]
+      "description": "Trim leading v from version",
+      "matchDepNames": ["otterscale/otterscale"],
+      "extractVersion": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
     },
     {
       "enabled": true,
