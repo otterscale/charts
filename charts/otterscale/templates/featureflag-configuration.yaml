@@ -14,8 +14,8 @@ spec:
       {{ $flagName }}:
         state: {{ $flagConfig.state }}
         variants:
-          {{- range $variantKey := $flagConfig.variants }}
-          {{ $variant.key | quote }}: {{ $variant.value }}
+          {{- range $variant := $flagConfig.variants }}
+          {{ $variant.key | quote }}: {{ $variant.value | quote }}
           {{- end }}
         defaultVariant: {{ $flagConfig.defaultVariant | quote }}
       {{- end }}
