@@ -27,20 +27,6 @@ global:
   affinity: {}
 
 # -----------------------------------------------------------------------------
-# OtterScale PostgreSQL Database Configuration (Bitnami)
-# -----------------------------------------------------------------------------
-# This PostgreSQL instance is dedicated for OtterScale application
-# Keycloak uses a separate PostgreSQL instance configured under keycloak.postgresql
-postgresql:
-  enabled: true
-  image:
-    repository: bitnamilegacy/postgresql
-  auth:
-    postgresPassword: ""
-    username: "otterscale"
-    password: ""
-    database: "otterscale"
-
 # -----------------------------------------------------------------------------
 # OtterScale Service Configuration
 # -----------------------------------------------------------------------------
@@ -91,7 +77,7 @@ openfeature:
     enabled: true
   # Name of the FeatureFlagSource resource
   # This will be used in the pod annotation: openfeature.dev/featureflagsource
-  flagsource: "otterscale-flags"
+  flagsource: ""
   # Feature flag configurations
   # Each entry will create a separate FeatureFlag resource
   flags:
@@ -135,7 +121,7 @@ configContent: |
 
   kube:
     helm_repository_urls:
-    - https://charts.bitnami.com/bitnami
+    - https://artifacthub.github.io/helm-charts
 
   ceph:
     rados_timeout: 0s
@@ -151,6 +137,29 @@ otterscaleWeb:
     pullPolicy: "IfNotPresent"
 
   replicas: 1
+
+  # PostgreSQL Database Configuration (CloudNative)
+  # This PostgreSQL instance is dedicated for OtterScale Web application
+  cloudnative-pg:
+    enabled: true
+    cluster:
+      name: ""
+      instances: 1
+      imageName: ghcr.io/cloudnative-pg/postgresql:17.6
+    auth:
+      username: ""
+      password: ""
+      database: ""
+      port: ""
+    bootstrap:
+      initdb:
+        database: ""
+        owner: ""
+        secret:
+          name: ""
+    storage:
+      size: 1Gi
+      storageClass: ""
 
   # Override global settings if needed
   podAnnotations: {}
@@ -244,27 +253,36 @@ istio:
 # -----------------------------------------------------------------------------
 # Keycloak Configuration
 # -----------------------------------------------------------------------------
-keycloak:
+keycloakx:
   enabled: true
+
+  replicas: 1
   image:
-    repository: bitnamilegacy/keycloak
-  httpEnabled: true
-  httpRelativePath: "/auth/"
+    repository: quay.io/keycloak/keycloak
+    tag: "26.4.5"
 
-  auth:
-    adminUser: admin
-    adminPassword: ""
+  command: []
+  extraEnv: ""
+  extraVolumes: ""
+  extraVolumeMounts: ""
+  secrets: {}
 
-  ## External Postgres
   postgresql:
-    enabled: true
-    nameOverride: "keycloak-postgres"
-    image:
-      repository: bitnamilegacy/postgresql
-
-  ## Config realm
-  keycloakConfigCli:
-    enabled: true
-    image:
-      repository: bitnamilegacy/keycloak-config-cli
-    configuration: {}
+    cluster:
+      name: keycloak-postgres-cluster
+      instances: 1
+      imageName: ghcr.io/cloudnative-pg/postgresql:17.6
+    auth:
+      username: ""
+      password: ""
+      database: ""
+      port: ""
+    bootstrap:
+      initdb:
+        database: ""
+        owner: ""
+        secret:
+          name: ""
+    storage:
+      size: 1Gi
+      storageClass: ""
