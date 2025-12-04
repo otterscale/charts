@@ -143,20 +143,20 @@ otterscaleWeb:
   cloudnative-pg:
     enabled: true
     cluster:
-      name: otterscale-postgres-cluster
+      name: ""
       instances: 1
       imageName: ghcr.io/cloudnative-pg/postgresql:17.6
     auth:
       username: ""
       password: ""
       database: ""
-      port: "5432"
+      port: ""
     bootstrap:
       initdb:
-        database: otterscale
-        owner: otterscale
+        database: ""
+        owner: ""
         secret:
-          name: otterscale-pg-secret
+          name: ""
     storage:
       size: 1Gi
       storageClass: ""
@@ -261,45 +261,11 @@ keycloakx:
     repository: quay.io/keycloak/keycloak
     tag: "26.4.5"
 
-  extraEnv: |
-    - name: KEYCLOAK_ADMIN
-      valueFrom:
-        secretKeyRef:
-          name: {{ include "keycloak.fullname" . }}-admin-creds
-          key: user
-    - name: KEYCLOAK_ADMIN_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: {{ include "keycloak.fullname" . }}-admin-creds
-          key: password
-    - name: JAVA_OPTS_APPEND
-      value: >-
-        -XX:MaxRAMPercentage=50.0
-        -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
-    - name: KC_DB_URL_HOST
-      valueFrom:
-        secretKeyRef:
-          name: keycloak-pg-secret
-          key: host
-    - name: KC_DB_URL_PORT
-      valueFrom:
-        secretKeyRef:
-          name: keycloak-pg-secret
-          key: port
-    - name: KC_DB_URL_DATABASE
-      valueFrom:
-        secretKeyRef:
-          name: keycloak-pg-secret
-          key: dbname
-    - name: KC_DB_USERNAME
-      valueFrom:
-        secretKeyRef:
-          name: keycloak-pg-secret
-          key: username
+  extraEnv: ""
 
   database:
-    existingSecret: "keycloak-pg-secret"
-    existingSecretKey: "password"
+    existingSecret: ""
+    existingSecretKey: ""
     vendor: postgres
 
   postgresql:
@@ -311,13 +277,13 @@ keycloakx:
       username: ""
       password: ""
       database: ""
-      port: "5432"
+      port: ""
     bootstrap:
       initdb:
-        database: keycloak
-        owner: keycloak
+        database: ""
+        owner: ""
         secret:
-          name: keycloak-pg-secret
+          name: ""
     storage:
       size: 1Gi
       storageClass: ""
