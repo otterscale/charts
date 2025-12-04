@@ -36,10 +36,6 @@
   ],
   "packageRules": [
     {
-      "enabled": false,
-      "matchPackageNames": ["*"]
-    },
-    {
       "enabled": true,
       "matchFileNames": ["charts/**"],
       "commitMessagePrefix": "[{{ lookup (split packageFileDir '/') 1 }}] ",
