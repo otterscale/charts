@@ -121,6 +121,33 @@ entries:
     version: 0.1.0
   otterscale:
   - apiVersion: v2
+    appVersion: v0.6.0-beta.12
+    created: "2025-12-04T13:57:23.869174675Z"
+    dependencies:
+    - condition: keycloakx.enabled
+      name: keycloakx
+      repository: https://codecentric.github.io/helm-charts
+      version: 7.1.5
+    description: A Helm chart for OtterScale - Cloud infrastructure management platform
+    digest: b34958a5c7cbfa444119371e3c6359cd46bf68cacbe014a770d7c940325f47a7
+    home: https://otterscale.github.io
+    icon: https://github.com/otterscale.png
+    keywords:
+    - otterscale
+    kubeVersion: '>= 1.30.0'
+    maintainers:
+    - email: terrywu25@gmail.com
+      name: terry
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale
+    sources:
+    - https://github.com/otterscale/otterscale
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-0.1.18/otterscale-0.1.18.tgz
+    version: 0.1.18
+  - apiVersion: v2
     appVersion: v0.5.4
     created: "2025-12-03T09:28:11.77133467Z"
     dependencies:
@@ -519,4 +546,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/samba-operator-0.1.0/samba-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2025-12-03T09:28:11.771392197Z"
+generated: "2025-12-04T13:57:23.869278028Z"
