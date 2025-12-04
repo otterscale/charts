@@ -261,12 +261,11 @@ keycloakx:
     repository: quay.io/keycloak/keycloak
     tag: "26.4.5"
 
+  command: []
   extraEnv: ""
-
-  database:
-    existingSecret: ""
-    existingSecretKey: ""
-    vendor: postgres
+  extraVolumes: ""
+  extraVolumeMounts: ""
+  secrets: {}
 
   postgresql:
     cluster:
