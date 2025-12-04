@@ -121,7 +121,7 @@ configContent: |
 
   kube:
     helm_repository_urls:
-    - https://charts.bitnami.com/bitnami
+    - https://artifacthub.github.io/helm-charts
 
   ceph:
     rados_timeout: 0s
