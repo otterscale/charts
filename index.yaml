@@ -111,6 +111,16 @@ entries:
   model-artifact:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2025-12-05T07:54:43.710313511Z"
+    description: A Helm chart for Kubernetes
+    digest: 0bafd9680692abf4da5144b646405c5e40a0a8641b7dc791a4bb5e5c2ab7c0e6
+    name: model-artifact
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/model-artifact-0.1.2/model-artifact-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2025-12-04T13:59:58.123117086Z"
     description: A Helm chart for Kubernetes
     digest: d14486ae0403fab94fc278ab52aa89a661460ba471929debc89219dfb4147160
@@ -556,4 +566,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/samba-operator-0.1.0/samba-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2025-12-04T13:59:58.123170866Z"
+generated: "2025-12-05T07:54:43.710368664Z"
