@@ -13,19 +13,22 @@ data:
         service: registry
       level: info
     http:
-      addr: 5000
-      headers:
-        X-Content-Type-Options: [nosniff]
+      addr: :5000
       debug:
-        addr: 5001
+        addr: :5001
         prometheus:
           enabled: true
           path: /metrics
     storage:
       filesystem:
         rootdirectory: /var/lib/registry
-    delete:
-      enabled: true
+      delete:
+        enabled: true
     otel:
       traces:
         exporter: none
+    health:
+      storagedriver:
+        enabled: false
+        interval: 10s
+        threshold: 3

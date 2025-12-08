@@ -6,7 +6,7 @@ metadata:
     otterscale.com/type: registry
     {{- include "registry.labels" . | nindent 4 }}
 spec:
-  schedule: "0 1 * * *"
+  schedule: "* * * * *"
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
@@ -15,9 +15,9 @@ spec:
         metadata:
           labels:
             {{- include "registry.selectorLabels" . | nindent 12 }}
-          {{- with .Values.dockerRegistry.garbageCollect.podLabels }}
+            {{- with .Values.dockerRegistry.garbageCollect.podLabels }}
             {{- toYaml . | nindent 12 }}
-          {{- end }}
+            {{- end }}
           {{- with .Values.dockerRegistry.garbageCollect.podAnnotations }}
           annotations:
             {{- toYaml . | nindent 12 }}
@@ -26,6 +26,16 @@ spec:
           restartPolicy: OnFailure
           securityContext:
             fsGroup: 1000
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: otterscale.com/type
+                        operator: In
+                        values:
+                          - registry
+                  topologyKey: "kubernetes.io/hostname"
           containers:
           - name: registry-gc
             image: "{{ .Values.dockerRegistry.image.repository }}:{{ .Values.dockerRegistry.image.tag }}"
@@ -33,11 +43,9 @@ spec:
             command:
             - /bin/registry
             - garbage-collect
-            - /etc/docker/registry/config.yml
+            - /etc/distribution/config.yml
             - --delete-untagged
-            env:
-              - name: REGISTRY_STORAGE
-                value: filesystem
+            env: 
             {{- with .Values.dockerRegistry.extraEnv }}
             {{- toYaml . | nindent 14 }}
             {{- end }}
@@ -52,7 +60,7 @@ spec:
               - name: registry-storage
                 mountPath: /var/lib/registry
               - name: config-volume
-                mountPath: /etc/docker/registry
+                mountPath: /etc/distribution
                 readOnly: true
           volumes:
             - name: registry-storage
