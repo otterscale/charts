@@ -90,6 +90,16 @@ entries:
   kubevirt-infra:
   - apiVersion: v2
     appVersion: "1.0"
+    created: "2025-12-08T05:46:34.957593068Z"
+    description: A Helm chart to install KubeVirt
+    digest: 4ad23ba84cbf2517aa454324fae5222bf3522589104787f6e04d33362e3e4d8f
+    name: kubevirt-infra
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/kubevirt-infra-0.1.2/kubevirt-infra-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
+    appVersion: "1.0"
     created: "2025-12-01T09:18:01.676479135Z"
     description: A Helm chart to install KubeVirt
     digest: b384cfa0007dc91b1fa17255bba42df0931b2cb7cacfaa7bf62dcd786e599688
@@ -566,4 +576,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/samba-operator-0.1.0/samba-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2025-12-05T07:54:43.710368664Z"
+generated: "2025-12-08T05:46:34.957662368Z"
