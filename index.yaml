@@ -2,6 +2,33 @@ apiVersion: v1
 entries:
   gpu-operator:
   - apiVersion: v2
+    created: "2025-12-08T08:28:25.485830184Z"
+    dependencies:
+    - condition: gpu-operator.enabled
+      name: gpu-operator
+      repository: ""
+      version: v25.3.2
+    - condition: hami.enabled
+      name: hami
+      repository: ""
+      version: 2.6.1
+    description: GPU operator
+    digest: b047a8d6a1077b82ecff2ad9f52a7bf91cfe067af4159cd3ee2f03d206a32f0a
+    keywords:
+    - vgpu
+    - gpu
+    - compute
+    kubeVersion: '>= 1.30.0'
+    maintainers:
+    - email: bryant_chu@phison.com
+      name: infra-team
+    - email: terry_wu@phison.com
+      name: terry
+    name: gpu-operator
+    urls:
+    - https://github.com/otterscale/charts/releases/download/gpu-operator-1.0.7/gpu-operator-1.0.7.tgz
+    version: 1.0.7
+  - apiVersion: v2
     created: "2025-12-01T09:18:01.372729489Z"
     dependencies:
     - condition: gpu-operator.enabled
@@ -576,4 +603,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/samba-operator-0.1.0/samba-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2025-12-08T05:46:34.957662368Z"
+generated: "2025-12-08T08:28:25.485883203Z"
