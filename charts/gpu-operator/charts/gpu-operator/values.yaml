@@ -97,12 +97,6 @@ operator:
         - weight: 1
           preference:
             matchExpressions:
-              - key: "node-role.kubernetes.io/master"
-                operator: In
-                values: [""]
-        - weight: 1
-          preference:
-            matchExpressions:
               - key: "node-role.kubernetes.io/control-plane"
                 operator: In
                 values: [""]
@@ -568,10 +562,6 @@ node-feature-discovery:
       # disable creation to avoid duplicate serviceaccount creation by master spec below
       create: false
     tolerations:
-    - key: "node-role.kubernetes.io/master"
-      operator: "Equal"
-      value: ""
-      effect: "NoSchedule"
     - key: "node-role.kubernetes.io/control-plane"
       operator: "Equal"
       value: ""
