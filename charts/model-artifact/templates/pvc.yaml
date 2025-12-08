@@ -4,8 +4,6 @@ metadata:
   name: {{ .Values.pvc.name }} 
   labels: 
     {{- toYaml (default dict .Values.commonLabels) | nindent 4 }}
-  annotations:
-    helm.sh/resource-policy: keep
 spec:
   accessModes:
     {{- range .Values.pvc.accessModes }}
