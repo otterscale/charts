@@ -6,7 +6,7 @@ metadata:
     otterscale.com/type: registry
     {{- include "registry.labels" . | nindent 4 }}
 spec:
-  schedule: "* * * * *"
+  schedule: "* 1 * * *"
   concurrencyPolicy: Forbid
   jobTemplate:
     spec:
