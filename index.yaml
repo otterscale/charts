@@ -594,6 +594,16 @@ entries:
   registry:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2025-12-09T02:39:38.125805476Z"
+    description: A Helm chart for registry to store user charts and images.
+    digest: af30e7c2205d70ee9c77e466da1c7e8e441db8889776346b40c40f4d134d657c
+    name: registry
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/registry-0.3.0/registry-0.3.0.tgz
+    version: 0.3.0
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2025-12-02T02:39:09.679241995Z"
     description: A Helm chart for registry to store user charts and images.
     digest: 0ca5d4dbb9383fa5e4004b4f195727fa7205dff39077b7a54be73145101d6ce7
@@ -613,4 +623,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/samba-operator-0.1.0/samba-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2025-12-08T12:33:18.823953135Z"
+generated: "2025-12-09T02:39:38.125861911Z"
