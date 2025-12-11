@@ -1,0 +1,18 @@
+{{- if .Values.volumeSnapshotClass.enabled -}}
+apiVersion: snapshot.storage.k8s.io/v1
+kind: VolumeSnapshotClass
+metadata:
+  name: {{ .Values.volumeSnapshotClass.name }}
+  labels:
+    {{- include "snapshot-controller.labels" . | nindent 4 }}
+  {{- with .Values.volumeSnapshotClass.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+driver: {{ .Values.volumeSnapshotClass.driver }}
+parameters:
+  clusterID: {{ .Values.volumeSnapshotClass.clusterID }}
+  csi.storage.k8s.io/snapshotter-secret-name: {{ .Values.volumeSnapshotClass.secretName }}
+  csi.storage.k8s.io/snapshotter-secret-namespace: {{ .Values.volumeSnapshotClass.secretNamespace }}
+deletionPolicy: {{ .Values.volumeSnapshotClass.deletionPolicy }}
+{{- end -}}
