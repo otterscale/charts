@@ -650,4 +650,29 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/samba-operator-0.1.0/samba-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2025-12-09T11:54:13.231402815Z"
+  snapshot-controller:
+  - apiVersion: v2
+    appVersion: 8.2.0
+    created: "2025-12-11T05:26:02.982714223Z"
+    description: Helm chart to deploy the External Snapshotter for CSI-based VolumeSnapshot
+      and VolumeGroupSnapshot support in Kubernetes.
+    digest: afce11d0ec5d460fa613d48fe9de3d8ea3c8a12bdce99ba3b403e77b503129ea
+    home: https://github.com/kubernetes-csi/external-snapshotter/
+    icon: https://raw.githubusercontent.com/stevehipwell/helm-charts/main/charts/external-snapshotter/icon.png
+    keywords:
+    - csi
+    - storage
+    - snapshot
+    maintainers:
+    - email: george_wu@phison.com
+      name: George
+    - email: shawn_tsai@phison.com
+      name: Shawn
+    name: snapshot-controller
+    sources:
+    - https://github.com/kubernetes-csi/external-snapshotter/
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/snapshot-controller-0.1.0/snapshot-controller-0.1.0.tgz
+    version: 0.1.0
+generated: "2025-12-11T05:26:02.982805743Z"
