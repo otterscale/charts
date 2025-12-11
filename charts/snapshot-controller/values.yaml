@@ -32,6 +32,24 @@ distributedSnapshotting:
   # -- If `true`, enable distributed snapshotting.
   enabled: false
 
+volumeSnapshotClass:
+  # -- If `true`, create a VolumeSnapshotClass.
+  enabled: true
+  # -- Name of the VolumeSnapshotClass.
+  name: csi-rbdplugin-snapclass
+  # -- Annotations to add to the VolumeSnapshotClass.
+  annotations: {}
+  # -- CSI driver name.
+  driver: rbd.csi.ceph.com
+  # -- Deletion policy for the VolumeSnapshotClass.
+  deletionPolicy: Delete
+  # -- Ceph cluster ID.
+  clusterID: d335964c-4b59-11f0-b88d-455bddca1f58
+  # -- Secret name for snapshotter.
+  secretName: csi-rbd-secret
+  # -- Secret namespace for snapshotter.
+  secretNamespace: default
+
 image:
   # -- Image repository for the default container.
   repository: registry.k8s.io/sig-storage/snapshot-controller
