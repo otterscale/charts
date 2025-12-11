@@ -2,7 +2,7 @@ apiVersion: v2
 appVersion: 8.2.0
 description: Helm chart to deploy the External Snapshotter for CSI-based VolumeSnapshot and VolumeGroupSnapshot support in Kubernetes.
 home: https://github.com/kubernetes-csi/external-snapshotter/
-icon: https://raw.githubusercontent.com/stevehipwell/helm-charts/main/charts/external-snapshotter/icon.png
+icon: https://github.com/kubernetes-csi.png
 keywords:
 - csi
 - storage
