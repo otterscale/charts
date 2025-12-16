@@ -653,6 +653,30 @@ entries:
   snapshot-controller:
   - apiVersion: v2
     appVersion: 8.2.0
+    created: "2025-12-16T09:17:06.476025941Z"
+    description: Helm chart to deploy the External Snapshotter for CSI-based VolumeSnapshot
+      and VolumeGroupSnapshot support in Kubernetes.
+    digest: c50bee6c45a42252373d54d9391e1a21b9a595cac5eeb81d48ef07068f2b0e62
+    home: https://github.com/kubernetes-csi/external-snapshotter/
+    icon: https://github.com/kubernetes-csi.png
+    keywords:
+    - csi
+    - storage
+    - snapshot
+    maintainers:
+    - email: george_wu@phison.com
+      name: George
+    - email: shawn_tsai@phison.com
+      name: Shawn
+    name: snapshot-controller
+    sources:
+    - https://github.com/kubernetes-csi/external-snapshotter/
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/snapshot-controller-0.1.1/snapshot-controller-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 8.2.0
     created: "2025-12-11T05:26:02.982714223Z"
     description: Helm chart to deploy the External Snapshotter for CSI-based VolumeSnapshot
       and VolumeGroupSnapshot support in Kubernetes.
@@ -675,4 +699,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/snapshot-controller-0.1.0/snapshot-controller-0.1.0.tgz
     version: 0.1.0
-generated: "2025-12-11T05:26:02.982805743Z"
+generated: "2025-12-16T09:17:06.47610006Z"
