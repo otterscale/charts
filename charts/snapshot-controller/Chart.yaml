@@ -16,4 +16,4 @@ name: snapshot-controller
 sources:
 - https://github.com/kubernetes-csi/external-snapshotter/
 type: application
-version: 0.1.0
+version: 0.1.1
