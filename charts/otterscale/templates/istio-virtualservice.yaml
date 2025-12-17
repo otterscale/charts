@@ -33,6 +33,16 @@ spec:
             number: {{ $.Values.otterscale.service.port }}
     - match:
       - uri:
+          prefix: /vnc/
+      rewrite:
+          uri: /
+      route:
+      - destination:
+          host: {{ include "otterscale.fullname" $ }}.{{ .Release.Namespace }}.svc.cluster.local
+          port:
+            number: {{ $.Values.otterscale.service.port }}
+    - match:
+      - uri:
           prefix: /
       route:
       - destination:
