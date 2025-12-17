@@ -34,8 +34,9 @@ spec:
     - match:
       - uri:
           prefix: /vnc/
-      rewrite:
-          uri: /
+        headers:
+          upgrade:
+            exact: websocket
       route:
       - destination:
           host: {{ include "otterscale.fullname" $ }}.{{ .Release.Namespace }}.svc.cluster.local
