@@ -188,6 +188,33 @@ entries:
     version: 0.1.0
   otterscale:
   - apiVersion: v2
+    appVersion: v0.6.0-rc.3
+    created: "2025-12-23T07:30:14.514182573Z"
+    dependencies:
+    - condition: keycloakx.enabled
+      name: keycloakx
+      repository: https://codecentric.github.io/helm-charts
+      version: 7.1.5
+    description: A Helm chart for OtterScale - Cloud infrastructure management platform
+    digest: 00cc87d3f6c1d214c12970770ae82ed9e9442ca31e538302d6a12280e165b2d6
+    home: https://otterscale.github.io
+    icon: https://github.com/otterscale.png
+    keywords:
+    - otterscale
+    kubeVersion: '>= 1.30.0'
+    maintainers:
+    - email: terrywu25@gmail.com
+      name: terry
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale
+    sources:
+    - https://github.com/otterscale/otterscale
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-0.2.0-rc.3/otterscale-0.2.0-rc.3.tgz
+    version: 0.2.0-rc.3
+  - apiVersion: v2
     appVersion: v0.6.0-rc.2
     created: "2025-12-19T07:20:35.421673622Z"
     dependencies:
@@ -807,4 +834,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/snapshot-controller-0.1.0/snapshot-controller-0.1.0.tgz
     version: 0.1.0
-generated: "2025-12-19T07:20:35.42182873Z"
+generated: "2025-12-23T07:30:14.514357258Z"
