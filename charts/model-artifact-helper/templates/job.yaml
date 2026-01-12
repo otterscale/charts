@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: { { .Values.pvc.name } }
+  labels: { { - toYaml (default dict .Values.commonLabels) | nindent 4 } }
+spec:
+  template:
+    metadata:
+      labels: { { - toYaml (default dict .Values.commonLabels) | nindent 8 } }
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: { { .Values.pvc.name } }
+          image: ghcr.io/otterscale/model-artifact-helper:{ { .Values.tag.name } }
+          volumeMounts:
+            - name: cache
+              mountPath: /cache
+            - name: model
+              mountPath: /model
+      volumes:
+        - name: cache
+          emptyDir: {}
+        - name: model
+          persistentVolumeClaim:
+            claimName: { { .Values.pvc.name } }
