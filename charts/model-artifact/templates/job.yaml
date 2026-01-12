@@ -13,7 +13,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: {{ .Values.pvc.name }} 
-          image: python:3.11-slim
+          image: ghcr.io/otterscale/model-artifact:0.0.1
           env:
             - name: PYTHONUNBUFFERED
               value: "1"                    # flush logs immediately
@@ -31,7 +31,6 @@ spec:
           command: ["bash", "-lc"]
           args:
             - |
-              pip install --no-cache-dir "huggingface-hub>=0.23,<1" hf_transfer && \
               python -u /app/download_with_eta.py \
                 --repo $MODEL \
                 --rev main \
