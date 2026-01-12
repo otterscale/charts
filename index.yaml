@@ -196,6 +196,17 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/model-artifact-0.1.0/model-artifact-0.1.0.tgz
     version: 0.1.0
+  model-artifact-helper:
+  - apiVersion: v2
+    appVersion: 0.0.1
+    created: "2026-01-12T08:40:01.989636737Z"
+    description: Model Artifact Helper
+    digest: ec6097ea9c09bef5c40b38bf1abb2f0d02ad7b5fc41295fbd5d725685d4dc636
+    name: model-artifact-helper
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/model-artifact-helper-0.0.1/model-artifact-helper-0.0.1.tgz
+    version: 0.0.1
   otterscale:
   - apiVersion: v2
     appVersion: v0.6.3
@@ -952,4 +963,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/snapshot-controller-0.1.0/snapshot-controller-0.1.0.tgz
     version: 0.1.0
-generated: "2026-01-12T07:13:28.954959693Z"
+generated: "2026-01-12T08:40:01.989744721Z"
