@@ -1,0 +1,6 @@
+apiVersion: v2
+appVersion: 0.0.1
+description: Model Artifact Helper
+name: model-artifact-helper
+type: application
+version: 0.0.1

@@ -1,0 +1,10 @@
+commonLabels: {}
+
+tag:
+  name: "" # REQUIRED
+
+pvc:
+  name: "" # REQUIRED: PVC name to create & mount
+  size: "" # REQUIRED: e.g. 50Gi
+  storageClassName: "cephfs" # optional; if empty, cluster default will be used
+  accessModes: ["ReadWriteMany"]
