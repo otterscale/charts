@@ -148,6 +148,16 @@ entries:
   model-artifact:
   - apiVersion: v2
     appVersion: 1.16.0
+    created: "2026-01-12T07:13:28.954837105Z"
+    description: A Helm chart for Kubernetes
+    digest: 957fdd52693d07c1c4d6946180655f945db87176e62f7b4be153d975819269e3
+    name: model-artifact
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/model-artifact-0.1.4/model-artifact-0.1.4.tgz
+    version: 0.1.4
+  - apiVersion: v2
+    appVersion: 1.16.0
     created: "2025-12-08T12:33:18.823858479Z"
     description: A Helm chart for Kubernetes
     digest: c83f5f6e63c86873c7c9074a3dcd365e2b5928613a457d2200275b68e275b59b
@@ -942,4 +952,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/snapshot-controller-0.1.0/snapshot-controller-0.1.0.tgz
     version: 0.1.0
-generated: "2026-01-06T12:52:16.961454696Z"
+generated: "2026-01-12T07:13:28.954959693Z"
