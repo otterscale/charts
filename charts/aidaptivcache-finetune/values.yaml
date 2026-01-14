@@ -1,0 +1,125 @@
+image:
+  repository: docker.io/library/aidaptiv
+  tag: vNXUN_2_05BA0
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+# Job configuration
+job:
+  name: finetune-job
+  backoffLimit: 3
+  restartPolicy: Never
+  ttlSecondsAfterFinished: 3600  
+
+# PVC configuration for model storage
+modelPvc:
+  name: ""  # Required: Name of the PVC containing the model
+  mountPath: "/models"  # Mount path for the model PVC
+
+# Result volume configuration
+resultVolume:
+  mountPath: "/mnt/result"
+  existingPvc: ""  # Name of existing PVC to use
+  storageClass: ""  # StorageClass to create new PVC
+  size: "100Gi" 
+  accessMode: "ReadWriteOnce"
+
+# Environment configuration
+envConfig:
+  pathSettings:
+    lora:
+      loraWeight: ""
+      loraOptimizer: ""
+      loraOutputDir: ""
+    modelNameOrPath: "/models/TinyLlama-1.1B-Chat-v1.0"  # Required: Path to model (within PVC mount)
+    multiNodeEnvPath: null
+    optimizerPath: ""
+    trainDataPath:
+      - /config/train_data/QA_dataset_config.yaml
+    valDataPath: null
+    nvmePath: "/mnt/nvme0"  # Required: NVMe path for temporary storage
+    outputDir: "/mnt/result"  # Required: Output directory for model weights
+    logName: "output.log"  # Required: Log file name
+
+expConfig:
+  processSettings:
+    numGpus: 1  # Number of GPUs to use
+    specifyGpus: null  # Specific GPU IDs (e.g., "0,1,2,3")
+    masterPort: 8299  # Master port for distributed training
+    multiNodeSettings:
+      enable: false
+      masterAddr: "127.0.0.1"
+  
+  runSettings:
+    taskType: "text-generation"
+    taskMode: "train"
+    perDeviceTrainBatchSize: 4
+    perUpdateTotalBatchSize: 16
+    numTrainEpochs: 1
+    maxIter: 12
+    maxSeqLen: 2048
+    triton: true
+    weightFileFormat: null
+    fromConfig: false
+    precisionMode: 1
+    enableSaveOptimizerState: false
+    
+    modelSaver:
+      maxNumOfSavedModelOnEpochEnd: -1
+      enableSaveModelOnIteration: false
+      maxNumOfSavedModelOnIteration: 2
+      numOfIterationToSaveModel: 2
+    
+    lrScheduler:
+      mode: 1
+      learningRate: 0.000007
+    
+    optimizer:
+      beta1: 0.9
+      beta2: 0.95
+      eps: 0.00000001
+      weightDecay: 0.01
+    
+    earlyStop:
+      enable: false
+      minDelta: 0.01
+      patience: 2
+      verbose: false
+    
+    lora:
+      enableLora: false
+      loraRank: 8
+      loraAlpha: 16
+      loraTaskType: "CAUSAL_LM"
+      loraTargetModules: null
+
+# Training data configuration
+trainDataConfig: |
+  instruction-dataset:
+    data_path: "HuggingFaceH4/instruction-dataset"
+    strategy: "QA"
+    system_prompt: "A chat between a curious user and an artificial intelligence assistant. The assistant gives helpful, detailed, and polite answers to the user's questions."
+    user_prompt: "{question}"
+    question_key: "prompt"
+    answer_key: "completion"
+    exp_type: train  ## train or inference or eval
+    label_key: "completion"  ## same as answer key
+
+# Resource requests and limits
+resources:
+  limits:
+    otterscale.com/vgpu: 1
+    phison.com/ai100: 1
+  requests:
+    otterscale.com/vgpu: 1
+    phison.com/ai100: 1
+
+# Node selector for GPU nodes
+nodeSelector: {}
+
+# Tolerations for GPU taints
+tolerations: []
+
+# Affinity rules
+affinity: {}

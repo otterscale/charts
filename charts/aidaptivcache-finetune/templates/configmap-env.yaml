@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "aidaptivcache-finetune.fullname" . }}-env-config
+  labels:
+    {{- include "aidaptivcache-finetune.labels" . | nindent 4 }}
+data:
+  env_config.yaml: |
+    # Save_path, nvme_path, log_name settings
+    path_settings:
+      lora:
+        lora_weight: {{ .Values.envConfig.pathSettings.lora.loraWeight | quote }}
+        lora_optimizer: {{ .Values.envConfig.pathSettings.lora.loraOptimizer | quote }}
+        lora_output_dir: {{ .Values.envConfig.pathSettings.lora.loraOutputDir | quote }}
+      model_name_or_path: {{ .Values.envConfig.pathSettings.modelNameOrPath | quote }}
+      multi_node_env_path: {{ .Values.envConfig.pathSettings.multiNodeEnvPath }}
+      optimizer_path: {{ .Values.envConfig.pathSettings.optimizerPath | quote }}
+      train_data_path:
+        {{- range .Values.envConfig.pathSettings.trainDataPath }}
+        - {{ . }}
+        {{- end }}
+      val_data_path: {{ .Values.envConfig.pathSettings.valDataPath }}
+      nvme_path: {{ .Values.envConfig.pathSettings.nvmePath | quote }}
+      output_dir: {{ .Values.envConfig.pathSettings.outputDir | quote }}
+      log_name: {{ .Values.envConfig.pathSettings.logName | quote }}
