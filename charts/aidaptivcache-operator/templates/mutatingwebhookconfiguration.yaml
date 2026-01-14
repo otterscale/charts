@@ -1,0 +1,48 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: phison-webhook
+  {{- if and .Values.tls.enabled (eq .Values.tls.source "cert-manager") }}
+  {{- if .Values.tls.certManager.enabled }}
+  annotations:
+    # IMPORTANT: has to match Certificate namespace/name
+    cert-manager.io/inject-ca-from: "{{ .Values.global.namespace }}/{{ .Values.cert.name }}"
+  {{- end }}
+  {{- end }}
+webhooks:
+  - name: phison.k8s.discover
+    admissionReviewVersions:
+    - v1
+    clientConfig:
+      service:
+        # has to match the service we created
+        namespace: {{ .Values.global.namespace }}
+        name: {{ .Values.service.name }}
+        {{- $httpsPort := "" -}}
+        {{- range .Values.service.ports }}
+          {{- if eq .name "https" }}
+            {{- $httpsPort = .port }}
+          {{- end }}
+        {{- end }}
+        port: {{ $httpsPort }}
+        path: "/mutate-pod"
+    failurePolicy: Fail
+    objectSelector:
+      matchExpressions:
+      - key: app
+        operator: NotIn
+        values:
+        - "{{ .Values.operator.podLabels.app }}"
+    rules:
+    - apiGroups:
+      - ""
+      apiVersions:
+      - v1
+      operations:
+      - CREATE
+      - UPDATE
+      resources:
+      - pods
+    sideEffects: None
+
+

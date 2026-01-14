@@ -1,0 +1,90 @@
+apiVersion: operators.phison.com/v1alpha1
+kind: PhisonDeviceOperator
+metadata:
+  name: aidaptivcache-operator
+  labels:
+    {{- include "aidaptivcache-operator.labels" . | nindent 8 }}
+    {{- with .Values.operator.podLabels }}
+    {{- toYaml . | nindent 8 }}
+    {{- end }}
+spec:
+  servicename: {{ .Values.service.name }}
+  serviceaccount: {{ include "aidaptivcache-operator.serviceAccountName" . }}
+  serviceport: 
+  {{- range .Values.service.ports }}
+    - name: {{ .name }}
+      protocol: {{ .protocol }}
+      port: {{ .port }}
+  {{- end }}
+  plugins:
+    {{- if .Values.devicePlugin.enabled }}
+    - pluginname: {{ .Values.devicePlugin.name }}
+      pluginnamespace:  {{ .Values.global.namespace }}
+      pluginspec:
+        hostPID: {{ .Values.devicePlugin.hostPID }}
+        containers:
+          - name: {{ .Values.devicePlugin.name }}
+            securityContext:
+              {{- toYaml .Values.devicePlugin.securityContext | nindent 16 }}
+            image: {{ .Values.devicePlugin.image.repository }}:{{ .Values.devicePlugin.image.tag }}
+            imagePullPolicy: {{ .Values.devicePlugin.image.pullPolicy }}
+            {{- with .Values.devicePlugin.env }}
+            env:
+              {{- toYaml . | nindent 16 }}
+            {{- end }}
+            args:
+              {{  range .Values.devicePlugin.arguments }}
+                - {{ . }}
+              {{ end }}
+            resources:
+              {{- toYaml .Values.devicePlugin.resources | nindent 16 }}
+            {{- with .Values.devicePlugin.volumeMounts }}
+            volumeMounts:
+              {{- toYaml . | nindent 16 }}
+            {{- end }}
+        imagePullSecrets:
+          - name: {{ .Values.imagePullSecret.name }}
+        {{- with .Values.devicePlugin.volumes }}
+        volumes:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        affinity:
+          {{- toYaml .Values.devicePlugin.affinity | nindent 12 }}
+    {{- end }}
+    {{- if .Values.nodeDiscovery.enabled }}
+    - pluginname: {{ .Values.nodeDiscovery.name }}
+      pluginnamespace:  {{ .Values.global.namespace }}
+      pluginspec:
+        serviceAccountName: {{ .Values.serviceAccount.name }}
+        imagePullSecrets:
+          - name: {{ .Values.imagePullSecret.name }}
+        containers:
+          - name: {{ .Values.nodeDiscovery.name }}
+            securityContext:
+              {{- toYaml .Values.nodeDiscovery.securityContext | nindent 16 }}
+            image: "{{ .Values.nodeDiscovery.image.repository }}:{{ .Values.nodeDiscovery.image.tag }}"
+            imagePullPolicy: {{ .Values.nodeDiscovery.image.pullPolicy }}
+            {{- with .Values.nodeDiscovery.env }}
+            env:
+              {{- toYaml . | nindent 16 }}
+            {{- end }}
+            resources:
+              {{- toYaml .Values.nodeDiscovery.resources | nindent 16 }}
+            {{- with .Values.nodeDiscovery.volumeMounts }}
+            volumeMounts:
+              {{- toYaml . | nindent 16 }}
+            {{- end }}
+        affinity:
+          {{- toYaml .Values.nodeDiscovery.affinity | nindent 12 }}
+        
+        {{- with .Values.nodeDiscovery.tolerations }}
+        tolerations:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.nodeDiscovery.volumes }}
+        volumes:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+    {{- end }}
+
+

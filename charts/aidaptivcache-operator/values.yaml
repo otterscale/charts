@@ -1,0 +1,228 @@
+# Default values for phison-operator.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Global configuration
+global:
+  namespace: aidaptivcache-operator
+# WARNING: Do not enable - this feature is currently under testing
+tls:
+  enabled: false
+  # TLS source: "secret", "cert-manager", or "auto"
+  # - secret: use an existing secret
+  # - cert-manager: use cert-manager to generate certificate
+  # - auto: let operator auto-generate certificate
+  source: "auto"
+  # When source is "secret", specify the secret name
+  secretName: "phison-operator-tls"
+  # When source is "cert-manager", specify certificate settings
+  certManager:
+    enabled: false
+    issuerName: "selfsigned-issuer"
+    issuerKind: "Issuer" # or "ClusterIssuer"
+    duration: "2160h" # 90 days
+    renewBefore: "360h" # 15 days
+    # Certificate paths in the container
+    # certPath: "/tmp/k8s-webhook-server/serving-certs"
+    # certName: "tls.crt"
+    # keyName: "tls.key"
+# Service configuration
+service:
+  name: phison-service
+  type: ClusterIP
+  ports:
+    - name: https
+      protocol: TCP
+      port: 9443
+    - name: handshake
+      protocol: TCP
+      port: 8443
+# ServiceAccount configuration
+serviceAccount:
+  create: true
+  name: phison-sa
+  automount: true
+  annotations: {}
+# RBAC configuration
+rbac:
+  clusterRole:
+    name: phison
+  clusterRoleBinding:
+    name: phison
+# Certificate configuration (for cert-manager)
+cert:
+  name: phison-cert
+# Image pull secret configuration
+imagePullSecret:
+  create: true
+  name: "phison-pull-secret"
+  registry: "https://index.docker.io/v1/"
+  token: "dckr_pat_Nlhg0qxrLP_VaHJdy0cvVdwNOhY"
+# Phison Operator configuration
+operator:
+  replicaCount: 1
+  name: aidaptivcache-operator
+  image:
+    repository: licensesp/aidaptivcache-operator
+    pullPolicy: IfNotPresent
+    tag: "v0.7.3"
+  nameOverride: ""
+  fullnameOverride: ""
+  podAnnotations: {}
+  podLabels:
+    app: aidaptivcache-operator
+  podSecurityContext: {}
+  # fsGroup: 2000
+
+  securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+  resources:
+    limits:
+      cpu: "2"
+      memory: "2Gi"
+    requests:
+      cpu: "1"
+      memory: "1Gi"
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: 8081
+    initialDelaySeconds: 15
+    periodSeconds: 20
+  readinessProbe:
+    httpGet:
+      path: /readyz
+      port: 8081
+    initialDelaySeconds: 5
+    periodSeconds: 10
+  # Additional volumes on the output Deployment definition
+  volumes: []
+  # - name: foo
+  #   secret:
+  #     secretName: mysecret
+  #     optional: false
+
+  # Additional volumeMounts on the output Deployment definition
+  volumeMounts: []
+  # - name: foo
+  #   mountPath: "/etc/foo"
+  #   readOnly: true
+
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+# Phison Node Discovery configuration
+nodeDiscovery:
+  enabled: true
+  name: aidaptivcache-node-discovery
+  image:
+    repository: licensesp/aidaptivcache-node-discover
+    pullPolicy: IfNotPresent
+    tag: "v0.1.1"
+  labels:
+    app: aidaptivcache-node-discovery
+  securityContext:
+    privileged: true
+  resources:
+    limits:
+      cpu: "100m"
+      memory: "100Mi"
+    requests:
+      cpu: "100m"
+      memory: "100Mi"
+  tolerations:
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/master
+      operator: Equal
+    - effect: NoSchedule
+      key: node-role.kubernetes.io/control-plane
+      operator: Equal
+  env:
+    - name: NODE_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: spec.nodeName
+    - name: POD_NAMESPACE
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.namespace
+# Phison Device Plugin configuration
+devicePlugin:
+  enabled: true
+  name: aidaptivcache-device-plugin
+  image:
+    repository: licensesp/aidaptivcache-device-plugin
+    pullPolicy: IfNotPresent
+    tag: "v0.4.6"
+  arguments: []
+  hostPID: true
+  securityContext:
+    privileged: true
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "1024Mi"
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+  volumes:
+    - name: device-plugin
+      hostPath:
+        path: /var/lib/kubelet/device-plugins
+    - name: modules
+      hostPath:
+        path: "/lib/modules"
+        type: Directory
+    - name: dev
+      hostPath:
+        path: "/dev"
+        type: Directory
+    - name: proc
+      hostPath:
+        path: "/proc"
+        type: Directory
+  volumeMounts:
+    - name: device-plugin
+      mountPath: /var/lib/kubelet/device-plugins
+    - name: modules
+      mountPath: /lib/modules/
+    - name: dev
+      mountPath: /dev
+    - name: proc
+      mountPath: /proc
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: "phison.com/ai100-present"
+                operator: In
+                values:
+                  - "true"
+  env:
+    - name: POD_NAMESPACE
+      valueFrom:
+        fieldRef:
+          fieldPath: metadata.namespace
+# NVMe Exporter configuration
+exporter:
+  image:
+    repository: licensesp/nvme-exporter
+    pullPolicy: IfNotPresent
+    tag: "1.0.8"
+  nodeSelector:
+    phison.com/ai100-present: "true"
+  containerPort: 9299
+  resources:
+    limits:
+      cpu: "150m"
+      memory: "100Mi"
+    requests:
+      cpu: "150m"
+      memory: "100Mi"
