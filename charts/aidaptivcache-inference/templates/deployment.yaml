@@ -24,7 +24,7 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         securityContext:
           {{- toYaml .Values.securityContext | nindent 10 }}
-        workingDir: {{ .Values.vllm.workingDir }}
+        workingDir: /home/root/aiDAPTIV2/script
         env:
         - name: VLLM_USE_V1
           value: {{ .Values.vllm.env.vllmUseV1 | quote }}
@@ -35,44 +35,66 @@ spec:
         command:
         - /bin/sh
         - -c
-        - >
-          python3 {{ .Values.vllm.script }}
-          --model {{ .Values.vllm.args.model }}
-          --nvme_path {{ .Values.vllm.args.nvmePath }}
-          --port {{ .Values.vllm.args.port }}
-          --gpu-memory-utilization {{ .Values.vllm.args.gpuMemoryUtilization }}
-          --max-model-len {{ .Values.vllm.args.maxModelLen }}
-          --tensor-parallel-size {{ .Values.vllm.args.tensorParallelSize }}
-          --dram-kv-offload-gb {{ .Values.vllm.args.dramKvOffloadGb }}
-          --ssd-kv-offload-gb {{ .Values.vllm.args.ssdKvOffloadGb }}
-          {{- if .Values.vllm.args.resumeKvCache }}
-          --no-resume-kv-cache
+        - |
+          {{- if .Values.volumes.nfs.enabled }}
+          echo "Starting NFS mount process..."
+          mkdir -p {{ .Values.volumes.nfs.mountPath }}
+          TIMEOUT=300
+          ELAPSED=0
+          while [ $ELAPSED -lt $TIMEOUT ]; do
+            echo "Attempting to mount NFS: {{ .Values.volumes.nfs.server }} to {{ .Values.volumes.nfs.mountPath }}"
+            mount -t nfs4 -o nfsvers={{ .Values.volumes.nfs.nfsVersion }} -v {{ .Values.volumes.nfs.server }} {{ .Values.volumes.nfs.mountPath }}
+            if mountpoint -q {{ .Values.volumes.nfs.mountPath }}; then
+              echo "NFS mount successful!"
+              break
+            else
+              echo "Mount failed, retrying in 5 seconds... (${ELAPSED}s/${TIMEOUT}s)"
+              sleep 5
+              ELAPSED=$((ELAPSED + 5))
+            fi
+          done
+          if [ $ELAPSED -ge $TIMEOUT ]; then
+            echo "NFS mount timeout after ${TIMEOUT} seconds. Exiting..."
+            exit 1
+          fi
+          {{- end }}
+          python3 vllm_api_server.py \
+          --model {{ .Values.vllm.args.model }} \
+          --nvme_path {{ .Values.vllm.args.nvmePath }} \
+          --port {{ .Values.vllm.args.port }} \
+          --gpu-memory-utilization {{ .Values.vllm.args.gpuMemoryUtilization }} \
+          --max-model-len {{ .Values.vllm.args.maxModelLen }} \
+          --tensor-parallel-size {{ .Values.vllm.args.tensorParallelSize }} \
+          --dram-kv-offload-gb {{ .Values.vllm.args.dramKvOffloadGb }} \
+          --ssd-kv-offload-gb {{ .Values.vllm.args.ssdKvOffloadGb }} \
+          {{- if .Values.vllm.args.noResumeKvCache }}
+          --no-resume-kv-cache \
           {{- end }}
           {{- if .Values.vllm.args.disableGpuReuse }}
-          --disable-gpu-reuse
+          --disable-gpu-reuse \
           {{- end }}
           {{- if .Values.vllm.args.enableChunkedPrefill }}
-          --enable-chunked-prefill
+          --enable-chunked-prefill \
           {{- end }}
           {{- if .Values.vllm.args.disableLongToken }}
-          --disable-long-token
+          --disable-long-token \
           {{- end }}
           {{- if .Values.vllm.args.resumeKvCache }}
-          --resume-kv-cache
+          --resume-kv-cache \
           {{- end }}
           {{- if .Values.vllm.args.cleanObsoleteKvCache }}
-          --clean-obsolete-kv-cache
+          --clean-obsolete-kv-cache \
           {{- end }}
           {{- if .Values.vllm.args.enablePrefixCaching }}
-          --enable-prefix-caching
+          --enable-prefix-caching \
           {{- end }}
           {{- if .Values.vllm.args.enforceEager }}
-          --enforce-eager
+          --enforce-eager \
           {{- end }}
           {{- if .Values.vllm.lora.enable }}
-          --enable-lora
-          --lora-modules {{ .Values.vllm.lora.modules }}
-          --max-lora-rank {{ .Values.vllm.lora.maxRank }}
+          --enable-lora \
+          --lora-modules {{ .Values.vllm.lora.modules }} \
+          --max-lora-rank {{ .Values.vllm.lora.maxRank }} \
           {{- end }}
         ports:
         - containerPort: {{ .Values.service.targetPort }}
@@ -80,16 +102,11 @@ spec:
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
         volumeMounts:
-        - name: model-storage
-          mountPath: {{ .Values.volumes.model.mountPath }}
         {{- if .Values.volumes.dshm.enabled }}
         - name: dshm
           mountPath: /dev/shm
         {{- end }}
       volumes:
-      - name: model-storage
-        persistentVolumeClaim:
-          claimName: {{ .Values.volumes.model.pvcName }}
       {{- if .Values.volumes.dshm.enabled }}
       - name: dshm
         emptyDir:

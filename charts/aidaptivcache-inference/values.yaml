@@ -12,18 +12,15 @@ deployment:
 
 # vLLM server configuration
 vllm:
-  workingDir: /home/root/aiDAPTIV2/script
-  script: vllm_api_server.py
-  
   # Environment variables
   env:
     vllmUseV1: "1"
     vllmWorkerMultiprocMethod: "spawn"
-    tiktokenEncodingsBase: "/mnt/model/gpt-oss-120b/encodings"
+    tiktokenEncodingsBase: ""
   
   # Command line arguments
   args:
-    model: /mnt/model/gemma-3-27b-it/
+    model: /mnt/data/model/Meta-Llama-3.1-8B-Instruct/
     nvmePath: /mnt/nvme0
     port: 8000
     gpuMemoryUtilization: 0.9
@@ -50,8 +47,8 @@ vllm:
 # Service configuration
 service:
   type: NodePort
-  port: 8299
-  targetPort: 8299
+  port: 8000
+  targetPort: 8000
   # Optional: uncomment to set a specific nodePort
   # nodePort: 30299
 
@@ -61,20 +58,26 @@ securityContext:
 
 # Volume configuration
 volumes:
-  model:
-    pvcName: ""  # Required: Name of the PVC containing the model
-    mountPath: /mnt/model/
   dshm:
     enabled: true
     sizeLimit: 30Gi
+  nfs:
+    enabled: true  
+    server: ""  # NFS server and path (e.g., "10.102.197.0:/volumes/_nogroup/test/a752f0eb-bfd6-4395-a629-4b91144b41e6")
+    mountPath: /mnt/data  # Local mount path for model
+    nfsVersion: "4.1"  # NFS version
 
 # Resource requests and limits
 resources:
   requests:
-    otterscale.com/vgpu: 8
+    otterscale.com/vgpu: 1
+    otterscale.com/vgpumem: 2048
+    #otterscale.com/vgpumem-percentage: 
     phison.com/ai100: 1
   limits:
-    otterscale.com/vgpu: 8
+    otterscale.com/vgpu: 1
+    otterscale.com/vgpumem: 2048
+    #otterscale.com/vgpumem-percentage: 
     phison.com/ai100: 1
 
 # Node selector for GPU nodes
