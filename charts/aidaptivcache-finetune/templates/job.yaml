@@ -23,12 +23,35 @@ spec:
       - name: finetune
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 10 }}
         command:
-        - phisonai2
-        - --env_config
-        - /config/env/env_config.yaml
-        - --exp_config
-        - /config/exp/exp_config.yaml
+        - /bin/sh
+        - -c
+        - |
+          {{- if .Values.nfs.enabled }}
+          echo "Starting NFS mount process..."
+          mkdir -p {{ .Values.nfs.mountPath }}
+          TIMEOUT=300
+          ELAPSED=0
+          while [ $ELAPSED -lt $TIMEOUT ]; do
+            echo "Attempting to mount NFS: {{ .Values.nfs.server }} to {{ .Values.nfs.mountPath }}"
+            mount -t nfs4 -o nfsvers={{ .Values.nfs.nfsVersion }} -v {{ .Values.nfs.server }} {{ .Values.nfs.mountPath }}
+            if mountpoint -q {{ .Values.nfs.mountPath }}; then
+              echo "NFS mount successful!"
+              break
+            else
+              echo "Mount failed, retrying in 5 seconds... (${ELAPSED}s/${TIMEOUT}s)"
+              sleep 5
+              ELAPSED=$((ELAPSED + 5))
+            fi
+          done
+          if [ $ELAPSED -ge $TIMEOUT ]; then
+            echo "NFS mount timeout after ${TIMEOUT} seconds. Exiting..."
+            exit 1
+          fi
+          {{- end }}
+          phisonai2 --env_config /config/env/env_config.yaml --exp_config /config/exp/exp_config.yaml
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
         volumeMounts:
@@ -41,11 +64,6 @@ spec:
         - name: train-data-config
           mountPath: /config/train_data
           readOnly: true
-        - name: model-storage
-          mountPath: {{ .Values.modelPvc.mountPath }}
-          readOnly: true
-        - name: result-storage
-          mountPath: {{ .Values.resultVolume.mountPath }}
       volumes:
       - name: env-config
         configMap:
@@ -56,16 +74,6 @@ spec:
       - name: train-data-config
         configMap:
           name: {{ include "aidaptivcache-finetune.fullname" . }}-train-data
-      - name: model-storage
-        persistentVolumeClaim:
-          claimName: {{ .Values.modelPvc.name }}
-      - name: result-storage
-        persistentVolumeClaim:
-          {{- if .Values.resultVolume.existingPvc }}
-          claimName: {{ .Values.resultVolume.existingPvc }}
-          {{- else }}
-          claimName: {{ include "aidaptivcache-finetune.fullname" . }}-result
-          {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
