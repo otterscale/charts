@@ -1,0 +1,80 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "aidaptivcache-finetune.fullname" . }}
+  labels:
+    {{- include "aidaptivcache-finetune.labels" . | nindent 4 }}
+spec:
+  backoffLimit: {{ .Values.job.backoffLimit }}
+  {{- if .Values.job.ttlSecondsAfterFinished }}
+  ttlSecondsAfterFinished: {{ .Values.job.ttlSecondsAfterFinished }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "aidaptivcache-finetune.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: {{ .Values.job.restartPolicy }}
+      containers:
+      - name: finetune
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command:
+        - phisonai2
+        - --env_config
+        - /config/env/env_config.yaml
+        - --exp_config
+        - /config/exp/exp_config.yaml
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        volumeMounts:
+        - name: env-config
+          mountPath: /config/env
+          readOnly: true
+        - name: exp-config
+          mountPath: /config/exp
+          readOnly: true
+        - name: train-data-config
+          mountPath: /config/train_data
+          readOnly: true
+        - name: model-storage
+          mountPath: {{ .Values.modelPvc.mountPath }}
+          readOnly: true
+        - name: result-storage
+          mountPath: {{ .Values.resultVolume.mountPath }}
+      volumes:
+      - name: env-config
+        configMap:
+          name: {{ include "aidaptivcache-finetune.fullname" . }}-env-config
+      - name: exp-config
+        configMap:
+          name: {{ include "aidaptivcache-finetune.fullname" . }}-exp-config
+      - name: train-data-config
+        configMap:
+          name: {{ include "aidaptivcache-finetune.fullname" . }}-train-data
+      - name: model-storage
+        persistentVolumeClaim:
+          claimName: {{ .Values.modelPvc.name }}
+      - name: result-storage
+        persistentVolumeClaim:
+          {{- if .Values.resultVolume.existingPvc }}
+          claimName: {{ .Values.resultVolume.existingPvc }}
+          {{- else }}
+          claimName: {{ include "aidaptivcache-finetune.fullname" . }}-result
+          {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

@@ -1,0 +1,15 @@
+{{- if and .Values.resultVolume.storageClass (not .Values.resultVolume.existingPvc) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "aidaptivcache-finetune.fullname" . }}-result
+  labels:
+    {{- include "aidaptivcache-finetune.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - {{ .Values.resultVolume.accessMode }}
+  storageClassName: {{ .Values.resultVolume.storageClass }}
+  resources:
+    requests:
+      storage: {{ .Values.resultVolume.size }}
+{{- end }}

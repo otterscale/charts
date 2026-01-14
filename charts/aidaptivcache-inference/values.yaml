@@ -1,0 +1,87 @@
+image:
+  repository: docker.io/library/aidaptiv
+  tag: vNXUN_3_03BAA-1
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+# Deployment configuration
+deployment:
+  name: vllm-api
+  replicas: 1
+
+# vLLM server configuration
+vllm:
+  workingDir: /home/root/aiDAPTIV2/script
+  script: vllm_api_server.py
+  
+  # Environment variables
+  env:
+    vllmUseV1: "1"
+    vllmWorkerMultiprocMethod: "spawn"
+    tiktokenEncodingsBase: "/mnt/model/gpt-oss-120b/encodings"
+  
+  # Command line arguments
+  args:
+    model: /mnt/model/gemma-3-27b-it/
+    nvmePath: /mnt/nvme0
+    port: 8000
+    gpuMemoryUtilization: 0.9
+    maxModelLen: 32768
+    tensorParallelSize: 4
+    dramKvOffloadGb: 0
+    ssdKvOffloadGb: 500
+    noResumeKvCache: true
+    disableGpuReuse: false
+    enableChunkedPrefill: true
+    # Optional flags (commented out by default)
+    # disableLongToken: true
+    # resumeKvCache: true
+    # cleanObsoleteKvCache: true
+    # enablePrefixCaching: true
+    # enforceEager: true
+  
+  # LoRA configuration (all three parameters must be set together)
+  lora:
+    enable: false  # Set to true to enable LoRA
+    modules: ""  # Example: "lora=/app/llama3.1-8B-lora/" (required if enable is true)
+    maxRank: 32  # Maximum LoRA rank (required if enable is true)
+
+# Service configuration
+service:
+  type: NodePort
+  port: 8299
+  targetPort: 8299
+  # Optional: uncomment to set a specific nodePort
+  # nodePort: 30299
+
+# Security context
+securityContext:
+  privileged: true
+
+# Volume configuration
+volumes:
+  model:
+    pvcName: ""  # Required: Name of the PVC containing the model
+    mountPath: /mnt/model/
+  dshm:
+    enabled: true
+    sizeLimit: 30Gi
+
+# Resource requests and limits
+resources:
+  requests:
+    otterscale.com/vgpu: 8
+    phison.com/ai100: 1
+  limits:
+    otterscale.com/vgpu: 8
+    phison.com/ai100: 1
+
+# Node selector for GPU nodes
+nodeSelector: {}
+
+# Tolerations for GPU taints
+tolerations: []
+
+# Affinity rules
+affinity: {}

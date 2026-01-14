@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "aidaptivcache-finetune.fullname" . }}-exp-config
+  labels:
+    {{- include "aidaptivcache-finetune.labels" . | nindent 4 }}
+data:
+  exp_config.yaml: |
+    process_settings:
+      num_gpus: {{ .Values.expConfig.processSettings.numGpus }}
+      specify_gpus: {{ .Values.expConfig.processSettings.specifyGpus }}
+      master_port: {{ .Values.expConfig.processSettings.masterPort }}
+      multi_node_settings:
+        enable: {{ .Values.expConfig.processSettings.multiNodeSettings.enable }}
+        master_addr: {{ .Values.expConfig.processSettings.multiNodeSettings.masterAddr | quote }}
+
+    # Running train, eval, inference related settings
+    run_settings:
+      task_type: {{ .Values.expConfig.runSettings.taskType | quote }}
+      task_mode: {{ .Values.expConfig.runSettings.taskMode | quote }}
+      per_device_train_batch_size: {{ .Values.expConfig.runSettings.perDeviceTrainBatchSize }}
+      per_update_total_batch_size: {{ .Values.expConfig.runSettings.perUpdateTotalBatchSize }}
+      num_train_epochs: {{ .Values.expConfig.runSettings.numTrainEpochs }}
+      max_iter: {{ .Values.expConfig.runSettings.maxIter }}
+      max_seq_len: {{ .Values.expConfig.runSettings.maxSeqLen }}
+      triton: {{ .Values.expConfig.runSettings.triton }}
+      weight_file_format: {{ .Values.expConfig.runSettings.weightFileFormat }}
+      from_config: {{ .Values.expConfig.runSettings.fromConfig }}
+      precision_mode: {{ .Values.expConfig.runSettings.precisionMode }}
+      enable_save_optimizer_state: {{ .Values.expConfig.runSettings.enableSaveOptimizerState }}
+
+      model_saver:
+        max_num_of_saved_model_on_epoch_end: {{ .Values.expConfig.runSettings.modelSaver.maxNumOfSavedModelOnEpochEnd }}
+        enable_save_model_on_iteration: {{ .Values.expConfig.runSettings.modelSaver.enableSaveModelOnIteration }}
+        max_num_of_saved_model_on_iteration: {{ .Values.expConfig.runSettings.modelSaver.maxNumOfSavedModelOnIteration }}
+        num_of_iteration_to_save_model: {{ .Values.expConfig.runSettings.modelSaver.numOfIterationToSaveModel }}
+
+      lr_scheduler:
+        mode: {{ .Values.expConfig.runSettings.lrScheduler.mode }}
+        learning_rate: {{ .Values.expConfig.runSettings.lrScheduler.learningRate }}
+
+      optimizer:
+        beta1: {{ .Values.expConfig.runSettings.optimizer.beta1 }}
+        beta2: {{ .Values.expConfig.runSettings.optimizer.beta2 }}
+        eps: {{ .Values.expConfig.runSettings.optimizer.eps }}
+        weight_decay: {{ .Values.expConfig.runSettings.optimizer.weightDecay }}
+
+      early_stop:
+        enable: {{ .Values.expConfig.runSettings.earlyStop.enable }}
+        min_delta: {{ .Values.expConfig.runSettings.earlyStop.minDelta }}
+        patience: {{ .Values.expConfig.runSettings.earlyStop.patience }}
+        verbose: {{ .Values.expConfig.runSettings.earlyStop.verbose }}
+
+      lora:
+        enable_lora: {{ .Values.expConfig.runSettings.lora.enableLora }}
+        lora_rank: {{ .Values.expConfig.runSettings.lora.loraRank }}
+        lora_alpha: {{ .Values.expConfig.runSettings.lora.loraAlpha }}
+        lora_task_type: {{ .Values.expConfig.runSettings.lora.loraTaskType | quote }}
+        lora_target_modules: {{ .Values.expConfig.runSettings.lora.loraTargetModules }}
