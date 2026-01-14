@@ -1,5 +1,28 @@
 apiVersion: v1
 entries:
+  aidaptivcache-operator:
+  - apiVersion: v2
+    appVersion: v0.7.3
+    created: "2026-01-14T01:59:32.794549483Z"
+    description: An operator for aiDAPTIVCache
+    digest: c9e1490d6a4f5bfe44ac7192c9a0e0f9d6d9d0f828df7a71d2e1b0d57a4d3c4b
+    home: https://www.phison.com/
+    icon: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRb8swXMofartTcrJnNDStOhr8dnL_aw9DXFA&s
+    keywords:
+    - aidaptivcache
+    - device-plugin
+    - operator
+    - finetune
+    - inference
+    maintainers:
+    - name: Phison, Inc. All Rights Reserved.
+    name: aidaptivcache-operator
+    sources:
+    - http://192.168.1.154/d6/d69/ifas/k8s-service/k8s-operator/phison-operator-helm-chart
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/aidaptivcache-operator-0.4.3/aidaptivcache-operator-0.4.3.tgz
+    version: 0.4.3
   gpu-operator:
   - apiVersion: v2
     created: "2025-12-08T08:28:25.485830184Z"
@@ -963,4 +986,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/snapshot-controller-0.1.0/snapshot-controller-0.1.0.tgz
     version: 0.1.0
-generated: "2026-01-12T08:40:01.989744721Z"
+generated: "2026-01-14T01:59:32.939607323Z"
