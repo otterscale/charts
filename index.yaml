@@ -3,6 +3,16 @@ entries:
   aidaptivcache-finetune:
   - apiVersion: v2
     appVersion: "1.0"
+    created: "2026-01-14T10:16:47.075307244Z"
+    description: A Helm chart for running AI model fine-tuning jobs
+    digest: 5de9703bb5be0e5ee0d6055870b570ea3b639c32abb4e7a66c748cca773d2dcc
+    name: aidaptivcache-finetune
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/aidaptivcache-finetune-0.1.1/aidaptivcache-finetune-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: "1.0"
     created: "2026-01-14T06:01:15.751820429Z"
     description: A Helm chart for running AI model fine-tuning jobs
     digest: b609ae67d7ef3e21dbf9781a82905617a69abb00d1f6ec24e56fa400e96a3a8b
@@ -12,6 +22,16 @@ entries:
     - https://github.com/otterscale/charts/releases/download/aidaptivcache-finetune-0.1.0/aidaptivcache-finetune-0.1.0.tgz
     version: 0.1.0
   aidaptivcache-inference:
+  - apiVersion: v2
+    appVersion: "1.0"
+    created: "2026-01-14T10:16:47.22904402Z"
+    description: A Helm chart for vLLM API inference server
+    digest: f4dc0126fce1aff0939fbd91492758df5eee830cbcdfad893bc83093c9646406
+    name: aidaptivcache-inference
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/aidaptivcache-inference-0.1.1/aidaptivcache-inference-0.1.1.tgz
+    version: 0.1.1
   - apiVersion: v2
     appVersion: "1.0"
     created: "2026-01-14T06:01:15.956609663Z"
@@ -1008,4 +1028,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/snapshot-controller-0.1.0/snapshot-controller-0.1.0.tgz
     version: 0.1.0
-generated: "2026-01-14T06:01:15.956687358Z"
+generated: "2026-01-14T10:16:47.2291624Z"
