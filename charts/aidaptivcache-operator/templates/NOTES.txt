@@ -1,0 +1,10 @@
+Thank you for installing {{ .Chart.Name }}.
+
+Register device:
+
+    phison.com/ai100
+
+Friendly note about CRDs. Make sure to manually update CRDs if
+they have changed. CRDs are not updated with helm by default.
+
+

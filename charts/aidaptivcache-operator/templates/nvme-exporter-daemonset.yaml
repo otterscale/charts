@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: aidaptivcache-exporter
+spec:
+  selector:
+    matchLabels:
+      app: aidaptivcache-exporter
+  template:
+    metadata:
+      labels:
+        app: aidaptivcache-exporter
+    spec:
+      nodeSelector: {{ toYaml .Values.exporter.nodeSelector | nindent 8 }}
+      imagePullSecrets: 
+        - name: {{ .Values.imagePullSecret.name }}
+      containers:
+        - name: nvme-container
+          image: "{{ .Values.exporter.image.repository }}:{{ .Values.exporter.image.tag }}"
+          imagePullPolicy: {{ .Values.exporter.image.pullPolicy }}
+          securityContext:
+            privileged: true
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: SERVICE_NAME
+              value: "{{ .Values.service.name }}"
+            - name: SERVICE_PORT
+              value: "{{ include "aidaptivcache.handshakePort" . }}"
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          ports:
+            - containerPort: {{ .Values.exporter.containerPort }}
+              name: http
+              protocol: TCP
+          resources:
+            limits:
+              cpu: {{ .Values.exporter.resources.limits.cpu }}
+              memory: {{ .Values.exporter.resources.limits.memory }}
+            requests:
+              cpu: {{ .Values.exporter.resources.requests.cpu }}
+              memory: {{ .Values.exporter.resources.requests.memory }}
