@@ -3,6 +3,24 @@ entries:
   aidaptivcache-finetune:
   - apiVersion: v2
     appVersion: "1.0"
+    created: "2026-01-15T07:15:31.611839519Z"
+    description: A Helm chart for running AI model fine-tuning jobs
+    digest: 7f1ba3c1f3cb7ddf6e8e83db638d6e5235c287e3ac5e16cd71f019aa7e01ba53
+    home: https://www.phison.com/
+    icon: https://otterscale.com/phison-logo-p.svg
+    keywords:
+    - aidaptivcache
+    - finetune
+    maintainers:
+    - email: shawn_tsai@phison.com
+      name: Shawn
+    name: aidaptivcache-finetune
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/aidaptivcache-finetune-0.1.3/aidaptivcache-finetune-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
+    appVersion: "1.0"
     created: "2026-01-15T02:40:53.079136733Z"
     description: A Helm chart for running AI model fine-tuning jobs
     digest: 79d29eb92cf8d3fcae51d9849525af4e497b2afe887bfb3eca1edc3b0052e057
@@ -40,6 +58,24 @@ entries:
     - https://github.com/otterscale/charts/releases/download/aidaptivcache-finetune-0.1.0/aidaptivcache-finetune-0.1.0.tgz
     version: 0.1.0
   aidaptivcache-inference:
+  - apiVersion: v2
+    appVersion: "1.0"
+    created: "2026-01-15T07:15:31.775147238Z"
+    description: A Helm chart for vLLM API inference server
+    digest: e1c0408ac981d35e2a85c0260cf251e7f8342dc670ea6ba6cd6a0dcfe4e6b6a4
+    home: https://www.phison.com/
+    icon: https://otterscale.com/phison-logo-p.svg
+    keywords:
+    - aidaptivcache
+    - inference
+    maintainers:
+    - email: shawn_tsai@phison.com
+      name: Shawn
+    name: aidaptivcache-inference
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/aidaptivcache-inference-0.1.3/aidaptivcache-inference-0.1.3.tgz
+    version: 0.1.3
   - apiVersion: v2
     appVersion: "1.0"
     created: "2026-01-15T02:40:53.236753158Z"
@@ -1064,4 +1100,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/snapshot-controller-0.1.0/snapshot-controller-0.1.0.tgz
     version: 0.1.0
-generated: "2026-01-15T02:40:53.236889144Z"
+generated: "2026-01-15T07:15:31.775244699Z"
