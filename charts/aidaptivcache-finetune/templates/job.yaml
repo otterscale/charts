@@ -29,29 +29,13 @@ spec:
         - /bin/sh
         - -c
         - |
-          {{- if .Values.nfs.enabled }}
-          echo "Starting NFS mount process..."
-          mkdir -p {{ .Values.nfs.mountPath }}
-          TIMEOUT=300
-          ELAPSED=0
-          while [ $ELAPSED -lt $TIMEOUT ]; do
-            echo "Attempting to mount NFS: {{ .Values.nfs.server }} to {{ .Values.nfs.mountPath }}"
-            mount -t nfs4 -o nfsvers={{ .Values.nfs.nfsVersion }} -v {{ .Values.nfs.server }} {{ .Values.nfs.mountPath }}
-            if mountpoint -q {{ .Values.nfs.mountPath }}; then
-              echo "NFS mount successful!"
-              break
-            else
-              echo "Mount failed, retrying in 5 seconds... (${ELAPSED}s/${TIMEOUT}s)"
-              sleep 5
-              ELAPSED=$((ELAPSED + 5))
-            fi
-          done
-          if [ $ELAPSED -ge $TIMEOUT ]; then
-            echo "NFS mount timeout after ${TIMEOUT} seconds. Exiting..."
-            exit 1
-          fi
+          {{- if .Values.prescript }}
+{{ .Values.prescript | indent 10 }}
           {{- end }}
           phisonai2 --env_config /config/env/env_config.yaml --exp_config /config/exp/exp_config.yaml
+          {{- if .Values.postscript }}
+{{ .Values.postscript | indent 10 }}
+          {{- end }}
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
         volumeMounts:

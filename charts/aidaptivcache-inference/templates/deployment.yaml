@@ -36,27 +36,8 @@ spec:
         - /bin/sh
         - -c
         - |
-          {{- if .Values.volumes.nfs.enabled }}
-          echo "Starting NFS mount process..."
-          mkdir -p {{ .Values.volumes.nfs.mountPath }}
-          TIMEOUT=300
-          ELAPSED=0
-          while [ $ELAPSED -lt $TIMEOUT ]; do
-            echo "Attempting to mount NFS: {{ .Values.volumes.nfs.server }} to {{ .Values.volumes.nfs.mountPath }}"
-            mount -t nfs4 -o nfsvers={{ .Values.volumes.nfs.nfsVersion }} -v {{ .Values.volumes.nfs.server }} {{ .Values.volumes.nfs.mountPath }}
-            if mountpoint -q {{ .Values.volumes.nfs.mountPath }}; then
-              echo "NFS mount successful!"
-              break
-            else
-              echo "Mount failed, retrying in 5 seconds... (${ELAPSED}s/${TIMEOUT}s)"
-              sleep 5
-              ELAPSED=$((ELAPSED + 5))
-            fi
-          done
-          if [ $ELAPSED -ge $TIMEOUT ]; then
-            echo "NFS mount timeout after ${TIMEOUT} seconds. Exiting..."
-            exit 1
-          fi
+          {{- if .Values.prescript }}
+{{ .Values.prescript | indent 10 }}
           {{- end }}
           python3 vllm_api_server.py \
           --model {{ .Values.vllm.args.model }} \
@@ -95,6 +76,9 @@ spec:
           --enable-lora \
           --lora-modules {{ .Values.vllm.lora.modules }} \
           --max-lora-rank {{ .Values.vllm.lora.maxRank }} \
+          {{- end }}
+          {{- if .Values.postscript }}
+{{ .Values.postscript | indent 10 }}
           {{- end }}
         ports:
         - containerPort: {{ .Values.service.targetPort }}
