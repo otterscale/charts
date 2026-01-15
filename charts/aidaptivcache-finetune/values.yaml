@@ -128,13 +128,13 @@ trainDataConfig: |
 resources:
   limits:
     otterscale.com/vgpu: 1
-    otterscale.com/vgpumem: 2048
-    #otterscale.com/vgpumem-percentage: 
+    #otterscale.com/vgpumem: 2048
+    otterscale.com/vgpumem-percentage: 60
     phison.com/ai100: 1
   requests:
     otterscale.com/vgpu: 1
-    otterscale.com/vgpumem: 2048
-    #otterscale.com/vgpumem-percentage: 
+    #otterscale.com/vgpumem: 2048
+    otterscale.com/vgpumem-percentage: 60
     phison.com/ai100: 1
 
 # Node selector for GPU nodes

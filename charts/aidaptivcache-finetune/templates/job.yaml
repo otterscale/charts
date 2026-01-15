@@ -19,6 +19,10 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       restartPolicy: {{ .Values.job.restartPolicy }}
+      {{- if .Values.schedulerName }}
+      schedulerName: {{ .Values.schedulerName }}
+      {{- end }}
+      
       containers:
       - name: finetune
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
