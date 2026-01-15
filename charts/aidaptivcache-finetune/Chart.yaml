@@ -1,6 +1,14 @@
 apiVersion: v2
 name: aidaptivcache-finetune
 description: A Helm chart for running AI model fine-tuning jobs
+home: https://www.phison.com/
 type: application
-version: 0.1.1
+keywords:
+  - aidaptivcache
+  - finetune
+icon: https://otterscale.com/phison-logo-p.svg
+version: 0.1.2
 appVersion: "1.0"
+maintainers:
+- name: Shawn
+  email: shawn_tsai@phison.com

@@ -67,6 +67,33 @@ volumes:
     mountPath: /mnt/data  # Local mount path for model
     nfsVersion: "4.1"  # NFS version
 
+# Pre-execution script (runs before main command)
+#prescript: |
+#  echo "Starting NFS mount process..."
+#  mkdir -p /mnt/data
+#  TIMEOUT=300
+#  ELAPSED=0
+#  while [ $ELAPSED -lt $TIMEOUT ]; do
+#    echo "Attempting to mount NFS: <NFS_SERVER> to /mnt/data"
+#    mount -t nfs4 -o nfsvers=4.1 -v <NFS_SERVER> /mnt/data
+#    if mountpoint -q /mnt/data; then
+#      echo "NFS mount successful!"
+#      break
+#    else
+#      echo "Mount failed, retrying in 5 seconds... (${ELAPSED}s/${TIMEOUT}s)"
+#      sleep 5
+#      ELAPSED=$((ELAPSED + 5))
+#    fi
+#  done
+#  if [ $ELAPSED -ge $TIMEOUT ]; then
+#    echo "NFS mount timeout after ${TIMEOUT} seconds. Exiting..."
+#    exit 1
+#  fi
+
+# Post-execution script (runs after main command)
+#postscript: |
+#  echo "Server stopped"
+
 # Resource requests and limits
 resources:
   requests:
