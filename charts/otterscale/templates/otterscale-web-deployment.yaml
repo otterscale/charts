@@ -101,20 +101,6 @@ spec:
                   name: {{ $cloudnativePg.bootstrap.initdb.secret.name }}
                   key: dbname
             {{- end }}
-            - name: NODE_ENV
-              value: "development"
-            - name: ORIGIN
-              value: {{ .Values.otterscaleWeb.env.publicWebUrl | quote }}
-            - name: PUBLIC_WEB_URL
-              value: {{ .Values.otterscaleWeb.env.publicWebUrl | quote }}
-            - name: PUBLIC_API_URL
-              value: {{ if .Values.otterscaleWeb.env.publicApiUrl }}{{ .Values.otterscaleWeb.env.publicApiUrl | quote }}{{ else }}"http://{{ include "otterscale.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:8299"{{ end }}
-            - name: KEYCLOAK_REALM_URL
-              value: {{ .Values.otterscaleWeb.env.keycloakRealmUrl | quote }}
-            - name: KEYCLOAK_CLIENT_ID
-              value: {{ .Values.otterscaleWeb.env.keycloakClientID | quote }}
-            - name: KEYCLOAK_CLIENT_SECRET
-              value: {{ .Values.otterscaleWeb.env.keycloakClientSecret | quote }}
             {{- with .Values.otterscaleWeb.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}

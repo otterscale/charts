@@ -72,60 +72,6 @@ otterscale:
       memory: "512Mi"
       cpu: "500m"
 
-openfeature:
-  sidecar:
-    enabled: true
-  # Name of the FeatureFlagSource resource
-  # This will be used in the pod annotation: openfeature.dev/featureflagsource
-  flagsource: ""
-  # Feature flag configurations
-  # Each entry will create a separate FeatureFlag resource
-  flags:
-    # Example: Add more flag configurations as needed
-    # default-flags:
-    #   enabled: false
-    #   spec:
-    #     some-feature:
-    #       state: ENABLED
-    #       variants:
-    #         "on": true
-    #         "off": false
-    #       defaultVariant: "off"
-
-# -----------------------------------------------------------------------------
-# OtterScale Configuration File Content
-# -----------------------------------------------------------------------------
-# The content of otterscale.yaml configuration file
-# This will be mounted as a ConfigMap
-# Corresponds to CONFIG_VOLUME_PATH in environment configuration
-configContent: |
-  # OtterScale Service Configuration
-  # This configuration file defines the service settings
-  maas:
-    url: http://127.0.0.1:5240/MAAS
-    key: your_cert
-    version: "2.0"
-
-  juju:
-    controller: maas-cloud-controller
-    controller_addresses: []
-    username: admin
-    password: your_password
-    ca_cert: |
-      -----BEGIN CERTIFICATE-----
-      xxxx
-      -----END CERTIFICATE-----
-    cloud_name: maas-cloud
-    cloud_region: default
-    charmhub_api_url: https://api.charmhub.io
-
-  kube:
-    helm_repository_urls:
-    - https://artifacthub.github.io/helm-charts
-
-  ceph:
-    rados_timeout: 0s
-
 # -----------------------------------------------------------------------------
 # OtterScale Web UI Configuration
 # -----------------------------------------------------------------------------
@@ -183,23 +129,110 @@ otterscaleWeb:
       memory: "256Mi"
       cpu: "200m"
 
-  # Application environment variables
-  env:
-    publicWebUrl: ""
-    publicApiUrl: ""
-    keycloakRealmUrl: ""
-    keycloakClientID: ""
-    keycloakClientSecret: ""
-
   # Additional environment variables
-  extraEnv: []
-  # - name: CUSTOM_VAR
-  #   value: "value"
+  extraEnv: 
+   - name: NODE_ENV
+     value: "development"
+   #- name: ORIGIN
+   #  value: ""
+   - name: PUBLIC_WEB_URL
+     value: "http://192.168.196.160"
+   - name: PUBLIC_API_URL
+     value: "http://192.168.196.160/api"
+   - name: KEYCLOAK_REALM_URL
+     value: "http://192.168.196.160/auth/realms/otterscale"
+   - name: KEYCLOAK_CLIENT_ID
+     value: "otterscale"
+   - name: KEYCLOAK_CLIENT_SECRET
+     value: "37lZXjYg5meEC5G1OEQDnsyXzonWZ9Oc"
+   - name: VAULT_ADDR
+     value: ""
+   - name: VAULT_TOKEN
+     value: ""
 
   # Environment variables from secrets or configmaps
   envFrom: []
   # - secretRef:
   #     name: my-secret
+
+# -----------------------------------------------------------------------------
+# OpenFeature Flag Configuration
+# -----------------------------------------------------------------------------
+openfeature:
+  sidecar:
+    enabled: true
+  # Name of the FeatureFlagSource resource
+  # This will be used in the pod annotation: openfeature.dev/featureflagsource
+  flagsource: ""
+  # Feature flag configurations
+  # Each entry will create a separate FeatureFlag resource
+  flags:
+    # Example: Add more flag configurations as needed
+    # default-flags:
+    #   enabled: false
+    #   spec:
+    #     some-feature:
+    #       state: ENABLED
+    #       variants:
+    #         "on": true
+    #         "off": false
+    #       defaultVariant: "off"
+
+# -----------------------------------------------------------------------------
+# ValKey Configuration
+# -----------------------------------------------------------------------------
+valkey:
+  enabled: true
+  dataStorage:
+    enabled: true
+    keepPvc: true
+  auth:
+    enabled: true
+    aclUsers:
+      default:
+        password: "password"
+        permissions: "~* &* +@all"
+
+# -----------------------------------------------------------------------------
+# Vault Configuration
+# -----------------------------------------------------------------------------
+vault:
+  enabled: false
+  server:
+    dev:
+      enabled: true
+      devRootToken: "root"
+
+# -----------------------------------------------------------------------------
+# MAAS & JuJu Configuration
+# -----------------------------------------------------------------------------
+configContent: |
+  # OtterScale Service Configuration
+  # This configuration file defines the service settings
+  maas:
+    url: http://127.0.0.1:5240/MAAS
+    key: your_cert
+    version: "2.0"
+
+  juju:
+    controller: maas-cloud-controller
+    controller_addresses: []
+    username: admin
+    password: your_password
+    ca_cert: |
+      -----BEGIN CERTIFICATE-----
+      xxxx
+      -----END CERTIFICATE-----
+    cloud_name: maas-cloud
+    cloud_region: default
+    charmhub_api_url: https://api.charmhub.io
+
+  kube:
+    helm_repository_urls:
+    - https://artifacthub.github.io/helm-charts
+
+  ceph:
+    rados_timeout: 0s
 
 # -----------------------------------------------------------------------------
 # Istio Configuration
@@ -255,7 +288,6 @@ istio:
 # -----------------------------------------------------------------------------
 keycloakx:
   enabled: true
-
   replicas: 1
   image:
     repository: quay.io/keycloak/keycloak
@@ -286,3 +318,36 @@ keycloakx:
     storage:
       size: 1Gi
       storageClass: ""
+
+  extraInitContainers: |
+    - name: theme-provider
+      image: ghcr.io/otterscale/keycloakify:1.0.6
+      imagePullPolicy: IfNotPresent
+      command:
+        - sh
+      args:
+        - -c
+        - |
+          echo "Copying OtterScale theme..."
+          cp -R /otterscale-theme.jar /otterscale-theme
+          echo "$(ls -alh /otterscale-theme)"
+      volumeMounts:
+        - name: theme-import-volume
+          mountPath: /otterscale-theme
+
+  extraVolumeMounts: |
+    - name: realm-import-volume
+      mountPath: "/opt/keycloak/data/import/otterscale-realm.json"
+      subPath: "otterscale-realm.json"
+      readOnly: true
+    - name: theme-import-volume
+      mountPath: "/opt/keycloak/providers/otterscale-theme.jar"
+      subPath: "otterscale-theme.jar"
+      readOnly: true
+
+  extraVolumes: |
+    - name: realm-import-volume
+      secret:
+        secretName: '{{ .Release.Name }}-keycloakx-otterscale-realm'
+    - name: theme-import-volume
+      emptyDir: {}
