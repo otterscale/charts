@@ -81,7 +81,7 @@ spec:
         command:
         - sh
         - -c
-        image: nvcr.io/nvidia/cloud-native/gpu-operator-validator:v24.9.1
+        image: nvcr.io/nvidia/cloud-native/gpu-operator-validator:v25.3.4
         imagePullPolicy: IfNotPresent
         name: toolkit-validation
         securityContext:
