@@ -1,6 +1,6 @@
 image:
   repository: docker.io/library/aidaptiv
-  tag: vNXUN_3_03BAA-1
+  tag: vNXUN_3_03AA
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
@@ -98,13 +98,13 @@ volumes:
 resources:
   requests:
     otterscale.com/vgpu: 1
-    otterscale.com/vgpumem: 2048
-    #otterscale.com/vgpumem-percentage: 
+    #otterscale.com/vgpumem: 2048
+    otterscale.com/vgpumem-percentage: 60
     phison.com/ai100: 1
   limits:
     otterscale.com/vgpu: 1
-    otterscale.com/vgpumem: 2048
-    #otterscale.com/vgpumem-percentage: 
+    #otterscale.com/vgpumem: 2048
+    otterscale.com/vgpumem-percentage: 60
     phison.com/ai100: 1
 
 # Node selector for GPU nodes

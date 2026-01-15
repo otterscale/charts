@@ -5,9 +5,9 @@ home: https://www.phison.com/
 type: application
 keywords:
   - aidaptivcache
-  - finetune
+  - inference
 icon: https://otterscale.com/phison-logo-p.svg
-version: 0.1.2
+version: 0.1.3
 appVersion: "1.0"
 maintainers:
 - name: Shawn
