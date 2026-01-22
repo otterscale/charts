@@ -10,10 +10,11 @@ job:
   name: finetune-job
   backoffLimit: 1
   restartPolicy: Never
-  ttlSecondsAfterFinished: 3600  
+  ttlSecondsAfterFinished: 60  
 
 # Pre-execution script (runs before main command)
-#prescript: |
+prescript: |
+  echo "Job Start"
 #  echo "Starting NFS mount process..."
 #  mkdir -p /mnt/data
 #  TIMEOUT=300
@@ -36,8 +37,8 @@ job:
 #  fi
 
 # Post-execution script (runs after main command)
-#postscript: |
-#  echo "Job completed successfully"
+postscript: |
+  echo "Job completed successfully"
 
 # Security context
 securityContext:

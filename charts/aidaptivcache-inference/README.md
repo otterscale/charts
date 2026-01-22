@@ -1,138 +1,425 @@
-# Inference Helm Chart
+# aiDAPTIVCache Inference Helm Chart
 
-This Helm chart is used to deploy a vLLM API inference server for AI model serving.
+This Helm chart deploys a high-performance LLM inference service using aiDAPTIV Cache and vLLM within Kubernetes clusters.
 
 ## Features
 
-- Deploy vLLM API server as a Kubernetes Deployment
-- Configurable model serving parameters
-- Support GPU resource allocation
-- PVC-based model storage
-- NodePort service for external access
+- High-throughput LLM inference based on vLLM
+- Tensor parallelism support (Multi-GPU)
+- KV Cache offloading to SSD/DRAM
+- Dynamic LoRA loading
+- OpenAI-compatible API
+- Customizable pre/post execution scripts
+
+## Prerequisites
+
+**Required**: Before using this chart, you must install the **aiDAPTIVCache Operator** to enable Kubernetes to recognize and allocate Phison aiDAPTIVCache devices (`phison.com/ai100`).
 
 ## Installation
 
 ```bash
-helm install my-inference ./inference -f custom-values.yaml
+helm install llama-inference ./aidaptivcache-inference -f custom-values.yaml
 ```
 
 ## Configuration
 
-### Required Fields
-
-Before using this chart, you need to configure the following fields in `values.yaml`:
-
-- `volumes.model.pvcName`: Name of the PVC containing the model files
-
-### Main Configuration Parameters
-
-#### Image Configuration
-- `image.repository`: Container image repository
-- `image.tag`: Image tag
-- `image.pullPolicy`: Image pull policy
-
-#### Deployment Configuration
-- `deployment.name`: Deployment name
-- `deployment.replicas`: Number of replicas
-
-#### vLLM Configuration
-- `vllm.workingDir`: Working directory for the vLLM script
-- `vllm.script`: Script filename to execute
-- `vllm.args.model`: Path to the model (within PVC mount)
-- `vllm.args.nvmePath`: NVMe path for KV cache offloading
-- `vllm.args.port`: API server port
-- `vllm.args.gpuMemoryUtilization`: GPU memory utilization ratio (0.0-1.0)
-- `vllm.args.maxModelLen`: Maximum model sequence length
-- `vllm.args.tensorParallelSize`: Number of GPUs for tensor parallelism
-- `vllm.args.dramKvOffloadGb`: DRAM KV cache offload size in GB
-- `vllm.args.ssdKvOffloadGb`: SSD KV cache offload size in GB
-
-#### Service Configuration
-- `service.type`: Service type (NodePort, ClusterIP, or LoadBalancer)
-- `service.port`: Service port
-- `service.targetPort`: Container port
-- `service.nodePort`: (Optional) Specific NodePort to use
-
-#### Volume Configuration
-- `volumes.model.pvcName`: PVC name for model storage
-- `volumes.model.mountPath`: Mount path for the model PVC
-- `volumes.dshm.enabled`: Enable shared memory volume
-- `volumes.dshm.sizeLimit`: Shared memory size limit
-
-## Usage Example
-
-Create a `custom-values.yaml`:
+### Image Configuration
 
 ```yaml
 image:
   repository: docker.io/library/aidaptiv
-  tag: vNXUN_3_03BAA-1
+  tag: vNXUN_3_03AA
+  pullPolicy: IfNotPresent
+```
 
+- `repository`: Container image address
+- `tag`: Image version tag
+- `pullPolicy`: Image pull policy (IfNotPresent/Always/Never)
+
+### Deployment Configuration
+
+```yaml
 deployment:
+  name: vllm-api
   replicas: 1
+```
 
-volumes:
-  model:
-    pvcName: "model-storage-pvc"
-    mountPath: /mnt/model/
+- `name`: Kubernetes Deployment name
+- `replicas`: Number of Pod replicas (typically 1 due to limited GPU resources)
 
+### Scheduler Configuration
+
+```yaml
+schedulerName: "hami-scheduler"
+```
+
+- `schedulerName`: Kubernetes scheduler name (optional, set to empty string to use default scheduler)
+
+### vLLM Configuration
+
+#### Environment Variables
+
+```yaml
+vllm:
+  env:
+    vllmUseV1: "1"
+    vllmWorkerMultiprocMethod: "spawn"
+    tiktokenEncodingsBase: ""
+```
+
+- `vllmUseV1`: Use vLLM v1 API
+- `vllmWorkerMultiprocMethod`: Multi-process startup method (spawn/fork)
+
+#### Command Line Arguments
+
+```yaml
 vllm:
   args:
-    model: /mnt/model/gemma-3-27b-it/
+    model: /mnt/data/model/Meta-Llama-3.1-8B-Instruct/
     nvmePath: /mnt/nvme0
-    port: 8299
+    port: 8000
     gpuMemoryUtilization: 0.9
-    maxModelLen: 18000
-    tensorParallelSize: 8
+    maxModelLen: 32768
+    tensorParallelSize: 1
+    dramKvOffloadGb: 0
     ssdKvOffloadGb: 500
+    noResumeKvCache: true
+    disableGpuReuse: false
+    enableChunkedPrefill: true
+```
+
+**Key Parameters**:
+- `model`: Model path (must match container mount path)
+- `nvmePath`: NVMe cache path for KV Cache offloading
+- `port`: vLLM API service port
+- `gpuMemoryUtilization`: GPU memory utilization ratio (0.0-1.0)
+- `maxModelLen`: Maximum sequence length
+- `tensorParallelSize`: Number of GPUs for tensor parallelism (must match `otterscale.com/vgpu`)
+- `dramKvOffloadGb`: KV Cache offload to DRAM capacity (GB)
+- `ssdKvOffloadGb`: KV Cache offload to SSD capacity (GB)
+- `enableChunkedPrefill`: Enable chunked prefill for better long-text performance
+
+**Optional Parameters** (commented by default):
+- `disableLongToken`: Disable long token support
+- `resumeKvCache`: Resume KV Cache
+- `cleanObsoleteKvCache`: Clean obsolete KV Cache
+- `enablePrefixCaching`: Enable prefix caching
+- `enforceEager`: Force eager mode
+
+#### LoRA Configuration
+
+```yaml
+vllm:
+  lora:
+    enable: false
+    modules: ""
+    maxRank: 32
+```
+
+To enable LoRA:
+
+```yaml
+vllm:
+  lora:
+    enable: true
+    modules: "lora=/mnt/data/lora-adapters/llama3.1-8B-lora/"
+    maxRank: 32
+```
+
+### NFS Mount Configuration
+
+Configure `prescript` to mount NFS storage for model access:
+
+```yaml
+prescript: |
+  apt install -y nfs-common
+  echo "Starting NFS mount process..."
+  mkdir -p /mnt/data
+  TIMEOUT=300
+  ELAPSED=0
+  while [ $ELAPSED -lt $TIMEOUT ]; do
+    echo "Attempting to mount NFS to /mnt/data"
+    mount -t nfs4 -o nfsvers=4.1 -v 10.102.197.0:/volumes/_nogroup/your-nfs-path /mnt/data
+    if mountpoint -q /mnt/data; then
+      echo "NFS mount successful!"
+      break
+    else
+      echo "Mount failed, retrying in 5 seconds... (${ELAPSED}s/${TIMEOUT}s)"
+      sleep 5
+      ELAPSED=$((ELAPSED + 5))
+    fi
+  done
+  if [ $ELAPSED -ge $TIMEOUT ]; then
+    echo "NFS mount timeout after ${TIMEOUT} seconds. Exiting..."
+    exit 1
+  fi
+```
+
+Replace `10.102.197.0:/volumes/_nogroup/your-nfs-path` with your actual NFS server address.
+
+### Service Configuration
+
+```yaml
+service:
+  type: NodePort
+  port: 8000
+  targetPort: 8000
+  # nodePort: 30299
+```
+
+- `type`: Service type (NodePort/ClusterIP/LoadBalancer)
+- `port`: Service external port
+- `targetPort`: Container internal port
+- `nodePort`: (Optional) Specify a fixed NodePort
+
+### Volume Configuration
+
+```yaml
+volumes:
+  dshm:
+    enabled: true
+    sizeLimit: 30Gi
+```
+
+- `dshm.enabled`: Enable /dev/shm (shared memory, required for vLLM)
+- `dshm.sizeLimit`: Shared memory size
+
+### Resource Configuration
+
+```yaml
+resources:
+  requests:
+    otterscale.com/vgpu: 1
+    otterscale.com/vgpumem-percentage: 80
+    phison.com/ai100: 1
+  limits:
+    otterscale.com/vgpu: 1
+    otterscale.com/vgpumem-percentage: 80
+    phison.com/ai100: 1
+```
+
+- `otterscale.com/vgpu`: vGPU count (must match `tensorParallelSize`)
+- `otterscale.com/vgpumem-percentage`: vGPU memory percentage (0-100)
+- `phison.com/ai100`: Phison aiDAPTIVCache accelerator count
+
+**Important**: For multi-GPU deployments, `otterscale.com/vgpu` must equal `vllm.args.tensorParallelSize`.
+
+## Usage Examples
+
+### Basic Inference Service
+
+```yaml
+image:
+  repository: docker.io/library/aidaptiv
+  tag: vNXUN_3_03AA
+  pullPolicy: IfNotPresent
+
+deployment:
+  name: llama3-inference
+  replicas: 1
+
+schedulerName: "hami-scheduler"
+
+vllm:
+  env:
+    vllmUseV1: "1"
+    vllmWorkerMultiprocMethod: "spawn"
+  
+  args:
+    model: /mnt/data/model/Meta-Llama-3.1-8B-Instruct/
+    nvmePath: /mnt/nvme0
+    port: 8000
+    gpuMemoryUtilization: 0.9
+    maxModelLen: 32768
+    tensorParallelSize: 1
+    ssdKvOffloadGb: 500
+    enableChunkedPrefill: true
+  
+  lora:
+    enable: false
 
 service:
   type: NodePort
-  port: 8299
-  nodePort: 30299
+  port: 8000
+  targetPort: 8000
+
+securityContext:
+  privileged: true
+
+prescript: |
+  apt install -y nfs-common
+  echo "Starting NFS mount process..."
+  mkdir -p /mnt/data
+  TIMEOUT=300
+  ELAPSED=0
+  while [ $ELAPSED -lt $TIMEOUT ]; do
+    echo "Attempting to mount NFS to /mnt/data"
+    mount -t nfs4 -o nfsvers=4.1 -v 10.102.197.0:/volumes/_nogroup/models /mnt/data
+    if mountpoint -q /mnt/data; then
+      echo "NFS mount successful!"
+      break
+    else
+      echo "Mount failed, retrying in 5 seconds... (${ELAPSED}s/${TIMEOUT}s)"
+      sleep 5
+      ELAPSED=$((ELAPSED + 5))
+    fi
+  done
+  if [ $ELAPSED -ge $TIMEOUT ]; then
+    echo "NFS mount timeout after ${TIMEOUT} seconds. Exiting..."
+    exit 1
+  fi
+
+volumes:
+  dshm:
+    enabled: true
+    sizeLimit: 30Gi
 
 resources:
   requests:
-    nvidia.com/gpu: 8
-    phison.com/ai100: 4
+    otterscale.com/vgpu: 1
+    otterscale.com/vgpumem-percentage: 80
+    phison.com/ai100: 1
   limits:
-    nvidia.com/gpu: 8
-    phison.com/ai100: 4
+    otterscale.com/vgpu: 1
+    otterscale.com/vgpumem-percentage: 80
+    phison.com/ai100: 1
 ```
 
-Then install:
+### Multi-GPU Inference with LoRA
 
-```bash
-helm install my-inference ./inference -f custom-values.yaml
-```
+```yaml
+vllm:
+  args:
+    model: /mnt/data/model/Meta-Llama-3.1-8B-Instruct/
+    tensorParallelSize: 4
+    maxModelLen: 32768
+    gpuMemoryUtilization: 0.85
+  
+  lora:
+    enable: true
+    modules: "lora=/mnt/data/lora-adapters/llama3.1-8B-lora/"
+    maxRank: 32
 
-## Monitoring Deployment Status
-
-```bash
-# View Deployment status
-kubectl get deployments
-
-# View Pod status
-kubectl get pods -l app=vllm-api
-
-# View Pod logs
-kubectl logs -f deployment/my-inference-inference
+resources:
+  requests:
+    otterscale.com/vgpu: 4  # Must match tensorParallelSize
+    otterscale.com/vgpumem-percentage: 80
+    phison.com/ai100: 2
+  limits:
+    otterscale.com/vgpu: 4
+    otterscale.com/vgpumem-percentage: 80
+    phison.com/ai100: 2
 ```
 
 ## Accessing the API
 
-If using NodePort service:
+After deployment, use the OpenAI-compatible API:
+
+### Health Check
 
 ```bash
-# Get the NodePort
-kubectl get svc my-inference-inference
-
-# Access the API (replace <NODE_IP> and <NODE_PORT> with actual values)
-curl http://<NODE_IP>:<NODE_PORT>/v1/models
+curl http://<NODE_IP>:<NODE_PORT>/health
 ```
+
+### Completions API
+
+```bash
+curl http://<NODE_IP>:<NODE_PORT>/v1/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "Meta-Llama-3.1-8B-Instruct",
+    "prompt": "What is the capital of France?",
+    "max_tokens": 100,
+    "temperature": 0.7
+  }'
+```
+
+### Chat Completions API
+
+```bash
+curl http://<NODE_IP>:<NODE_PORT>/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "Meta-Llama-3.1-8B-Instruct",
+    "messages": [
+      {"role": "system", "content": "You are a helpful assistant."},
+      {"role": "user", "content": "What is machine learning?"}
+    ],
+    "max_tokens": 200
+  }'
+```
+
+### Python Client
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url=f"http://{NODE_IP}:{NODE_PORT}/v1",
+    api_key="dummy"
+)
+
+response = client.chat.completions.create(
+    model="Meta-Llama-3.1-8B-Instruct",
+    messages=[
+        {"role": "user", "content": "Explain quantum computing in simple terms"}
+    ],
+    max_tokens=150,
+    temperature=0.8
+)
+
+print(response.choices[0].message.content)
+```
+
+## Monitoring
+
+```bash
+# View deployment status
+kubectl get deployment
+
+# View pod logs
+kubectl logs -f deployment/<deployment-name>
+
+# Check service endpoint
+kubectl get svc
+```
+
+## Performance Tuning
+
+### Memory Optimization
+
+- **Small models (< 7B)**:
+  - `gpuMemoryUtilization: 0.9`
+  - `ssdKvOffloadGb: 0`
+
+- **Medium models (7B-13B)**:
+  - `gpuMemoryUtilization: 0.85`
+  - `ssdKvOffloadGb: 200-500`
+
+- **Large models (> 13B)**:
+  - `gpuMemoryUtilization: 0.8`
+  - `ssdKvOffloadGb: 500-1000`
+  - Multi-GPU: `tensorParallelSize: 2-4`
+
+### Latency vs Throughput
+
+- **Low latency**:
+  ```yaml
+  maxModelLen: 8192
+  enableChunkedPrefill: false
+  ssdKvOffloadGb: 0
+  ```
+
+- **High throughput**:
+  ```yaml
+  maxModelLen: 32768
+  enableChunkedPrefill: true
+  enablePrefixCaching: true
+  ssdKvOffloadGb: 500
+  ```
 
 ## Uninstall
 
 ```bash
-helm uninstall my-inference
+helm uninstall llama-inference
 ```

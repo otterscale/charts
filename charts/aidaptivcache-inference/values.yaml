@@ -24,8 +24,8 @@ vllm:
     nvmePath: /mnt/nvme0
     port: 8000
     gpuMemoryUtilization: 0.9
-    maxModelLen: 32768
-    tensorParallelSize: 4
+    maxModelLen: 8192
+    tensorParallelSize: 1
     dramKvOffloadGb: 0
     ssdKvOffloadGb: 500
     noResumeKvCache: true
@@ -61,14 +61,10 @@ volumes:
   dshm:
     enabled: true
     sizeLimit: 30Gi
-  nfs:
-    enabled: true  
-    server: ""  # NFS server and path (e.g., "10.102.197.0:/volumes/_nogroup/test/a752f0eb-bfd6-4395-a629-4b91144b41e6")
-    mountPath: /mnt/data  # Local mount path for model
-    nfsVersion: "4.1"  # NFS version
 
 # Pre-execution script (runs before main command)
-#prescript: |
+prescript: |
+  echo "Start"
 #  echo "Starting NFS mount process..."
 #  mkdir -p /mnt/data
 #  TIMEOUT=300
