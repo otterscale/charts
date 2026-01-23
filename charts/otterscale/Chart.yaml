@@ -2,7 +2,7 @@ apiVersion: v2
 name: otterscale
 # renovate: github=otterscale/otterscale
 appVersion: v0.6.3
-version: 0.2.3
+version: 0.2.4-dev.1
 kubeVersion: ">= 1.30.0"
 description: A Helm chart for OtterScale - Cloud infrastructure management platform
 home: https://otterscale.github.io
@@ -10,7 +10,7 @@ icon: https://github.com/otterscale.png
 sources:
   - https://github.com/otterscale/otterscale
 maintainers:
-  - name: terry
+  - name: Yi-Lin Wu
     email: terrywu25@gmail.com
   - name: Chung-Hsuan Tsai
     email: paul_tsai@phison.com
@@ -22,3 +22,11 @@ dependencies:
     repository: "https://codecentric.github.io/helm-charts"
     name: keycloakx
     version: 7.1.5
+  - condition: valkey.enabled
+    repository: "https://valkey.io/valkey-helm/"
+    name: valkey
+    version: 0.9.3
+  - condition: vault.enabled
+    repository: "https://helm.releases.hashicorp.com"
+    name: vault
+    version: 0.31.0

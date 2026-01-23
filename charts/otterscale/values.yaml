@@ -33,8 +33,10 @@ global:
 otterscale:
   # Image configuration
   image:
-    repository: ghcr.io/otterscale/otterscale/service
-    tag: ""
+    #repository: ghcr.io/otterscale/otterscale/service
+    #tag: ""
+    repository: docker.io/library/ots
+    tag: "dev2"
     pullPolicy: "IfNotPresent"
 
   replicas: 1
@@ -66,11 +68,24 @@ otterscale:
 
   resources:
     requests:
-      memory: "256Mi"
-      cpu: "250m"
-    limits:
-      memory: "512Mi"
       cpu: "500m"
+      memory: "512Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+
+# -----------------------------------------------------------------------------
+# Valkey Configuration
+# -----------------------------------------------------------------------------
+valkey:
+  enabled: true
+  #dataStorage:
+  #  enabled: false
+  #  keepPvc: true
+  auth:
+    enabled: true
+    aclConfig: |
+      user default on >password ~* &* +@all
 
 # -----------------------------------------------------------------------------
 # OtterScale Web UI Configuration
@@ -78,34 +93,13 @@ otterscale:
 otterscaleWeb:
   # Image configuration
   image:
-    repository: ghcr.io/otterscale/otterscale/web
-    tag: ""
+    #repository: ghcr.io/otterscale/otterscale/web
+    #tag: ""
+    repository: docker.io/library/ots-web
+    tag: "dev2"
     pullPolicy: "IfNotPresent"
 
   replicas: 1
-
-  # PostgreSQL Database Configuration (CloudNative)
-  # This PostgreSQL instance is dedicated for OtterScale Web application
-  cloudnative-pg:
-    enabled: true
-    cluster:
-      name: ""
-      instances: 1
-      imageName: ghcr.io/cloudnative-pg/postgresql:17.6
-    auth:
-      username: ""
-      password: ""
-      database: ""
-      port: ""
-    bootstrap:
-      initdb:
-        database: ""
-        owner: ""
-        secret:
-          name: ""
-    storage:
-      size: 1Gi
-      storageClass: ""
 
   # Override global settings if needed
   podAnnotations: {}
@@ -123,28 +117,28 @@ otterscaleWeb:
 
   resources:
     requests:
-      memory: "128Mi"
-      cpu: "100m"
+      cpu: "500m"
+      memory: "512Mi"
     limits:
-      memory: "256Mi"
-      cpu: "200m"
+      cpu: "500m"
+      memory: "512Mi"
 
   # Additional environment variables
   extraEnv: 
    - name: NODE_ENV
      value: "development"
-   #- name: ORIGIN
-   #  value: ""
+   - name: API_URL
+     value: "http://192.168.196.48/api"
    - name: PUBLIC_WEB_URL
-     value: "http://192.168.196.160"
-   - name: PUBLIC_API_URL
-     value: "http://192.168.196.160/api"
+     value: "http://192.168.196.48"
    - name: KEYCLOAK_REALM_URL
-     value: "http://192.168.196.160/auth/realms/otterscale"
+     value: "http://192.168.196.48/auth/realms/otterscale"
    - name: KEYCLOAK_CLIENT_ID
      value: "otterscale"
    - name: KEYCLOAK_CLIENT_SECRET
-     value: "37lZXjYg5meEC5G1OEQDnsyXzonWZ9Oc"
+     value: "Bp4peGsKk7kRCe6EOzchF5UNdXHW0xt5"
+   - name: REDIS_URL
+     value: "redis://:password@otterscale-valkey.otterscale.svc.cluster.local:6379"
    - name: VAULT_ADDR
      value: ""
    - name: VAULT_TOKEN
@@ -161,37 +155,16 @@ otterscaleWeb:
 openfeature:
   sidecar:
     enabled: true
-  # Name of the FeatureFlagSource resource
-  # This will be used in the pod annotation: openfeature.dev/featureflagsource
-  flagsource: ""
   # Feature flag configurations
   # Each entry will create a separate FeatureFlag resource
   flags:
     # Example: Add more flag configurations as needed
-    # default-flags:
-    #   enabled: false
-    #   spec:
-    #     some-feature:
-    #       state: ENABLED
-    #       variants:
-    #         "on": true
-    #         "off": false
-    #       defaultVariant: "off"
-
-# -----------------------------------------------------------------------------
-# ValKey Configuration
-# -----------------------------------------------------------------------------
-valkey:
-  enabled: true
-  dataStorage:
-    enabled: true
-    keepPvc: true
-  auth:
-    enabled: true
-    aclUsers:
-      default:
-        password: "password"
-        permissions: "~* &* +@all"
+    # some-feature:
+    #   defaultVariant: "off"
+    #   state: ENABLED
+    #   variants:
+    #     "on": true
+    #     "off": false
 
 # -----------------------------------------------------------------------------
 # Vault Configuration
@@ -204,46 +177,29 @@ vault:
       devRootToken: "root"
 
 # -----------------------------------------------------------------------------
-# MAAS & JuJu Configuration
-# -----------------------------------------------------------------------------
-configContent: |
-  # OtterScale Service Configuration
-  # This configuration file defines the service settings
-  maas:
-    url: http://127.0.0.1:5240/MAAS
-    key: your_cert
-    version: "2.0"
-
-  juju:
-    controller: maas-cloud-controller
-    controller_addresses: []
-    username: admin
-    password: your_password
-    ca_cert: |
-      -----BEGIN CERTIFICATE-----
-      xxxx
-      -----END CERTIFICATE-----
-    cloud_name: maas-cloud
-    cloud_region: default
-    charmhub_api_url: https://api.charmhub.io
-
-  kube:
-    helm_repository_urls:
-    - https://artifacthub.github.io/helm-charts
-
-  ceph:
-    rados_timeout: 0s
-
-# -----------------------------------------------------------------------------
 # Istio Configuration
 # -----------------------------------------------------------------------------
 istio:
   # Enable or disable Istio integration
   enabled: true
 
-  # Automatic sidecar injection
+  # Automatic sidecar injection to otterscale and otterscale-web
   sidecarInjection:
     enabled: true
+
+  # VirtualService configuration for traffic routing
+  virtualService:
+    enabled: true
+
+  # TLS configuration for Istio Gateway
+  tls:
+    # Enable TLS for the gateway
+    enabled: false
+    name: otterscale-tls-cert
+    # TLS certificate (base64 encoded)
+    crt: ""
+    # TLS private key (base64 encoded)
+    key: ""
 
   # Gateway configuration for external traffic
   gateway:
@@ -258,6 +214,7 @@ istio:
         # List of hosts that the gateway should serve
         hosts:
           - "*"
+        # - "otterscale.example.com" 
         # Optional: redirect HTTP to HTTPS
         # tls:
         #   httpsRedirect: true
@@ -273,15 +230,11 @@ istio:
       #     mode: SIMPLE
       #     credentialName: otterscale-tls-cert
 
-  # VirtualService configuration for traffic routing
-  virtualService:
-    enabled: true
-
   # Cookie Secure flag override for HTTP-only environments
   # WARNING: Only enable this for development/testing with HTTP
   # In production, use HTTPS instead
   cookieSecureOverride:
-    enabled: true
+    enabled: false
 
 # -----------------------------------------------------------------------------
 # Keycloak Configuration
@@ -293,32 +246,71 @@ keycloakx:
     repository: quay.io/keycloak/keycloak
     tag: "26.4.7"
 
-  command: []
-  extraEnv: ""
-  extraVolumes: ""
-  extraVolumeMounts: ""
-  secrets: {}
+  command:
+  - /bin/sh
+  - -c
+  - |
+    /opt/keycloak/bin/kc.sh build
+    /opt/keycloak/bin/kc.sh start \
+    --verbose \
+    --http-port=8080 \
+    --http-enabled=true \
+    --hostname-strict=false \
+    --spi-events-listener-jboss-logging-success-level=info \
+    --spi-events-listener-jboss-logging-error-level=warn \
+    --optimized \
+    --import-realm
+#    --proxy-headers forwarded \
+#    --proxy-trusted-addresses=0.0.0.0/0 \
+#    --spi-sticky-session-encoder--infinispan--should-attach-route=false \
+
+  http:
+    relativePath: /auth/
+  
+  extraEnv: |
+    - name: KC_BOOTSTRAP_ADMIN_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: {{ .Release.Name }}-keycloak-admin
+          key: user
+    - name: KC_BOOTSTRAP_ADMIN_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: {{ .Release.Name }}-keycloak-admin
+          key: password
+    - name: JAVA_OPTS_APPEND
+      value: >-
+        -XX:MaxRAMPercentage=50.0
+        -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
 
   postgresql:
     cluster:
-      name: keycloak-postgres-cluster
+      name: "keycloak-postgres-cluster"
       instances: 1
       imageName: ghcr.io/cloudnative-pg/postgresql:17.6
     auth:
-      username: ""
-      password: ""
-      database: ""
-      port: ""
-    bootstrap:
-      initdb:
-        database: ""
-        owner: ""
-        secret:
-          name: ""
+      username: "keycloak"
+      password: "keycloak"
+      database: "keycloak"
     storage:
       size: 1Gi
       storageClass: ""
 
+  database:
+    vendor: postgres
+    username: "keycloak"
+    password: "keycloak"
+    database: "keycloak"
+    existingSecret: keycloak-postgres-cluster-secret
+    existingSecretKey: password
+    hostname: keycloak-postgres-cluster-rw
+    port: "5432"
+
+  # Init Container check DB
+  dbchecker:
+    enabled: true
+  
+  # Init Container prepare theme
   extraInitContainers: |
     - name: theme-provider
       image: ghcr.io/otterscale/keycloakify:1.0.6
@@ -335,6 +327,7 @@ keycloakx:
         - name: theme-import-volume
           mountPath: /otterscale-theme
 
+  # Import Realm and Theme
   extraVolumeMounts: |
     - name: realm-import-volume
       mountPath: "/opt/keycloak/data/import/otterscale-realm.json"
@@ -348,6 +341,75 @@ keycloakx:
   extraVolumes: |
     - name: realm-import-volume
       secret:
-        secretName: '{{ .Release.Name }}-keycloakx-otterscale-realm'
+        secretName: {{ .Release.Name }}-otterscale-realm
     - name: theme-import-volume
       emptyDir: {}
+
+# -----------------------------------------------------------------------------
+# MAAS & JuJu Configuration
+# -----------------------------------------------------------------------------
+#configContent: |
+#  # OtterScale Service Configuration
+#  # This configuration file defines the service settings
+#  maas:
+#    url: http://127.0.0.1:5240/MAAS
+#    key: ""
+#    version: "2.0"
+#  juju:
+#    controller: maas-cloud-controller
+#    controller_addresses: [""]
+#    username: admin
+#    password: ""
+#    ca_cert: ""
+#    cloud_name: maas-cloud
+#    cloud_region: default
+#    charmhub_api_url: https://api.charmhub.io
+#  kube:
+#    helm_repository_urls:
+#    - https://artifacthub.github.io/helm-charts
+#  ceph:
+#    rados_timeout: 0s
+configContent: |
+  maas:
+    url: http://192.168.196.22:5240/MAAS
+    key: Zk3X2XA3ancu4yt0bk:ogyqJanjPwbQ378bYR:0VLIAb0htVjaxfmQ4pjcm8MMYtbAVmKf
+    version: "2.0"
+  juju:
+    controller: maas-cloud-controller
+    controller_addresses:
+    - 192.168.196.62:17070
+    username: admin
+    password: d61f24da2bb3e7b5d00d4ed083e39904
+    ca_cert: |
+      -----BEGIN CERTIFICATE-----
+      MIIEEzCCAnugAwIBAgIVAJIqWdhz/8XyRf9C2dkwTge8YuHqMA0GCSqGSIb3DQEB
+      CwUAMCExDTALBgNVBAoTBEp1anUxEDAOBgNVBAMTB2p1anUtY2EwHhcNMjUxMjIz
+      MDc0NzA2WhcNMzUxMjIzMDc1MjA2WjAhMQ0wCwYDVQQKEwRKdWp1MRAwDgYDVQQD
+      EwdqdWp1LWNhMIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAr/GdynDy
+      DxyG9D2TS63JMCD3ijLDp0FpBH/+tIYR7ENKO4b9ueHOrCkcSRSza0G0WS5Wkd2Q
+      L674NfMz3tn7SBpC9/P5RLD8nLM7ge2QI6rdR8gGfZaYA3GFWUoOWrBykfB1hvo9
+      O0bmlTKhWDGtFC1NWEzJWJlq9h3EIz9VxzvpFnK+WfwlfsY2CyRDrbkna2SJ386a
+      pWhXe0S3g/eDGOIN+8E1bsjIgi5EuhiqLu27rs6hY3CXRBpwFLwYJ0L5Dsr45xiM
+      l3dW2jaPQJ3XaN1ULQxqaVXBC9Ds7/nqMgz95ekoDPD3tQSJa0Zk9xw+dGGf1a6A
+      RR9DbH0yg0/2Gv3bVwADyK6x9uo93VrWWY/hkWk3HH35EWaCOVficSUiemHTimiC
+      mXBGcOA8cZFWUnjk0LReUn10Ly1U5bu5Kxx4LTACv19ZAcIDEzhpvqwSqCfnL1S5
+      owZrxZTMYx8kZXCuYgcPqY4IzYCxDq+AZJsvEr4ZpAjCcNs73yp4SnLDAgMBAAGj
+      QjBAMA4GA1UdDwEB/wQEAwICpDAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBQY
+      4GSxd6vHozPWjIQqx3w48po51zANBgkqhkiG9w0BAQsFAAOCAYEAlzW0Cqu5zNJV
+      QqnoOIJrTLKopJeeCQ+68sYVIuXgrZiqhckHVvv06OUxWF5qwKGhgDeO7VqxoCF7
+      e+xawv/LjzM5InIm2tKuoeBtj9zMCe0YiQhO0CZHHK2MzlX9l+iEzzvoiNkBaFc3
+      lsDZgA18YqIco9dnNqqmb7xEnDGGnpOLZ+ofOKVIGu1y4E+xsIZwku7bgQ7iDY6H
+      sLuN1paZYRO/S5Pv7nTpQpmn1hqat5TmYk7EclNpyaHjl62HpO9dDO5HKEY3bdMm
+      upbaDyBLhZ09yaAoWG80+5lCxdQIFG0rhmw0cx4z8YZn0X6L8a0rrXsT5o+y8wmF
+      +K4N1n3Yky7YbWQAuvVtNoZbUpALbhnWl5AJdebkqs5Icc/sUnPAlDQHaA6nX+WD
+      HuscvOpR/KDBGTJIJakIvtFWL6CHAw2x1KuNBj2gBZJQxv85jOahAgRXh1kpDJny
+      yHDdSs+/vIouZHHgyynEGXUUnxcTcjqXSeZDJNJsATfdmXXoraxl
+      -----END CERTIFICATE-----
+    cloud_name: maas-cloud
+    cloud_region: default
+  ceph:
+    rados_timeout: 0s
+  keycloak:
+    realm_url: http://192.168.196.48/auth/realms/otterscale
+    client_id: otterscale
+  

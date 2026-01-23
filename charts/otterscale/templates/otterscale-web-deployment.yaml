@@ -1,4 +1,3 @@
-{{- $cloudnativePg := index .Values.otterscaleWeb "cloudnative-pg" -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -24,41 +23,12 @@ spec:
       annotations:
         {{- if .Values.openfeature.sidecar.enabled }}
         openfeature.dev/enabled: "true"
-        openfeature.dev/featureflagsource: {{ .Values.openfeature.flagsource }}
+        openfeature.dev/featureflagsource: {{ .Release.Name }}-flags
         {{- end }}
         {{- with .Values.otterscaleWeb.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      {{- if $cloudnativePg.enabled }}
-      initContainers:
-        - name: wait-for-postgres
-          image: postgres:15-alpine
-          command:
-            - sh
-            - -c
-            - |
-              until pg_isready -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER; do
-                echo "Waiting for PostgreSQL to start..."
-                sleep 2
-              done
-          env:
-            - name: POSTGRES_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $cloudnativePg.bootstrap.initdb.secret.name }}
-                  key: host
-            - name: POSTGRES_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $cloudnativePg.bootstrap.initdb.secret.name }}
-                  key: port
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $cloudnativePg.bootstrap.initdb.secret.name }}
-                  key: username
-      {{- end }}
       containers:
         - name: otterscale-web
           image: "{{ tpl .Values.otterscaleWeb.image.repository . }}:{{ tpl .Values.otterscaleWeb.image.tag . | default .Chart.AppVersion}}"
@@ -68,39 +38,6 @@ spec:
               containerPort: 3000
               protocol: TCP
           env:
-            {{- if $cloudnativePg.enabled }}
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $cloudnativePg.bootstrap.initdb.secret.name }}
-                  key: database_url
-                  optional: true
-            - name: POSTGRES_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $cloudnativePg.bootstrap.initdb.secret.name }}
-                  key: host
-            - name: POSTGRES_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $cloudnativePg.bootstrap.initdb.secret.name }}
-                  key: port
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $cloudnativePg.bootstrap.initdb.secret.name }}
-                  key: username
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $cloudnativePg.bootstrap.initdb.secret.name }}
-                  key: password
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $cloudnativePg.bootstrap.initdb.secret.name }}
-                  key: dbname
-            {{- end }}
             {{- with .Values.otterscaleWeb.extraEnv }}
             {{- toYaml . | nindent 12 }}
             {{- end }}

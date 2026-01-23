@@ -2,7 +2,7 @@
 apiVersion: core.openfeature.dev/v1beta1
 kind: FeatureFlag
 metadata:
-  name: otterscale-flags
+  name: {{ .Release.Name }}-flags
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "otterscale.labels" . | nindent 4 }}
@@ -10,7 +10,50 @@ metadata:
 spec:
   flagSpec:
     flags:
+      application-enabled:
+        state: ENABLED
+        variants:
+          "off": false
+          "on": true
+        defaultVariant: "on"
+      debug:
+        state: DISABLED
+        variants:
+          "off": false
+          "on": true
+        defaultVariant: "off"
+      distributed-storage-enabled:
+        state: ENABLED
+        variants:
+          "off": false
+          "on": true
+        defaultVariant: "on"
+      large-language-model-enabled:
+        state: ENABLED
+        variants:
+          "off": false
+          "on": true
+        defaultVariant: "on"
+      model-enabled:
+        state: ENABLED
+        variants:
+          "off": false
+          "on": true
+        defaultVariant: "on"
+      registry-enabled:
+        state: ENABLED
+        variants:
+          "off": false
+          "on": true
+        defaultVariant: "on"
+      virtual-machine-enabled:
+        state: ENABLED
+        variants:
+          "off": false
+          "on": true
+        defaultVariant: "on"
       {{- range $flagName, $flagConfig := .Values.openfeature.flags }}
+      {{- if not (has $flagName (list "application-enabled" "debug" "distributed-storage-enabled" "large-language-model-enabled" "model-enabled" "registry-enabled" "virtual-machine-enabled")) }}
       {{ $flagName }}:
         state: {{ $flagConfig.state }}
         variants:
@@ -18,5 +61,6 @@ spec:
           {{ $variantKey | quote }}: {{ $variantValue }}
           {{- end }}
         defaultVariant: {{ $flagConfig.defaultVariant | quote }}
+      {{- end }}
       {{- end }}
 {{- end }}

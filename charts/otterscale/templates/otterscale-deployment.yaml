@@ -24,7 +24,7 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/otterscale-configmap.yaml") . | sha256sum }}
         {{- if .Values.openfeature.sidecar.enabled }}
         openfeature.dev/enabled: "true"
-        openfeature.dev/featureflagsource: {{ .Values.openfeature.flagsource }}
+        openfeature.dev/featureflagsource: {{ .Release.Name }}-flags
         {{- end }}
         {{- with .Values.otterscale.podAnnotations }}
         {{- toYaml . | nindent 8 }}
@@ -34,40 +34,7 @@ spec:
         - name: otterscale
           image: "{{ tpl .Values.otterscale.image.repository . }}:{{ tpl .Values.otterscale.image.tag . | default .Chart.AppVersion}}"
           imagePullPolicy: "{{ .Values.otterscale.image.pullPolicy }}"
-          {{- if .Values.openfeature.sidecar.enabled }}
-          command: ["/bin/sh", "-c"]
-          args:
-            - |
-              echo "Waiting for flagd sidecar to be ready..."
-              max_attempts=30
-              attempt=0
-              while [ $attempt -lt $max_attempts ]; do
-                # Try to connect to flagd using /dev/tcp (works in most shells)
-                if timeout 1 sh -c "echo > /dev/tcp/localhost/8013" 2>/dev/null; then
-                  echo "flagd is ready!"
-                  break
-                fi
-                # Fallback: check if port is listening using netstat if available
-                if command -v netstat >/dev/null 2>&1; then
-                  if netstat -tln 2>/dev/null | grep -q ":8013 "; then
-                    echo "flagd is ready (detected via netstat)!"
-                    break
-                  fi
-                fi
-                # Another fallback: just wait a reasonable time
-                if [ $attempt -ge 10 ]; then
-                  echo "Waited 20 seconds, assuming flagd is ready..."
-                  break
-                fi
-                attempt=$((attempt + 1))
-                echo "Attempt $attempt/$max_attempts: flagd not ready yet, waiting..."
-                sleep 2
-              done
-              echo "Starting otterscale service..."
-              exec /app/otterscale serve
-          {{- else }}
           command: ["/app/otterscale", "serve"]
-          {{- end }}
           ports:
             - name: http
               containerPort: 8299

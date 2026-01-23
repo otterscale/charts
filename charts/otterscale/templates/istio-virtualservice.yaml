@@ -21,6 +21,10 @@ spec:
           host: {{ .Release.Name }}-keycloakx-http.{{ .Release.Namespace }}.svc.cluster.local
           port:
             number: 80
+      headers:
+        request:
+          set:
+            X-Forwarded-Proto: "https"
     - match:
       - uri:
           prefix: /api/

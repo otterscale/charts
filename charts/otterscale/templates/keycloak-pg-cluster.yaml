@@ -11,10 +11,10 @@ spec:
   imageName: {{ .Values.keycloakx.postgresql.cluster.imageName }}
   bootstrap:
     initdb:
-      database: {{ .Values.keycloakx.postgresql.bootstrap.initdb.database }}
-      owner: {{ .Values.keycloakx.postgresql.bootstrap.initdb.owner }}
+      database: {{ .Values.keycloakx.postgresql.auth.database }}
+      owner: {{ .Values.keycloakx.postgresql.auth.username }}
       secret:
-        name: {{ .Values.keycloakx.postgresql.bootstrap.initdb.secret.name }}
+        name: {{ .Values.keycloakx.postgresql.cluster.name }}-secret
   storage:
     size: {{ .Values.keycloakx.postgresql.storage.size }}
     {{- if .Values.keycloakx.postgresql.storage.storageClass }}
