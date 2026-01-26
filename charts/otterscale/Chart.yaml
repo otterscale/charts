@@ -1,10 +1,9 @@
 apiVersion: v2
 name: otterscale
 # renovate: github=otterscale/otterscale
-appVersion: v0.6.3
-version: 0.2.4-dev.1
-kubeVersion: ">= 1.30.0"
-description: A Helm chart for OtterScale - Cloud infrastructure management platform
+appVersion: v0.7.0-alpha.1
+version: 0.3.0-alpha.1
+description: OtterScale - A unified platform for simplified compute, storage, and networking
 home: https://otterscale.github.io
 icon: https://github.com/otterscale.png
 sources:
@@ -21,12 +20,8 @@ dependencies:
   - condition: keycloakx.enabled
     repository: "https://codecentric.github.io/helm-charts"
     name: keycloakx
-    version: 7.1.5
+    version: 7.1.7
   - condition: valkey.enabled
     repository: "https://valkey.io/valkey-helm/"
     name: valkey
     version: 0.9.3
-  - condition: vault.enabled
-    repository: "https://helm.releases.hashicorp.com"
-    name: vault
-    version: 0.31.0
