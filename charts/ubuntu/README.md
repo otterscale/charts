@@ -9,7 +9,7 @@ This Helm chart deploys Ubuntu containers with SSH access via NodePort, persiste
 - **Customizable Initialization**: Pre/post scripts for system configuration and package installation
 - **Resource Management**: Configurable CPU and memory limits/requests
 - **Security**: Support for SSH key authentication and password-based access
-- **Health Checks**: TCP-based liveness and readiness probes for SSH service
+- **Health Checks**: Exec-based liveness, readiness, and startup probes for the SSH service
 
 ## Prerequisites
 
@@ -138,7 +138,7 @@ persistence:
 
 #### Prescript
 
-Runs in init container before SSH starts. Use for:
+Runs in the main container's startup command before the SSH server is launched. Use for:
 
 - Installing packages
 - System configuration
@@ -617,9 +617,6 @@ kubectl get storageclass
 ### Initialization Script Failures
 
 ```bash
-# Check init container logs
-kubectl logs <pod-name> -c setup-ssh
-
 # Check main container logs
 kubectl logs <pod-name>
 ```
@@ -685,14 +682,6 @@ kubectl create secret generic ubuntu-ssh-override \
   --from-literal=root-password='your-password' \
   --from-file=authorized-keys=~/.ssh/id_rsa.pub
 ```
-
-## License
-
-This chart is provided as-is for Kubernetes deployments.
-
-## Maintainers
-
-- Otterscale Team
 
 ## Contributing
 

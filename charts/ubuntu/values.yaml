@@ -82,7 +82,7 @@ service:
   targetPort: 22
   # Optional: specify a fixed NodePort (30000-65535)
   # If not specified, Kubernetes will assign one automatically
-  nodePort: 0
+  # nodePort: 30022
   # Service annotations
   annotations: {}
 

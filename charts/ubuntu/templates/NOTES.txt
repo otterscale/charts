@@ -67,9 +67,9 @@ View detailed pod information:
 === Precondition Script ===
 
 A precondition script was executed during initialization.
-Check init container logs if you encounter issues:
+Check container logs if you encounter issues:
 
-   kubectl logs --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "ubuntu.name" . }}" -c setup-ssh
+   kubectl logs --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "ubuntu.name" . }}"
 
 {{- end }}
 
