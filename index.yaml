@@ -1136,4 +1136,22 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/snapshot-controller-0.1.0/snapshot-controller-0.1.0.tgz
     version: 0.1.0
-generated: "2026-01-22T08:17:24.144795954Z"
+  ubuntu:
+  - apiVersion: v2
+    appVersion: "24.04"
+    created: "2026-01-27T13:52:20.535138476Z"
+    description: A Helm chart for deploying Ubuntu with SSH access via NodePort (for
+      development/testing)
+    digest: 7790e9a42946480362b0fd5694f646c384aefe44d9bb0480be465faf54bd8fc8
+    icon: https://github.com/ubuntu.png
+    keywords:
+    - ubuntu
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: ubuntu
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
+    version: 0.1.0
+generated: "2026-01-27T13:52:20.535253461Z"
