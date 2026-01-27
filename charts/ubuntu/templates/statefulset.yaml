@@ -68,9 +68,10 @@ spec:
           
           # Configure SSH
           echo "=== Configuring SSH ==="
-          sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin {{ .Values.ssh.permitRootLogin }}/' /etc/ssh/sshd_config
-          sed -i 's/#PasswordAuthentication yes/PasswordAuthentication {{ .Values.ssh.passwordAuthentication }}/' /etc/ssh/sshd_config
-          sed -i 's/PasswordAuthentication no/PasswordAuthentication {{ .Values.ssh.passwordAuthentication }}/' /etc/ssh/sshd_config
+          {
+            echo "PermitRootLogin {{ .Values.ssh.permitRootLogin }}"
+            echo "PasswordAuthentication {{ .Values.ssh.passwordAuthentication }}"
+          } >> /etc/ssh/sshd_config
           # Ensure PidFile is set
           grep -q "^PidFile" /etc/ssh/sshd_config || echo "PidFile /var/run/sshd.pid" >> /etc/ssh/sshd_config
           
