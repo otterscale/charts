@@ -1,0 +1,207 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "ubuntu.fullname" . }}
+  labels:
+    {{- include "ubuntu.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "ubuntu.fullname" . }}
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "ubuntu.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "ubuntu.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "ubuntu.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{- with .Values.securityContext }}
+        securityContext:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        command:
+        - /bin/bash
+        - -c
+        - |
+          set -e
+          
+          {{- if .Values.ssh.enabled }}
+          echo "=== Installing and configuring SSH server ==="
+          export DEBIAN_FRONTEND=noninteractive
+          
+          # Run prescript if provided
+          {{- if .Values.prescript }}
+          echo "=== Running prescript ==="
+          {{ .Values.prescript | nindent 10 }}
+          {{- end }}
+          
+          # Install OpenSSH server
+          apt-get update
+          apt-get install -y openssh-server procps net-tools
+          
+          # Create required directories
+          mkdir -p /run/sshd
+          mkdir -p /root/.ssh
+          chmod 700 /root/.ssh
+          
+          # Configure SSH
+          echo "=== Configuring SSH ==="
+          {
+            echo "PermitRootLogin {{ .Values.ssh.permitRootLogin }}"
+            echo "PasswordAuthentication {{ .Values.ssh.passwordAuthentication }}"
+          } >> /etc/ssh/sshd_config
+          # Ensure PidFile is set
+          grep -q "^PidFile" /etc/ssh/sshd_config || echo "PidFile /var/run/sshd.pid" >> /etc/ssh/sshd_config
+          
+          # Set root password if provided
+          {{- if .Values.ssh.rootPassword }}
+          echo "root:${ROOT_PASSWORD}" | chpasswd
+          echo "=== Root password configured ==="
+          {{- end }}
+          
+          # Setup authorized keys if provided
+          {{- if .Values.ssh.authorizedKeys }}
+          cat /etc/ssh-keys/authorized_keys > /root/.ssh/authorized_keys
+          chmod 600 /root/.ssh/authorized_keys
+          echo "=== SSH authorized keys configured ==="
+          {{- end }}
+          
+          echo "=== Starting SSH server ==="
+          # Start SSH in foreground mode with logging to stderr
+          /usr/sbin/sshd -D -e &
+          SSH_PID=$!
+          # Wait a moment for sshd to create pid file and start listening
+          sleep 2
+          echo "SSH server started with PID: $SSH_PID"
+          
+          # Verify SSH is listening
+          if netstat -tlnp 2>/dev/null | grep ':22 ' || ss -tlnp 2>/dev/null | grep ':22 '; then
+            echo "=== SSH server is listening on port 22 ==="
+          else
+            echo "WARNING: SSH server may not be listening on port 22"
+          fi
+          {{- end }}
+          
+          {{- if .Values.postscript }}
+          echo "=== Running postscript ==="
+          {{ .Values.postscript | nindent 10 }}
+          {{- end }}
+          
+          echo "=== Container ready ==="
+          # Keep container running
+          {{- if .Values.ssh.enabled }}
+          wait $SSH_PID
+          {{- else }}
+          sleep infinity
+          {{- end }}
+        ports:
+        {{- if .Values.ssh.enabled }}
+        - name: ssh
+          containerPort: {{ .Values.service.targetPort }}
+          protocol: TCP
+        {{- end }}
+        {{- with .Values.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.startupProbe }}
+        startupProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        env:
+        {{- if .Values.ssh.rootPassword }}
+        - name: ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "ubuntu.fullname" . }}-ssh
+              key: root-password
+        {{- end }}
+        {{- with .Values.env }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        volumeMounts:
+        {{- if .Values.ssh.authorizedKeys }}
+        - name: ssh-keys
+          mountPath: /etc/ssh-keys
+          readOnly: true
+        {{- end }}
+        {{- if .Values.persistence.enabled }}
+        - name: data
+          mountPath: {{ .Values.persistence.mountPath }}
+        {{- end }}
+        {{- with .Values.extraVolumeMounts }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      volumes:
+      {{- if .Values.ssh.authorizedKeys }}
+      - name: ssh-keys
+        secret:
+          secretName: {{ include "ubuntu.fullname" . }}-ssh
+          items:
+          - key: authorized-keys
+            path: authorized_keys
+          defaultMode: 0600
+      {{- end }}
+      {{- with .Values.extraVolumes }}
+      {{- toYaml . | nindent 6 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+  {{- if .Values.persistence.enabled }}
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+      {{- with .Values.persistence.annotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      accessModes:
+      - {{ .Values.persistence.accessMode }}
+      {{- if .Values.persistence.storageClassName }}
+      storageClassName: {{ .Values.persistence.storageClassName }}
+      {{- end }}
+      resources:
+        requests:
+          storage: {{ .Values.persistence.size }}
+  {{- end }}

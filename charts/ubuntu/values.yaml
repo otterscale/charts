@@ -1,0 +1,197 @@
+# Default values for ubuntu.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# This will set the replicaset count for StatefulSet
+# Note: For SSH access with persistent storage, typically use 1 replica
+replicaCount: 1
+
+# This sets the container image - Ubuntu with SSH server
+image:
+  repository: ubuntu
+  # This sets the pull policy for images.
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion (24.04)
+  tag: "24.04"
+
+# This is for the secrets for pulling an image from a private repository
+imagePullSecrets: []
+# This is to override the chart name.
+nameOverride: ""
+fullnameOverride: ""
+
+# This section builds out the service account
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# Pod annotations
+podAnnotations: {}
+# Pod labels
+podLabels: {}
+
+# Pod security context
+podSecurityContext: {}
+  # fsGroup: 2000
+
+# Container security context
+# Note: SSH server requires certain capabilities to bind to port 22
+securityContext:
+  # Run as root to allow SSH server to start
+  # runAsNonRoot: false
+  # runAsUser: 0
+  capabilities:
+    add:
+      - NET_BIND_SERVICE
+  # Allow privileged mode for full system access if needed
+  privileged: false
+
+# SSH Configuration
+ssh:
+  # Enable SSH server
+  enabled: true
+  # SSH root password (will be stored in a Secret)
+  # Leave empty to disable password authentication
+  rootPassword: "ubuntu"
+  # SSH authorized keys for root user (recommended for production)
+  # Run the following command to generate a key pair:
+  #   ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N "" -q && cat ~/.ssh/id_ed25519.pub
+  # Example:
+  # authorizedKeys: |
+  #   ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAB... user@host
+  #   ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAA... another@host
+  authorizedKeys: ""
+  # Allow password authentication (set to false for production)
+  permitRootLogin: "yes"
+  passwordAuthentication: "yes"
+
+# Service configuration for SSH access
+service:
+  # Service type - NodePort for external SSH access
+  type: NodePort
+  # SSH port (internal container port)
+  port: 22
+  # Target port in the container
+  targetPort: 22
+  # Optional: specify a fixed NodePort (30000-65535)
+  # If not specified, Kubernetes will assign one automatically
+  # nodePort: 30022
+  # Service annotations
+  annotations: {}
+
+# Persistent Volume Claim configuration
+persistence:
+  # Enable persistent storage
+  enabled: true
+  # Storage class name (use "" for default storage class)
+  storageClassName: ""
+  # Access mode - ReadWriteOnce for single node access
+  accessMode: ReadWriteOnce
+  # Storage size
+  size: 10Gi
+  # Mount path in the container
+  mountPath: /data
+  # Additional annotations for PVC
+  annotations: {}
+
+# Precondition script - runs before SSH starts
+# Use this to install additional packages, configure system, mount NFS, etc.
+prescript: |
+  echo "Running precondition script..."
+  # Update package lists
+  apt-get update
+  # Install common utilities (uncomment as needed)
+  # apt-get install -y curl wget git vim nano net-tools iputils-ping
+  echo "Precondition script completed"
+
+# Post-execution script - runs after SSH starts
+# Use this for background tasks or additional configuration
+postscript: |
+  echo "SSH server started successfully"
+  echo "Container ready for connections"
+
+# Resource limits and requests
+resources:
+  limits:
+    cpu: 2000m
+    memory: 4Gi
+    # otterscale.com/vgpu: 1
+    # otterscale.com/vgpumem: 2048
+    # otterscale.com/vgpumem-percentage: 60
+    # phison.com/ai100: 1
+  requests:
+    cpu: 500m
+    memory: 1Gi
+    # otterscale.com/vgpu: 1
+    # otterscale.com/vgpumem: 2048
+    # otterscale.com/vgpumem-percentage: 60
+    # phison.com/ai100: 1
+
+# Liveness probe - check if SSH is running
+livenessProbe:
+  exec:
+    command:
+      - /bin/sh
+      - -c
+      - "ps aux | grep '[s]shd' && test -f /var/run/sshd.pid"
+  initialDelaySeconds: 30
+  periodSeconds: 20
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+# Readiness probe - check if SSH is ready to accept connections
+readinessProbe:
+  exec:
+    command:
+      - /bin/sh
+      - -c
+      - "netstat -tlnp | grep ':22 ' || ss -tlnp | grep ':22 '"
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+# Startup probe - give more time for initial SSH installation and configuration
+startupProbe:
+  exec:
+    command:
+      - /bin/sh
+      - -c
+      - "ps aux | grep '[s]shd' && netstat -tlnp 2>/dev/null | grep ':22 ' || ss -tlnp 2>/dev/null | grep ':22 '"
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 30
+
+# Node selector for pod assignment
+nodeSelector: {}
+
+# Tolerations for pod assignment
+tolerations: []
+
+# Affinity rules
+affinity: {}
+
+# Additional environment variables
+env: []
+# - name: TZ
+#   value: "Asia/Taipei"
+# - name: LANG
+#   value: "en_US.UTF-8"
+
+# Additional volumes
+extraVolumes: []
+# - name: extra-storage
+#   emptyDir: {}
+
+# Additional volume mounts
+extraVolumeMounts: []
+# - name: extra-storage
+#   mountPath: /mnt/extra
