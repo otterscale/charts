@@ -1,0 +1,112 @@
+# Example values for Ubuntu Helm Chart - Development Environment
+# This configuration creates an Ubuntu container with SSH access and development tools
+
+replicaCount: 1
+
+image:
+  repository: ubuntu
+  tag: "24.04"
+  pullPolicy: IfNotPresent
+
+ssh:
+  enabled: true
+  rootPassword: "dev123" # Change this in production!
+  passwordAuthentication: "yes"
+  permitRootLogin: "yes"
+  # For production, use SSH keys instead:
+  # authorizedKeys: |
+  #   ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAB... user@laptop
+
+service:
+  type: NodePort
+  port: 22
+  targetPort: 22
+  nodePort: 30022 # Optional: specify fixed NodePort
+
+persistence:
+  enabled: true
+  storageClassName: "" # Use default storage class
+  accessMode: ReadWriteOnce
+  size: 20Gi
+  mountPath: /data
+
+# Install development tools during initialization
+prescript: |
+  echo "=== Installing development tools ==="
+  export DEBIAN_FRONTEND=noninteractive
+  apt-get update
+
+  # Basic utilities
+  apt-get install -y curl wget git vim nano net-tools iputils-ping dnsutils
+
+  # Development tools
+  apt-get install -y build-essential python3 python3-pip python3-venv
+  apt-get install -y nodejs npm
+
+  # Additional tools
+  apt-get install -y htop tmux screen
+
+  # Python packages
+  pip3 install --upgrade pip
+  pip3 install requests pandas numpy matplotlib
+
+  echo "=== Development environment ready ==="
+
+postscript: |
+  echo "=== Container Information ==="
+  echo "SSH is available on port 22"
+  echo "Data directory: /data"
+  echo "Python version: $(python3 --version)"
+  echo "Node version: $(node --version || echo 'not installed')"
+  echo "=== Ready for development ==="
+
+resources:
+  limits:
+    cpu: 4000m
+    memory: 8Gi
+  requests:
+    cpu: 1000m
+    memory: 2Gi
+
+livenessProbe:
+  exec:
+    command:
+      - /bin/sh
+      - -c
+      - "ps aux | grep '[s]shd' && test -f /var/run/sshd.pid"
+  initialDelaySeconds: 30
+  periodSeconds: 20
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  exec:
+    command:
+      - /bin/sh
+      - -c
+      - "netstat -tlnp | grep ':22 ' || ss -tlnp | grep ':22 '"
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+startupProbe:
+  exec:
+    command:
+      - /bin/sh
+      - -c
+      - "ps aux | grep '[s]shd' && netstat -tlnp 2>/dev/null | grep ':22 ' || ss -tlnp 2>/dev/null | grep ':22 '"
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 30
+
+env:
+  - name: TZ
+    value: "UTC"
+  - name: LANG
+    value: "en_US.UTF-8"
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

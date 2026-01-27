@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ubuntu.fullname" . }}-scripts
+  labels:
+    {{- include "ubuntu.labels" . | nindent 4 }}
+data:
+  prescript.sh: |
+{{ .Values.prescript | indent 4 }}
+  postscript.sh: |
+{{ .Values.postscript | indent 4 }}

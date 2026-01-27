@@ -1,0 +1,81 @@
+Thank you for installing {{ .Chart.Name }}!
+
+Your Ubuntu container with SSH access has been deployed.
+
+{{- if .Values.ssh.enabled }}
+
+=== SSH Access Information ===
+
+1. Get the NodePort assigned to the SSH service:
+
+   export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "ubuntu.fullname" . }})
+   echo "SSH NodePort: $NODE_PORT"
+
+2. Get a node IP address:
+
+   export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+   echo "Node IP: $NODE_IP"
+
+3. Connect via SSH:
+
+   {{- if .Values.ssh.rootPassword }}
+   ssh root@$NODE_IP -p $NODE_PORT
+   Password: {{ .Values.ssh.rootPassword }}
+   {{- else if .Values.ssh.authorizedKeys }}
+   ssh root@$NODE_IP -p $NODE_PORT -i ~/.ssh/id_rsa
+   {{- else }}
+   ssh root@$NODE_IP -p $NODE_PORT
+   {{- end }}
+
+{{- end }}
+
+=== Pod Status ===
+
+Check the status of your Ubuntu pod:
+
+   kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "ubuntu.name" . }},app.kubernetes.io/instance={{ .Release.Name }}"
+
+View pod logs:
+
+   kubectl logs --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "ubuntu.name" . }},app.kubernetes.io/instance={{ .Release.Name }}"
+
+{{- if .Values.persistence.enabled }}
+
+=== Persistent Storage ===
+
+Your data is persisted at: {{ .Values.persistence.mountPath }}
+PVC Size: {{ .Values.persistence.size }}
+
+Check PVC status:
+
+   kubectl get pvc --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "ubuntu.name" . }}"
+
+{{- end }}
+
+=== Useful Commands ===
+
+Execute commands in the container:
+
+   kubectl exec -it --namespace {{ .Release.Namespace }} $(kubectl get pod --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "ubuntu.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath='{.items[0].metadata.name}') -- /bin/bash
+
+View detailed pod information:
+
+   kubectl describe pod --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "ubuntu.name" . }},app.kubernetes.io/instance={{ .Release.Name }}"
+
+{{- if .Values.prescript }}
+
+=== Precondition Script ===
+
+A precondition script was executed during initialization.
+Check init container logs if you encounter issues:
+
+   kubectl logs --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "ubuntu.name" . }}" -c setup-ssh
+
+{{- end }}
+
+=== Documentation ===
+
+For more information and examples, see the chart README:
+   https://github.com/otterscale/charts/tree/main/charts/ubuntu
+
+Happy computing!
