@@ -259,7 +259,7 @@ keycloakx:
   replicas: 1
   image:
     repository: quay.io/keycloak/keycloak
-    tag: "26.4.7"
+    tag: "26.5.2"
 
   command: []
   extraEnv: ""
