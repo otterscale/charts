@@ -1,8 +1,8 @@
 apiVersion: v2
 name: otterscale
 # renovate: github=otterscale/otterscale
-appVersion: v0.6.3
-version: 0.2.3
+appVersion: v0.6.4
+version: 0.2.4
 kubeVersion: ">= 1.30.0"
 description: A Helm chart for OtterScale - Cloud infrastructure management platform
 home: https://otterscale.github.io
@@ -21,4 +21,4 @@ dependencies:
   - condition: keycloakx.enabled
     repository: "https://codecentric.github.io/helm-charts"
     name: keycloakx
-    version: 7.1.5
+    version: 7.1.7
