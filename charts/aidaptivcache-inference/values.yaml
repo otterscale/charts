@@ -26,17 +26,18 @@ vllm:
     gpuMemoryUtilization: 0.9
     maxModelLen: 8192
     tensorParallelSize: 1
-    dramKvOffloadGb: 0
-    ssdKvOffloadGb: 500
-    noResumeKvCache: true
+    dramKVOffloadGb: 0
+    ssdKVOffloadGb: 500
+    noResumeKVCache: true
     disableGpuReuse: false
     enableChunkedPrefill: true
     # Optional flags (commented out by default)
     # disableLongToken: true
-    # resumeKvCache: true
-    # cleanObsoleteKvCache: true
+    # resumeKVCache: true
+    # cleanObsoleteKVCache: true
     # enablePrefixCaching: true
     # enforceEager: true
+    # disableKVCache: true
   
   # LoRA configuration (all three parameters must be set together)
   lora:

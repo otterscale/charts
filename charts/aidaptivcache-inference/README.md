@@ -105,6 +105,7 @@ vllm:
 - `cleanObsoleteKvCache`: Clean obsolete KV Cache
 - `enablePrefixCaching`: Enable prefix caching
 - `enforceEager`: Force eager mode
+- `disableKVCache`: Disable KV Cahe
 
 #### LoRA Configuration
 
