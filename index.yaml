@@ -1157,6 +1157,23 @@ entries:
   ubuntu:
   - apiVersion: v2
     appVersion: "24.04"
+    created: "2026-01-28T11:35:37.077585844Z"
+    description: A Helm chart for deploying Ubuntu with SSH access via NodePort (for
+      development/testing)
+    digest: 2f999510fd8be19a4313d677856a01b37504275025c4c199ec38b5e0b10eaec7
+    icon: https://github.com/ubuntu.png
+    keywords:
+    - ubuntu
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: ubuntu
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.1/ubuntu-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: "24.04"
     created: "2026-01-27T13:52:20.535138476Z"
     description: A Helm chart for deploying Ubuntu with SSH access via NodePort (for
       development/testing)
@@ -1172,4 +1189,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-01-28T10:41:11.616615043Z"
+generated: "2026-01-28T11:35:37.077710838Z"
