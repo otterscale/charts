@@ -117,9 +117,9 @@ spec:
           sleep infinity
           {{- end }}
         ports:
-        {{- if .Values.ssh.enabled }}
-        - name: ssh
-          containerPort: {{ .Values.service.targetPort }}
+        {{- range .Values.services }}
+        - name: {{ .name }}
+          containerPort: {{ .targetPort }}
           protocol: TCP
         {{- end }}
         {{- with .Values.livenessProbe }}
