@@ -10,6 +10,6 @@ spec:
   containers:
     - name: wget
       image: busybox
-      command: ['/bin/sh', '-c', 'nc -z -w 5 {{ include "ubuntu.fullname" . }} {{ .Values.service.port }}']
+      command: ['/bin/sh', '-c', 'nc -z -w 5 {{ include "ubuntu.fullname" . }} {{ (index .Values.services 0).port }}']
       args: []
   restartPolicy: Never
