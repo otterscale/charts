@@ -1,23 +1,26 @@
+{{- range .Values.services }}
+---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "ubuntu.fullname" . }}
+  name: {{ include "ubuntu.fullname" $ }}{{- if ne .name "ssh" }}-{{ .name }}{{- end }}
   labels:
-    {{- include "ubuntu.labels" . | nindent 4 }}
-  {{- with .Values.service.annotations }}
+    {{- include "ubuntu.labels" $ | nindent 4 }}
+  {{- with .annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .type }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: {{ .Values.service.targetPort }}
+    - port: {{ .port }}
+      targetPort: {{ .targetPort }}
       protocol: TCP
-      name: ssh
-      {{- if and (eq .Values.service.type "NodePort") .Values.service.nodePort }}
-      nodePort: {{ .Values.service.nodePort }}
+      name: {{ .name }}
+      {{- if and (eq .type "NodePort") .nodePort }}
+      nodePort: {{ .nodePort }}
       {{- end }}
   selector:
-    {{- include "ubuntu.selectorLabels" . | nindent 4 }}
+    {{- include "ubuntu.selectorLabels" $ | nindent 4 }}
+{{- end }}
 

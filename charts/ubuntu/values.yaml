@@ -73,18 +73,27 @@ ssh:
   passwordAuthentication: "yes"
 
 # Service configuration for SSH access
-service:
-  # Service type - NodePort for external SSH access
-  type: NodePort
-  # SSH port (internal container port)
-  port: 22
-  # Target port in the container
-  targetPort: 22
-  # Optional: specify a fixed NodePort (30000-65535)
-  # If not specified, Kubernetes will assign one automatically
-  # nodePort: 30022
-  # Service annotations
-  annotations: {}
+# You can define multiple services as an array
+services:
+  - name: ssh
+    # Service type - NodePort for external SSH access
+    type: NodePort
+    # SSH port (internal container port)
+    port: 22
+    # Target port in the container
+    targetPort: 22
+    # Optional: specify a fixed NodePort (30000-65535)
+    # If not specified, Kubernetes will assign one automatically
+    # nodePort: 30022
+    # Service annotations
+    annotations: {}
+  # Example: Add additional services
+  # - name: http
+  #   type: NodePort
+  #   port: 80
+  #   targetPort: 80
+  #   nodePort: 30080
+  #   annotations: {}
 
 # Persistent Volume Claim configuration
 persistence:

@@ -101,19 +101,47 @@ ssh:
 ### Service Configuration
 
 ```yaml
-service:
-  type: NodePort
-  port: 22
-  targetPort: 22
-  nodePort: 30022
-  annotations: {}
+services:
+  - name: ssh
+    type: NodePort
+    port: 22
+    targetPort: 22
+    nodePort: 30022
+    annotations: {}
+  # Additional services can be added
+  # - name: http
+  #   type: ClusterIP
+  #   port: 80
+  #   targetPort: 8080
+  #   annotations: {}
 ```
 
+- `name`: Service name identifier
 - `type`: Service type (NodePort/ClusterIP/LoadBalancer)
 - `port`: Service external port
 - `targetPort`: Container internal port (SSH: 22)
 - `nodePort`: Fixed NodePort (30000-32767), leave empty for auto-assignment
 - `annotations`: Service annotations
+
+**Multiple Services Example**:
+
+```yaml
+services:
+  - name: ssh
+    type: NodePort
+    port: 22
+    targetPort: 22
+    nodePort: 30022
+  - name: jupyter
+    type: NodePort
+    port: 8888
+    targetPort: 8888
+    nodePort: 30888
+  - name: http
+    type: ClusterIP
+    port: 80
+    targetPort: 8080
+```
 
 ### Persistent Storage
 
@@ -289,7 +317,13 @@ image:
 
 ssh:
   rootPassword: "dev123"
-  nodePort: 30022
+
+services:
+  - name: ssh
+    type: NodePort
+    port: 22
+    targetPort: 22
+    nodePort: 30022
 
 persistence:
   enabled: true
@@ -435,17 +469,25 @@ prescript: |
   # Install data science packages
   pip3 install --upgrade pip
   pip3 install jupyter jupyterlab pandas numpy scipy matplotlib seaborn scikit-learn
-  pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-  pip3 install tensorflow keras
-
-  # Install additional tools
-  apt-get install -y git curl wget vim
-
 postscript: |
   # Start Jupyter Lab in background
   cd /workspace
   nohup jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root > /var/log/jupyter.log 2>&1 &
   echo "Jupyter Lab started on port 8888"
+
+services:
+  - name: ssh
+    type: NodePort
+    port: 22
+    targetPort: 22
+    nodePort: 30022
+  - name: jupyter
+    type: NodePort
+    port: 8888
+    targetPort: 8888
+    nodePort: 30888
+
+resources:pyter Lab started on port 8888"
 
 service:
   type: NodePort
@@ -633,30 +675,32 @@ ssh:
 
 And verify inside container:
 
-```bash
+````bash
 kubectl exec <pod-name> -- grep PasswordAuthentication /etc/ssh/sshd_config
-```
-
-## Advanced Configuration
-
-### Multiple StatefulSet Replicas
-
-For multiple Ubuntu instances:
+### Custom SSH Port
 
 ```yaml
-replicaCount: 3
-```
+services:
+  - name: ssh
+    type: NodePort
+    port: 2222
+    targetPort: 2222
+    nodePort: 30222
+````
 
-Each pod gets its own PVC: `data-<name>-0`, `data-<name>-1`, `data-<name>-2`
+Update prescript to configure SSH on custom port:
 
-### Custom SSH Port
+````yaml
+prescript: |
+  sed -i 's/#Port 22/Port 2222/' /etc/ssh/sshd_config
+``` Custom SSH Port
 
 ```yaml
 service:
   port: 2222
   targetPort: 2222
   nodePort: 30222
-```
+````
 
 Update prescript to configure SSH on custom port:
 

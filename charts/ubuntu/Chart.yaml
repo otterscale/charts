@@ -3,7 +3,7 @@ name: ubuntu
 description: A Helm chart for deploying Ubuntu with SSH access via NodePort (for development/testing)
 icon: https://github.com/ubuntu.png
 type: application
-version: 0.1.0
+version: 0.1.1
 appVersion: "24.04"
 maintainers:
   - name: Chung-Hsuan Tsai
