@@ -45,33 +45,3 @@ Selector labels
 app.kubernetes.io/name: {{ include "otterscale.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
-
-{{/*
-Get nodeSelector from component or global
-*/}}
-{{- define "otterscale.nodeSelector" -}}
-{{- $nodeSelector := .component.nodeSelector | default .global.nodeSelector | default dict }}
-{{- if $nodeSelector }}
-{{- toYaml $nodeSelector }}
-{{- end }}
-{{- end }}
-
-{{/*
-Get tolerations from component or global
-*/}}
-{{- define "otterscale.tolerations" -}}
-{{- $tolerations := .component.tolerations | default .global.tolerations | default list }}
-{{- if $tolerations }}
-{{- toYaml $tolerations }}
-{{- end }}
-{{- end }}
-
-{{/*
-Get affinity from component or global
-*/}}
-{{- define "otterscale.affinity" -}}
-{{- $affinity := .component.affinity | default .global.affinity | default dict }}
-{{- if $affinity }}
-{{- toYaml $affinity }}
-{{- end }}
-{{- end }}

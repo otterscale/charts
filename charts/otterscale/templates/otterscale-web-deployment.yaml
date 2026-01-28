@@ -7,7 +7,7 @@ metadata:
     {{- include "otterscale.labels" . | nindent 4 }}
     app.kubernetes.io/component: frontend
 spec:
-  replicas: {{ .Values.otterscaleWeb.replicas }}
+  replicas: 1
   selector:
     matchLabels:
       {{- include "otterscale.selectorLabels" . | nindent 6 }}
@@ -20,10 +20,6 @@ spec:
         {{- if and .Values.istio.enabled .Values.istio.sidecarInjection.enabled }}
         sidecar.istio.io/inject: "true"
         {{- end }}
-      annotations:
-        {{- with .Values.otterscaleWeb.podAnnotations }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
     spec:
       containers:
         - name: otterscale-web
@@ -34,29 +30,16 @@ spec:
               containerPort: 3000
               protocol: TCP
           env:
-            {{- with .Values.otterscaleWeb.extraEnv }}
+            {{- with .Values.otterscaleWeb.env }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
-          {{- with .Values.otterscaleWeb.envFrom }}
           envFrom:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+            - configMapRef:
+                name: {{ include "otterscale.fullname" . }}-web-env
           resources:
             requests:
               cpu: "500m"
               memory: "512Mi"
             limits:
-              cpu: "500m"
-              memory: "512Mi"
-      {{- with include "otterscale.nodeSelector" (dict "component" .Values.otterscaleWeb "global" .Values.global) }}
-      nodeSelector:
-        {{- . | nindent 8 }}
-      {{- end }}
-      {{- with include "otterscale.affinity" (dict "component" .Values.otterscaleWeb "global" .Values.global) }}
-      affinity:
-        {{- . | nindent 8 }}
-      {{- end }}
-      {{- with include "otterscale.tolerations" (dict "component" .Values.otterscaleWeb "global" .Values.global) }}
-      tolerations:
-        {{- . | nindent 8 }}
-      {{- end }}
+              cpu: "1"
+              memory: "1024Mi"

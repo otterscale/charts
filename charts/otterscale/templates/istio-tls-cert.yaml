@@ -1,7 +1,4 @@
 {{- if .Values.istio.tls.enabled }}
-{{- if or (eq .Values.istio.tls.crt "") (eq .Values.istio.tls.key "") }}
-{{- fail "TLS is enabled but crt or key is not provided" }}
-{{- end }}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -9,8 +6,12 @@ metadata:
   namespace: istio-system
   labels:
     {{- include "otterscale.labels" . | nindent 4 }}
-data:
-  tls.crt: {{ .Values.istio.tls.crt | b64enc }}
-  tls.key: {{ .Values.istio.tls.key | b64enc }}
 type: kubernetes.io/tls
+data:
+  {{- if .Values.istio.tls.crt }}
+  tls.crt: {{ .Values.istio.tls.crt }}
+  {{- end }}
+  {{- if .Values.istio.tls.key }}
+  tls.key: {{ .Values.istio.tls.key }}
+  {{- end }}
 {{- end }}

@@ -1,142 +1,31 @@
-# =============================================================================
-# OtterScale Helm Chart Configuration
-# =============================================================================
-# This file contains all configurable parameters for the OtterScale deployment.
-# Modify these values according to your environment and requirements.
-
-# -----------------------------------------------------------------------------
-# Chart Naming
-# -----------------------------------------------------------------------------
-# Override the chart name used in labels and resource names
+# Global naming overrides
 nameOverride: ""
-# Override the fully qualified app name
 fullnameOverride: ""
 
-# -----------------------------------------------------------------------------
-# Global Settings
-# -----------------------------------------------------------------------------
-global:
-  # Image pull policy for all containers
-  # Options: Always, IfNotPresent, Never
-  imagePullPolicy: IfNotPresent
-
-  # Common pod configurations (can be overridden per component)
-  podAnnotations: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-
-# -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 # OtterScale Service Configuration
 # -----------------------------------------------------------------------------
 otterscale:
-  # Image configuration
   image:
     repository: ghcr.io/otterscale/otterscale/service
-    tag: "v0.7.0-alpha.3"
-    pullPolicy: "IfNotPresent"
-
-  replicas: 1
-
-  # Override global settings if needed
-  podAnnotations: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-
-  # Service port configuration
-  service:
-    type: ClusterIP
-    port: 8299
-    targetPort: 8299
-    annotations: {}
-    # NodePort (only used if type is NodePort)
-    nodePort: ""
-
-  # Additional environment variables
+    tag: ""
+    pullPolicy: IfNotPresent
   env: []
-  # - name: CUSTOM_VAR
-  #   value: "value"
 
-  # Environment variables from secrets or configmaps
-  envFrom: []
-  # - secretRef:
-  #     name: my-secret
-
-# -----------------------------------------------------------------------------
-# Valkey Configuration
-# -----------------------------------------------------------------------------
-valkey:
-  enabled: true
-  #dataStorage:
-  #  enabled: false
-  #  keepPvc: true
-  auth:
-    enabled: true
-    aclConfig: |
-      user default on >password ~* &* +@all
-
-# -----------------------------------------------------------------------------
-# OtterScale Web UI Configuration
-# -----------------------------------------------------------------------------
 otterscaleWeb:
-  # Image configuration
   image:
     repository: ghcr.io/otterscale/otterscale/web
-    tag: "v0.7.0-alpha.3"
-    pullPolicy: "IfNotPresent"
-
-  replicas: 1
-
-  # Override global settings if needed
-  podAnnotations: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-
-  # Service port configuration
-  service:
-    type: ClusterIP
-    port: 3000
-    targetPort: 3000
-    annotations: {}
-    nodePort: ""
-
-  # Additional environment variables
-  extraEnv: 
-   #- name: NODE_ENV
-   #  value: "development"
-   - name: API_URL
-     value: "http://192.168.196.48/api"
-   - name: PUBLIC_WEB_URL
-     value: "http://192.168.196.48"
-   - name: KEYCLOAK_REALM_URL
-     value: "http://192.168.196.48/auth/realms/otterscale"
-   - name: KEYCLOAK_CLIENT_ID
-     value: "otterscale"
-   - name: KEYCLOAK_CLIENT_SECRET
-     value: "Bp4peGsKk7kRCe6EOzchF5UNdXHW0xt5"
-   - name: REDIS_URL
-     value: "redis://:password@otterscale-valkey.otterscale.svc.cluster.local:6379"
-
-  # Environment variables from secrets or configmaps
-  envFrom: []
-  # - secretRef:
-  #     name: my-secret
+    tag: ""
+    pullPolicy: IfNotPresent
+  env: []
 
 # -----------------------------------------------------------------------------
-# Istio Configuration
+# Service Mesh Configuration
 # -----------------------------------------------------------------------------
 istio:
-  # Enable or disable Istio integration
   enabled: true
-
-  # Automatic sidecar injection to otterscale and otterscale-web
   sidecarInjection:
     enabled: true
-
-  # VirtualService configuration for traffic routing
   virtualService:
     enabled: true
 
@@ -145,68 +34,35 @@ istio:
     # Enable TLS for the gateway
     enabled: false
     name: otterscale-tls-cert
-    # TLS certificate (base64 encoded)
     crt: ""
-    # TLS private key (base64 encoded)
     key: ""
 
   # Gateway configuration for external traffic
   gateway:
     enabled: true
-    name: otterscale-gateway
-    servers:
-      # HTTP server
-      - port:
-          number: 80
-          name: http
-          protocol: HTTP
-        # List of hosts that the gateway should serve
-        hosts:
-          - "*"
-        # - "otterscale.example.com" 
-        # Optional: redirect HTTP to HTTPS
-        # tls:
-        #   httpsRedirect: true
-
-      # HTTPS server (uncomment and configure for TLS)
-      # - port:
-      #     number: 443
-      #     name: https
-      #     protocol: HTTPS
-      #   hosts:
-      #     - "otterscale.example.com"
-      #   tls:
-      #     mode: SIMPLE
-      #     credentialName: otterscale-tls-cert
-
-  # Cookie Secure flag override for HTTP-only environments
-  # WARNING: Only enable this for development/testing with HTTP
-  # In production, use HTTPS instead
-  cookieSecureOverride:
-    enabled: false
+    hosts:
+      - "*"
 
 # -----------------------------------------------------------------------------
 # PostgreSQL Configuration (for Keycloak)
 # -----------------------------------------------------------------------------
+valkey:
+  enabled: true
+  auth:
+    enabled: true
+    aclConfig: |
+      user default on >password ~* &* +@all
+
 postgres:
-  # Database name to create
   db: keycloak
-  # Database username
   user: keycloak
-  # Database password (consider using external secrets in production)
   password: keycloak
-  
-  # PostgreSQL image configuration
   image:
     repository: postgres
     tag: "15"
     pullPolicy: IfNotPresent
-   
-  # Persistence configuration using StorageClass
   persistence:
     enabled: true
-    # storageClassName: "local-storage"
-    # If using a specific storage class, uncomment and set the name
     storageClassName: "microk8s-hostpath"
     accessMode: ReadWriteOnce
     size: 5Gi
@@ -216,10 +72,10 @@ postgres:
 # -----------------------------------------------------------------------------
 keycloakx:
   enabled: true
-  replicas: 1
-  image:
-    repository: quay.io/keycloak/keycloak
-    tag: "26.4.7"
+  auth:
+    adminPassword: ""
+  http:
+    relativePath: /auth/
 
   command:
   - /bin/sh
@@ -235,26 +91,11 @@ keycloakx:
     --spi-events-listener-jboss-logging-success-level=info \
     --spi-events-listener-jboss-logging-error-level=warn 
 
-  http:
-    relativePath: /auth/
-  
-  extraEnv: |
-    - name: KC_BOOTSTRAP_ADMIN_USERNAME
-      valueFrom:
-        secretKeyRef:
-          name: {{ .Release.Name }}-keycloak-admin
-          key: user
-    - name: KC_BOOTSTRAP_ADMIN_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: {{ .Release.Name }}-keycloak-admin
-          key: password
-    - name: JAVA_OPTS_APPEND
-      value: >-
-        -XX:+UseContainerSupport
-        -XX:MaxRAMPercentage=50.0
-        -Djava.awt.headless=true
-        -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
+  extraEnvFrom: |
+    - configMapRef:
+        name: otterscale-keycloak-env
+    - secretRef:
+        name: otterscale-keycloak-admin
 
   database:
     vendor: postgres
@@ -266,11 +107,9 @@ keycloakx:
     hostname: otterscale-postgres
     port: "5432"
 
-  # Init Container check DB
   dbchecker:
     enabled: true
   
-  # Init Container prepare theme
   extraInitContainers: |
     - name: theme-provider
       image: ghcr.io/otterscale/keycloakify:1.0.6
@@ -287,7 +126,6 @@ keycloakx:
         - name: theme-import-volume
           mountPath: /otterscale-theme
 
-  # Import Realm and Theme
   extraVolumeMounts: |
     - name: realm-import-volume
       mountPath: "/opt/keycloak/data/import/otterscale-realm.json"
@@ -301,34 +139,13 @@ keycloakx:
   extraVolumes: |
     - name: realm-import-volume
       secret:
-        secretName: {{ .Release.Name }}-otterscale-realm
+        secretName: {{ .Release.Name }}-realm
     - name: theme-import-volume
       emptyDir: {}
 
 # -----------------------------------------------------------------------------
-# MAAS & JuJu Configuration
+# MAAS / Juju Configuration
 # -----------------------------------------------------------------------------
-#configContent: |
-#  # OtterScale Service Configuration
-#  # This configuration file defines the service settings
-#  maas:
-#    url: http://127.0.0.1:5240/MAAS
-#    key: ""
-#    version: "2.0"
-#  juju:
-#    controller: maas-cloud-controller
-#    controller_addresses: [""]
-#    username: admin
-#    password: ""
-#    ca_cert: ""
-#    cloud_name: maas-cloud
-#    cloud_region: default
-#    charmhub_api_url: https://api.charmhub.io
-#  kube:
-#    helm_repository_urls:
-#    - https://artifacthub.github.io/helm-charts
-#  ceph:
-#    rados_timeout: 0s
 configContent: |
   maas:
     url: http://192.168.196.22:5240/MAAS

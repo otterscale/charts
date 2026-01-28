@@ -1,8 +1,8 @@
 apiVersion: v2
 name: otterscale
 # renovate: github=otterscale/otterscale
-appVersion: v0.7.0-alpha.1
-version: 0.3.0-alpha.1
+appVersion: v0.7.0-alpha.3
+version: 0.3.0-alpha.3
 description: OtterScale - A unified platform for simplified compute, storage, and networking
 home: https://otterscale.github.io
 icon: https://github.com/otterscale.png

@@ -77,15 +77,11 @@ spec:
             limits:
               memory: "256Mi"
               cpu: "250m"
-  volumeClaimTemplates:
-    - metadata:
-        name: postgres-data
-      spec:
-        accessModes:
-          - {{ .Values.postgres.persistence.accessMode }}
-        {{- if .Values.postgres.persistence.storageClassName }}
-        storageClassName: {{ .Values.postgres.persistence.storageClassName }}
+      volumes:
+        - name: postgres-data
+        {{- if .Values.postgres.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "otterscale.fullname" . }}-postgres-data
+        {{- else }}
+          emptyDir: {}
         {{- end }}
-        resources:
-          requests:
-            storage: {{ .Values.postgres.persistence.size }}

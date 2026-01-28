@@ -6,20 +6,13 @@ metadata:
   labels:
     {{- include "otterscale.labels" . | nindent 4 }}
     app.kubernetes.io/component: backend
-  {{- with .Values.otterscale.service.annotations }}
-  annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
 spec:
-  type: {{ .Values.otterscale.service.type }}
+  type: ClusterIP
   selector:
     {{- include "otterscale.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: backend
   ports:
     - name: connectrpc
-      port: {{ .Values.otterscale.service.port }}
-      targetPort: {{ .Values.otterscale.service.targetPort }}
+      port: 8299
+      targetPort: 8299
       protocol: TCP
-      {{- if and (eq .Values.otterscale.service.type "NodePort") .Values.otterscale.service.nodePort }}
-      nodePort: {{ .Values.otterscale.service.nodePort }}
-      {{- end }}

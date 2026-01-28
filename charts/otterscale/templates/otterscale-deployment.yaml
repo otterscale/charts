@@ -7,7 +7,7 @@ metadata:
     {{- include "otterscale.labels" . | nindent 4 }}
     app.kubernetes.io/component: backend
 spec:
-  replicas: {{ .Values.otterscale.replicas }}
+  replicas: 1
   selector:
     matchLabels:
       {{- include "otterscale.selectorLabels" . | nindent 6 }}
@@ -22,9 +22,6 @@ spec:
         {{- end }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/otterscale-configmap.yaml") . | sha256sum }}
-        {{- with .Values.otterscale.podAnnotations }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
     spec:
       containers:
         - name: otterscale
@@ -35,15 +32,9 @@ spec:
             - name: http
               containerPort: 8299
               protocol: TCP
-          {{- if or .Values.otterscale.env .Values.otterscale.envFrom }}
           {{- with .Values.otterscale.env }}
           env:
             {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.otterscale.envFrom }}
-          envFrom:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
           {{- end }}
           volumeMounts:
             - name: config
@@ -55,21 +46,9 @@ spec:
               cpu: "500m"
               memory: "512Mi"
             limits:
-              cpu: "500m"
-              memory: "512Mi"
+              cpu: "1"
+              memory: "1024Mi"
       volumes:
         - name: config
           configMap:
             name: {{ include "otterscale.fullname" . }}-config
-      {{- with include "otterscale.nodeSelector" (dict "component" .Values.otterscale "global" .Values.global) }}
-      nodeSelector:
-        {{- . | nindent 8 }}
-      {{- end }}
-      {{- with include "otterscale.affinity" (dict "component" .Values.otterscale "global" .Values.global) }}
-      affinity:
-        {{- . | nindent 8 }}
-      {{- end }}
-      {{- with include "otterscale.tolerations" (dict "component" .Values.otterscale "global" .Values.global) }}
-      tolerations:
-        {{- . | nindent 8 }}
-      {{- end }}
