@@ -21,10 +21,6 @@ spec:
         sidecar.istio.io/inject: "true"
         {{- end }}
       annotations:
-        {{- if .Values.openfeature.sidecar.enabled }}
-        openfeature.dev/enabled: "true"
-        openfeature.dev/featureflagsource: {{ .Release.Name }}-flags
-        {{- end }}
         {{- with .Values.otterscaleWeb.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -46,7 +42,12 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           resources:
-            {{- toYaml .Values.otterscaleWeb.resources | nindent 12 }}
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
       {{- with include "otterscale.nodeSelector" (dict "component" .Values.otterscaleWeb "global" .Values.global) }}
       nodeSelector:
         {{- . | nindent 8 }}

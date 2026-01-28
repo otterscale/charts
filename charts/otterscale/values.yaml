@@ -33,10 +33,8 @@ global:
 otterscale:
   # Image configuration
   image:
-    #repository: ghcr.io/otterscale/otterscale/service
-    #tag: ""
-    repository: docker.io/library/ots
-    tag: "dev2"
+    repository: ghcr.io/otterscale/otterscale/service
+    tag: "v0.7.0-alpha.3"
     pullPolicy: "IfNotPresent"
 
   replicas: 1
@@ -66,14 +64,6 @@ otterscale:
   # - secretRef:
   #     name: my-secret
 
-  resources:
-    requests:
-      cpu: "500m"
-      memory: "512Mi"
-    limits:
-      cpu: "500m"
-      memory: "512Mi"
-
 # -----------------------------------------------------------------------------
 # Valkey Configuration
 # -----------------------------------------------------------------------------
@@ -93,10 +83,8 @@ valkey:
 otterscaleWeb:
   # Image configuration
   image:
-    #repository: ghcr.io/otterscale/otterscale/web
-    #tag: ""
-    repository: docker.io/library/ots-web
-    tag: "dev2"
+    repository: ghcr.io/otterscale/otterscale/web
+    tag: "v0.7.0-alpha.3"
     pullPolicy: "IfNotPresent"
 
   replicas: 1
@@ -115,18 +103,10 @@ otterscaleWeb:
     annotations: {}
     nodePort: ""
 
-  resources:
-    requests:
-      cpu: "500m"
-      memory: "512Mi"
-    limits:
-      cpu: "500m"
-      memory: "512Mi"
-
   # Additional environment variables
   extraEnv: 
-   - name: NODE_ENV
-     value: "development"
+   #- name: NODE_ENV
+   #  value: "development"
    - name: API_URL
      value: "http://192.168.196.48/api"
    - name: PUBLIC_WEB_URL
@@ -139,42 +119,11 @@ otterscaleWeb:
      value: "Bp4peGsKk7kRCe6EOzchF5UNdXHW0xt5"
    - name: REDIS_URL
      value: "redis://:password@otterscale-valkey.otterscale.svc.cluster.local:6379"
-   - name: VAULT_ADDR
-     value: ""
-   - name: VAULT_TOKEN
-     value: ""
 
   # Environment variables from secrets or configmaps
   envFrom: []
   # - secretRef:
   #     name: my-secret
-
-# -----------------------------------------------------------------------------
-# OpenFeature Flag Configuration
-# -----------------------------------------------------------------------------
-openfeature:
-  sidecar:
-    enabled: true
-  # Feature flag configurations
-  # Each entry will create a separate FeatureFlag resource
-  flags:
-    # Example: Add more flag configurations as needed
-    # some-feature:
-    #   defaultVariant: "off"
-    #   state: ENABLED
-    #   variants:
-    #     "on": true
-    #     "off": false
-
-# -----------------------------------------------------------------------------
-# Vault Configuration
-# -----------------------------------------------------------------------------
-vault:
-  enabled: false
-  server:
-    dev:
-      enabled: true
-      devRootToken: "root"
 
 # -----------------------------------------------------------------------------
 # Istio Configuration
@@ -237,6 +186,32 @@ istio:
     enabled: false
 
 # -----------------------------------------------------------------------------
+# PostgreSQL Configuration (for Keycloak)
+# -----------------------------------------------------------------------------
+postgres:
+  # Database name to create
+  db: keycloak
+  # Database username
+  user: keycloak
+  # Database password (consider using external secrets in production)
+  password: keycloak
+  
+  # PostgreSQL image configuration
+  image:
+    repository: postgres
+    tag: "15"
+    pullPolicy: IfNotPresent
+   
+  # Persistence configuration using StorageClass
+  persistence:
+    enabled: true
+    # storageClassName: "local-storage"
+    # If using a specific storage class, uncomment and set the name
+    storageClassName: "microk8s-hostpath"
+    accessMode: ReadWriteOnce
+    size: 5Gi
+
+# -----------------------------------------------------------------------------
 # Keycloak Configuration
 # -----------------------------------------------------------------------------
 keycloakx:
@@ -253,16 +228,12 @@ keycloakx:
     /opt/keycloak/bin/kc.sh build
     /opt/keycloak/bin/kc.sh start \
     --verbose \
+    --import-realm \
     --http-port=8080 \
     --http-enabled=true \
     --hostname-strict=false \
     --spi-events-listener-jboss-logging-success-level=info \
-    --spi-events-listener-jboss-logging-error-level=warn \
-    --optimized \
-    --import-realm
-#    --proxy-headers forwarded \
-#    --proxy-trusted-addresses=0.0.0.0/0 \
-#    --spi-sticky-session-encoder--infinispan--should-attach-route=false \
+    --spi-events-listener-jboss-logging-error-level=warn 
 
   http:
     relativePath: /auth/
@@ -280,30 +251,19 @@ keycloakx:
           key: password
     - name: JAVA_OPTS_APPEND
       value: >-
+        -XX:+UseContainerSupport
         -XX:MaxRAMPercentage=50.0
+        -Djava.awt.headless=true
         -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
-
-  postgresql:
-    cluster:
-      name: "keycloak-postgres-cluster"
-      instances: 1
-      imageName: ghcr.io/cloudnative-pg/postgresql:17.6
-    auth:
-      username: "keycloak"
-      password: "keycloak"
-      database: "keycloak"
-    storage:
-      size: 1Gi
-      storageClass: ""
 
   database:
     vendor: postgres
     username: "keycloak"
     password: "keycloak"
     database: "keycloak"
-    existingSecret: keycloak-postgres-cluster-secret
-    existingSecretKey: password
-    hostname: keycloak-postgres-cluster-rw
+    existingSecret: otterscale-postgres
+    existingSecretKey: postgres-password
+    hostname: otterscale-postgres
     port: "5432"
 
   # Init Container check DB

@@ -22,10 +22,6 @@ spec:
         {{- end }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/otterscale-configmap.yaml") . | sha256sum }}
-        {{- if .Values.openfeature.sidecar.enabled }}
-        openfeature.dev/enabled: "true"
-        openfeature.dev/featureflagsource: {{ .Release.Name }}-flags
-        {{- end }}
         {{- with .Values.otterscale.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -55,7 +51,12 @@ spec:
               subPath: otterscale.yaml
               readOnly: true
           resources:
-            {{- toYaml .Values.otterscale.resources | nindent 12 }}
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
       volumes:
         - name: config
           configMap:
