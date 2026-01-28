@@ -49,9 +49,9 @@ spec:
           --gpu-memory-utilization {{ .Values.vllm.args.gpuMemoryUtilization }} \
           --max-model-len {{ .Values.vllm.args.maxModelLen }} \
           --tensor-parallel-size {{ .Values.vllm.args.tensorParallelSize }} \
-          --dram-kv-offload-gb {{ .Values.vllm.args.dramKvOffloadGb }} \
-          --ssd-kv-offload-gb {{ .Values.vllm.args.ssdKvOffloadGb }} \
-          {{- if .Values.vllm.args.noResumeKvCache }}
+          --dram-kv-offload-gb {{ .Values.vllm.args.dramKVOffloadGb }} \
+          --ssd-kv-offload-gb {{ .Values.vllm.args.ssdKVOffloadGb }} \
+          {{- if .Values.vllm.args.noResumeKVCache }}
           --no-resume-kv-cache \
           {{- end }}
           {{- if .Values.vllm.args.disableGpuReuse }}
@@ -63,10 +63,10 @@ spec:
           {{- if .Values.vllm.args.disableLongToken }}
           --disable-long-token \
           {{- end }}
-          {{- if .Values.vllm.args.resumeKvCache }}
+          {{- if .Values.vllm.args.resumeKVCache }}
           --resume-kv-cache \
           {{- end }}
-          {{- if .Values.vllm.args.cleanObsoleteKvCache }}
+          {{- if .Values.vllm.args.cleanObsoleteKVCache }}
           --clean-obsolete-kv-cache \
           {{- end }}
           {{- if .Values.vllm.args.enablePrefixCaching }}
@@ -74,6 +74,9 @@ spec:
           {{- end }}
           {{- if .Values.vllm.args.enforceEager }}
           --enforce-eager \
+          {{- end }}
+          {{- if .Values.vllm.args.disableKVCache }}
+          --disable_kv_cache_offload \
           {{- end }}
           {{- if .Values.vllm.lora.enable }}
           --enable-lora \
