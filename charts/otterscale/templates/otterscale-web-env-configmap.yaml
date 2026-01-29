@@ -7,9 +7,9 @@ metadata:
     {{- include "otterscale.labels" . | nindent 4 }}
     app.kubernetes.io/component: frontend
 data:
-  API_URL: "http://192.168.196.48/api"
-  PUBLIC_WEB_URL: "http://192.168.196.48"
-  KEYCLOAK_REALM_URL: "http://192.168.196.48/auth/realms/otterscale"
-  KEYCLOAK_CLIENT_ID: "otterscale"
-  KEYCLOAK_CLIENT_SECRET: "Bp4peGsKk7kRCe6EOzchF5UNdXHW0xt5"
-  REDIS_URL: "redis://:password@otterscale-valkey.otterscale.svc.cluster.local:6379"
+  API_URL: "http://{{ .Values.otterscaleWeb.urlIP }}/api"
+  PUBLIC_WEB_URL: "http://{{ .Values.otterscaleWeb.urlIP }}"
+  KEYCLOAK_REALM_URL: "http://{{ .Values.otterscaleWeb.urlIP }}/auth/realms/otterscale"
+  KEYCLOAK_CLIENT_ID: {{ .Values.keycloakx.client.id }}
+  KEYCLOAK_CLIENT_SECRET: {{ include "otterscale.keycloak.clientSecret" . }}
+  REDIS_URL: "redis://:{{ .Values.valkey.aclUsers.default.password | default "password" }}@{{ .Release.Name }}-valkey.{{ .Release.Namespace }}.svc.cluster.local:6379"  

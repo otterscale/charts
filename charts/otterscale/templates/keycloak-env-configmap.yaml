@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: otterscale-keycloak-env
+  name: {{ include "otterscale.fullname" . }}-keycloak-env
   namespace: {{ .Release.Namespace }}
   labels:
     app.kubernetes.io/component: keycloak
@@ -13,4 +13,4 @@ data:
     -XX:+UseContainerSupport
     -XX:MaxRAMPercentage=50.0
     -Djava.awt.headless=true
-    -Djgroups.dns.query=otterscale-keycloakx-headless
+    -Djgroups.dns.query={{ .Release.Name }}-keycloakx-headless

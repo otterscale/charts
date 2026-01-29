@@ -13,6 +13,7 @@ otterscale:
   env: []
 
 otterscaleWeb:
+  urlIP: "192.168.196.48"
   image:
     repository: ghcr.io/otterscale/otterscale/web
     tag: ""
@@ -44,19 +45,24 @@ istio:
       - "*"
 
 # -----------------------------------------------------------------------------
-# PostgreSQL Configuration (for Keycloak)
+# Valkey Configuration (for otterscale-web)
 # -----------------------------------------------------------------------------
 valkey:
   enabled: true
-  auth:
-    enabled: true
-    aclConfig: |
-      user default on >password ~* &* +@all
+  #auth:
+  #  enabled: true
+  #  aclConfig: |
+  #    user default on >password ~* &* +@all
+  aclUsers:
+    default:
+      permissions: "~* &* +@all"
+      password: "password"
+      passwordKey: "admin-pwd"
 
+# -----------------------------------------------------------------------------
+# PostgreSQL Configuration (for Keycloak)
+# -----------------------------------------------------------------------------
 postgres:
-  db: keycloak
-  user: keycloak
-  password: keycloak
   image:
     repository: postgres
     tag: "15"
@@ -74,6 +80,9 @@ keycloakx:
   enabled: true
   auth:
     adminPassword: ""
+  client:
+    id: otterscale
+    secret: ""
   http:
     relativePath: /auth/
 
@@ -81,7 +90,6 @@ keycloakx:
   - /bin/sh
   - -c
   - |
-    /opt/keycloak/bin/kc.sh build
     /opt/keycloak/bin/kc.sh start \
     --verbose \
     --import-realm \
@@ -97,18 +105,15 @@ keycloakx:
     - secretRef:
         name: otterscale-keycloak-admin
 
-  database:
-    vendor: postgres
-    username: "keycloak"
-    password: "keycloak"
-    database: "keycloak"
-    existingSecret: otterscale-postgres
-    existingSecretKey: postgres-password
-    hostname: otterscale-postgres
-    port: "5432"
-
   dbchecker:
     enabled: true
+  database:
+    vendor: postgres
+    port: "5432"
+    username: keycloak
+    password: keycloak
+    database: keycloak
+    hostname: otterscale-keycloakx-postgres
   
   extraInitContainers: |
     - name: theme-provider
@@ -144,7 +149,7 @@ keycloakx:
       emptyDir: {}
 
 # -----------------------------------------------------------------------------
-# MAAS / Juju Configuration
+# MAAS / Juju Configuration (Hand-made)
 # -----------------------------------------------------------------------------
 configContent: |
   maas:

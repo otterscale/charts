@@ -45,3 +45,25 @@ Selector labels
 app.kubernetes.io/name: {{ include "otterscale.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{/*
+Get or generate Keycloak client secret (32 characters)
+Caches the value to ensure consistency across all template usages
+*/}}
+{{- define "otterscale.keycloak.clientSecret" -}}
+{{- if not .Values._generatedClientSecret -}}
+  {{- $secretName := printf "%s-keycloak-client-secret" (include "otterscale.fullname" .) -}}
+  {{- $existingSecret := lookup "v1" "Secret" .Release.Namespace $secretName -}}
+  {{- if $existingSecret -}}
+    {{/* Use existing secret value during upgrades */}}
+    {{- $_ := set .Values "_generatedClientSecret" (index $existingSecret.data "client-secret" | b64dec) -}}
+  {{- else if .Values.keycloakx.client.secret -}}
+    {{/* Use user-provided value */}}
+    {{- $_ := set .Values "_generatedClientSecret" .Values.keycloakx.client.secret -}}
+  {{- else -}}
+    {{/* Generate new random 32-character secret for first installation */}}
+    {{- $_ := set .Values "_generatedClientSecret" (randAlphaNum 32) -}}
+  {{- end -}}
+{{- end -}}
+{{- .Values._generatedClientSecret -}}
+{{- end }}
