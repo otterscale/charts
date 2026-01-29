@@ -74,11 +74,14 @@ Caches the value to ensure consistency across all template usages
 */}}
 {{- define "otterscale.postgres.password" -}}
 {{- if not .Values._generatedPostgresPassword -}}
-  {{- $secretName := printf "%s-postgres" (include "otterscale.fullname" .) -}}
+  {{- $secretName := .Values.keycloakx.database.existingSecret -}}
   {{- $existingSecret := lookup "v1" "Secret" .Release.Namespace $secretName -}}
   {{- if $existingSecret -}}
     {{/* Use existing secret value during upgrades */}}
     {{- $_ := set .Values "_generatedPostgresPassword" (index $existingSecret.data "postgres-password" | b64dec) -}}
+  {{- else if .Values.keycloakx.database.password -}}
+    {{/* Use user-provided value */}}
+    {{- $_ := set .Values "_generatedPostgresPassword" .Values.keycloakx.database.password -}}
   {{- else -}}
     {{/* Generate new random 10-character password for first installation */}}
     {{- $_ := set .Values "_generatedPostgresPassword" (randAlphaNum 10) -}}

@@ -52,7 +52,6 @@ valkey:
   aclUsers:
     default:
       permissions: "~* &* +@all"
-      password: ""
 
 # -----------------------------------------------------------------------------
 # Keycloak Configuration
