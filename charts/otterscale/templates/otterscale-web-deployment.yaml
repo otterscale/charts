@@ -1,4 +1,3 @@
-{{- $cloudnativePg := index .Values.otterscaleWeb "cloudnative-pg" -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -8,7 +7,7 @@ metadata:
     {{- include "otterscale.labels" . | nindent 4 }}
     app.kubernetes.io/component: frontend
 spec:
-  replicas: {{ .Values.otterscaleWeb.replicas }}
+  replicas: {{ .Values.otterscaleWeb.replicas | default 1 }}
   selector:
     matchLabels:
       {{- include "otterscale.selectorLabels" . | nindent 6 }}
@@ -21,44 +20,7 @@ spec:
         {{- if and .Values.istio.enabled .Values.istio.sidecarInjection.enabled }}
         sidecar.istio.io/inject: "true"
         {{- end }}
-      annotations:
-        {{- if .Values.openfeature.sidecar.enabled }}
-        openfeature.dev/enabled: "true"
-        openfeature.dev/featureflagsource: {{ .Values.openfeature.flagsource }}
-        {{- end }}
-        {{- with .Values.otterscaleWeb.podAnnotations }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
     spec:
-      {{- if $cloudnativePg.enabled }}
-      initContainers:
-        - name: wait-for-postgres
-          image: postgres:15-alpine
-          command:
-            - sh
-            - -c
-            - |
-              until pg_isready -h $POSTGRES_HOST -p $POSTGRES_PORT -U $POSTGRES_USER; do
-                echo "Waiting for PostgreSQL to start..."
-                sleep 2
-              done
-          env:
-            - name: POSTGRES_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $cloudnativePg.bootstrap.initdb.secret.name }}
-                  key: host
-            - name: POSTGRES_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $cloudnativePg.bootstrap.initdb.secret.name }}
-                  key: port
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $cloudnativePg.bootstrap.initdb.secret.name }}
-                  key: username
-      {{- end }}
       containers:
         - name: otterscale-web
           image: "{{ tpl .Values.otterscaleWeb.image.repository . }}:{{ tpl .Values.otterscaleWeb.image.tag . | default .Chart.AppVersion}}"
@@ -68,71 +30,16 @@ spec:
               containerPort: 3000
               protocol: TCP
           env:
-            {{- if $cloudnativePg.enabled }}
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $cloudnativePg.bootstrap.initdb.secret.name }}
-                  key: database_url
-                  optional: true
-            - name: POSTGRES_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $cloudnativePg.bootstrap.initdb.secret.name }}
-                  key: host
-            - name: POSTGRES_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $cloudnativePg.bootstrap.initdb.secret.name }}
-                  key: port
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $cloudnativePg.bootstrap.initdb.secret.name }}
-                  key: username
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $cloudnativePg.bootstrap.initdb.secret.name }}
-                  key: password
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $cloudnativePg.bootstrap.initdb.secret.name }}
-                  key: dbname
-            {{- end }}
-            - name: NODE_ENV
-              value: "development"
-            - name: ORIGIN
-              value: {{ .Values.otterscaleWeb.env.publicWebUrl | quote }}
-            - name: PUBLIC_WEB_URL
-              value: {{ .Values.otterscaleWeb.env.publicWebUrl | quote }}
-            - name: PUBLIC_API_URL
-              value: {{ if .Values.otterscaleWeb.env.publicApiUrl }}{{ .Values.otterscaleWeb.env.publicApiUrl | quote }}{{ else }}"http://{{ include "otterscale.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:8299"{{ end }}
-            - name: KEYCLOAK_REALM_URL
-              value: {{ .Values.otterscaleWeb.env.keycloakRealmUrl | quote }}
-            - name: KEYCLOAK_CLIENT_ID
-              value: {{ .Values.otterscaleWeb.env.keycloakClientID | quote }}
-            - name: KEYCLOAK_CLIENT_SECRET
-              value: {{ .Values.otterscaleWeb.env.keycloakClientSecret | quote }}
-            {{- with .Values.otterscaleWeb.extraEnv }}
+            {{- with .Values.otterscaleWeb.env }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
-          {{- with .Values.otterscaleWeb.envFrom }}
           envFrom:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+            - configMapRef:
+                name: {{ include "otterscale.fullname" . }}-web-env
           resources:
-            {{- toYaml .Values.otterscaleWeb.resources | nindent 12 }}
-      {{- with include "otterscale.nodeSelector" (dict "component" .Values.otterscaleWeb "global" .Values.global) }}
-      nodeSelector:
-        {{- . | nindent 8 }}
-      {{- end }}
-      {{- with include "otterscale.affinity" (dict "component" .Values.otterscaleWeb "global" .Values.global) }}
-      affinity:
-        {{- . | nindent 8 }}
-      {{- end }}
-      {{- with include "otterscale.tolerations" (dict "component" .Values.otterscaleWeb "global" .Values.global) }}
-      tolerations:
-        {{- . | nindent 8 }}
-      {{- end }}
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1024Mi"

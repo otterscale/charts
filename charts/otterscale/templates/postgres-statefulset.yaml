@@ -1,0 +1,89 @@
+{{- if .Values.keycloakx.enabled -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "otterscale.fullname" . }}-postgres
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+spec:
+  serviceName: {{ .Values.keycloakx.database.hostname }}
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "otterscale.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: database
+  template:
+    metadata:
+      labels:
+        {{- include "otterscale.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: database
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/postgres-secret.yaml") . | sha256sum }}
+    spec:
+      containers:
+        - name: postgres
+          image: "{{ .Values.keycloakx.database.image.repository }}:{{ .Values.keycloakx.database.image.tag }}"
+          imagePullPolicy: {{ .Values.keycloakx.database.image.pullPolicy }}
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.keycloakx.database.existingSecret }}
+                  key: postgres-db
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.keycloakx.database.existingSecret }}
+                  key: postgres-user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.keycloakx.database.existingSecret }}
+                  key: postgres-password
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+          ports:
+            - name: postgres
+              containerPort: 5432
+              protocol: TCP
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 10
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: postgres-data
+        {{- if .Values.keycloakx.database.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "otterscale.fullname" . }}-postgres-data
+        {{- else }}
+          emptyDir: {}
+        {{- end }}
+{{- end }}

@@ -1,288 +1,166 @@
-# =============================================================================
-# OtterScale Helm Chart Configuration
-# =============================================================================
-# This file contains all configurable parameters for the OtterScale deployment.
-# Modify these values according to your environment and requirements.
-
-# -----------------------------------------------------------------------------
-# Chart Naming
-# -----------------------------------------------------------------------------
-# Override the chart name used in labels and resource names
+# Global naming overrides
 nameOverride: ""
-# Override the fully qualified app name
 fullnameOverride: ""
 
-# -----------------------------------------------------------------------------
-# Global Settings
-# -----------------------------------------------------------------------------
-global:
-  # Image pull policy for all containers
-  # Options: Always, IfNotPresent, Never
-  imagePullPolicy: IfNotPresent
-
-  # Common pod configurations (can be overridden per component)
-  podAnnotations: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-
-# -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 # OtterScale Service Configuration
 # -----------------------------------------------------------------------------
 otterscale:
-  # Image configuration
   image:
     repository: ghcr.io/otterscale/otterscale/service
     tag: ""
-    pullPolicy: "IfNotPresent"
-
-  replicas: 1
-
-  # Override global settings if needed
-  podAnnotations: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-
-  # Service port configuration
-  service:
-    type: ClusterIP
-    port: 8299
-    targetPort: 8299
-    annotations: {}
-    # NodePort (only used if type is NodePort)
-    nodePort: ""
-
-  # Additional environment variables
+    pullPolicy: IfNotPresent
   env: []
-  # - name: CUSTOM_VAR
-  #   value: "value"
 
-  # Environment variables from secrets or configmaps
-  envFrom: []
-  # - secretRef:
-  #     name: my-secret
-
-  resources:
-    requests:
-      memory: "256Mi"
-      cpu: "250m"
-    limits:
-      memory: "512Mi"
-      cpu: "500m"
-
-openfeature:
-  sidecar:
-    enabled: true
-  # Name of the FeatureFlagSource resource
-  # This will be used in the pod annotation: openfeature.dev/featureflagsource
-  flagsource: ""
-  # Feature flag configurations
-  # Each entry will create a separate FeatureFlag resource
-  flags:
-    # Example: Add more flag configurations as needed
-    # default-flags:
-    #   enabled: false
-    #   spec:
-    #     some-feature:
-    #       state: ENABLED
-    #       variants:
-    #         "on": true
-    #         "off": false
-    #       defaultVariant: "off"
-
-# -----------------------------------------------------------------------------
-# OtterScale Configuration File Content
-# -----------------------------------------------------------------------------
-# The content of otterscale.yaml configuration file
-# This will be mounted as a ConfigMap
-# Corresponds to CONFIG_VOLUME_PATH in environment configuration
-configContent: |
-  # OtterScale Service Configuration
-  # This configuration file defines the service settings
-  maas:
-    url: http://127.0.0.1:5240/MAAS
-    key: your_cert
-    version: "2.0"
-
-  juju:
-    controller: maas-cloud-controller
-    controller_addresses: []
-    username: admin
-    password: your_password
-    ca_cert: |
-      -----BEGIN CERTIFICATE-----
-      xxxx
-      -----END CERTIFICATE-----
-    cloud_name: maas-cloud
-    cloud_region: default
-    charmhub_api_url: https://api.charmhub.io
-
-  kube:
-    helm_repository_urls:
-    - https://artifacthub.github.io/helm-charts
-
-  ceph:
-    rados_timeout: 0s
-
-# -----------------------------------------------------------------------------
-# OtterScale Web UI Configuration
-# -----------------------------------------------------------------------------
 otterscaleWeb:
-  # Image configuration
   image:
     repository: ghcr.io/otterscale/otterscale/web
     tag: ""
-    pullPolicy: "IfNotPresent"
-
-  replicas: 1
-
-  # PostgreSQL Database Configuration (CloudNative)
-  # This PostgreSQL instance is dedicated for OtterScale Web application
-  cloudnative-pg:
-    enabled: true
-    cluster:
-      name: ""
-      instances: 1
-      imageName: ghcr.io/cloudnative-pg/postgresql:17.6
-    auth:
-      username: ""
-      password: ""
-      database: ""
-      port: ""
-    bootstrap:
-      initdb:
-        database: ""
-        owner: ""
-        secret:
-          name: ""
-    storage:
-      size: 1Gi
-      storageClass: ""
-
-  # Override global settings if needed
-  podAnnotations: {}
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
-
-  # Service port configuration
-  service:
-    type: ClusterIP
-    port: 3000
-    targetPort: 3000
-    annotations: {}
-    nodePort: ""
-
-  resources:
-    requests:
-      memory: "128Mi"
-      cpu: "100m"
-    limits:
-      memory: "256Mi"
-      cpu: "200m"
-
-  # Application environment variables
-  env:
-    publicWebUrl: ""
-    publicApiUrl: ""
-    keycloakRealmUrl: ""
-    keycloakClientID: ""
-    keycloakClientSecret: ""
-
-  # Additional environment variables
-  extraEnv: []
-  # - name: CUSTOM_VAR
-  #   value: "value"
-
-  # Environment variables from secrets or configmaps
-  envFrom: []
-  # - secretRef:
-  #     name: my-secret
+    pullPolicy: IfNotPresent
+  env: []
 
 # -----------------------------------------------------------------------------
-# Istio Configuration
+# Service Mesh Configuration
 # -----------------------------------------------------------------------------
 istio:
-  # Enable or disable Istio integration
   enabled: true
-
-  # Automatic sidecar injection
+  externalIP: ""
   sidecarInjection:
     enabled: true
+  virtualService:
+    enabled: true
+
+  # TLS configuration for Istio Gateway
+  tls:
+    # Enable TLS for the gateway
+    enabled: false
+    name: otterscale-tls-cert
+    crt: ""
+    key: ""
 
   # Gateway configuration for external traffic
   gateway:
     enabled: true
-    name: otterscale-gateway
-    servers:
-      # HTTP server
-      - port:
-          number: 80
-          name: http
-          protocol: HTTP
-        # List of hosts that the gateway should serve
-        hosts:
-          - "*"
-        # Optional: redirect HTTP to HTTPS
-        # tls:
-        #   httpsRedirect: true
+    hosts:
+      - "*"
 
-      # HTTPS server (uncomment and configure for TLS)
-      # - port:
-      #     number: 443
-      #     name: https
-      #     protocol: HTTPS
-      #   hosts:
-      #     - "otterscale.example.com"
-      #   tls:
-      #     mode: SIMPLE
-      #     credentialName: otterscale-tls-cert
-
-  # VirtualService configuration for traffic routing
-  virtualService:
-    enabled: true
-
-  # Cookie Secure flag override for HTTP-only environments
-  # WARNING: Only enable this for development/testing with HTTP
-  # In production, use HTTPS instead
-  cookieSecureOverride:
-    enabled: true
+# -----------------------------------------------------------------------------
+# Valkey Configuration (for otterscale-web)
+# -----------------------------------------------------------------------------
+valkey:
+  enabled: true
+  aclUsers:
+    default:
+      permissions: "~* &* +@all"
 
 # -----------------------------------------------------------------------------
 # Keycloak Configuration
 # -----------------------------------------------------------------------------
 keycloakx:
   enabled: true
+  auth:
+    adminPassword: ""
+  client:
+    id: otterscale
+    secret: ""
+  http:
+    relativePath: /auth/
 
-  replicas: 1
-  image:
-    repository: quay.io/keycloak/keycloak
-    tag: "26.4.7"
+  command:
+  - /bin/sh
+  - -c
+  - |
+    /opt/keycloak/bin/kc.sh start \
+    --verbose \
+    --import-realm \
+    --http-port=8080 \
+    --http-enabled=true \
+    --hostname-strict=false \
+    --spi-events-listener-jboss-logging-success-level=info \
+    --spi-events-listener-jboss-logging-error-level=warn
 
-  command: []
-  extraEnv: ""
-  extraVolumes: ""
-  extraVolumeMounts: ""
-  secrets: {}
+  extraEnvFrom: |
+    - configMapRef:
+        name: otterscale-keycloak-env
+    - secretRef:
+        name: otterscale-keycloak-admin
 
-  postgresql:
-    cluster:
-      name: keycloak-postgres-cluster
-      instances: 1
-      imageName: ghcr.io/cloudnative-pg/postgresql:17.6
-    auth:
-      username: ""
-      password: ""
-      database: ""
-      port: ""
-    bootstrap:
-      initdb:
-        database: ""
-        owner: ""
-        secret:
-          name: ""
-    storage:
-      size: 1Gi
-      storageClass: ""
+  dbchecker:
+    enabled: true
+  database:
+    vendor: postgres
+    database: keycloak
+    username: keycloak
+    existingSecret: keycloak-postgres
+    existingSecretKey: "postgres-password"
+    hostname: keycloak-postgres
+    port: 5432
+    image:
+      repository: postgres
+      tag: "15"
+      pullPolicy: IfNotPresent
+    persistence:
+      enabled: true
+      storageClassName: "microk8s-hostpath"
+      accessMode: ReadWriteOnce
+      size: 5Gi
+
+  extraInitContainers: |
+    - name: theme-provider
+      image: ghcr.io/otterscale/keycloakify:1.0.6
+      imagePullPolicy: IfNotPresent
+      command:
+        - sh
+      args:
+        - -c
+        - |
+          echo "Copying OtterScale theme..."
+          cp -R /otterscale-theme.jar /otterscale-theme
+          echo "$(ls -alh /otterscale-theme)"
+      volumeMounts:
+        - name: theme-import-volume
+          mountPath: /otterscale-theme
+
+  extraVolumeMounts: |
+    - name: realm-import-volume
+      mountPath: "/opt/keycloak/data/import/otterscale-realm.json"
+      subPath: "otterscale-realm.json"
+      readOnly: true
+    - name: theme-import-volume
+      mountPath: "/opt/keycloak/providers/otterscale-theme.jar"
+      subPath: "otterscale-theme.jar"
+      readOnly: true
+
+  extraVolumes: |
+    - name: realm-import-volume
+      secret:
+        secretName: otterscale-realm
+    - name: theme-import-volume
+      emptyDir: {}
+
+# -----------------------------------------------------------------------------
+# MAAS / Juju Configuration (Hand-made)
+# -----------------------------------------------------------------------------
+configContent: |
+  maas:
+    url: http://127.0.0.1:5240/MAAS
+    key: ""
+    version: "2.0"
+  juju:
+    controller: maas-cloud-controller
+    controller_addresses:
+    - 127.0.0.1:17070
+    username: admin
+    password: ""
+    ca_cert: |
+      -----BEGIN CERTIFICATE-----
+      xxxx
+      -----END CERTIFICATE-----
+    cloud_name: maas-cloud
+    cloud_region: default
+  ceph:
+    rados_timeout: 0s
+  keycloak:
+    realm_url: http://127.0.0.1/auth/realms/otterscale
+    client_id: otterscale
+  

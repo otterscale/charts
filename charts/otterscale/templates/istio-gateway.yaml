@@ -2,7 +2,7 @@
 apiVersion: networking.istio.io/v1beta1
 kind: Gateway
 metadata:
-  name: {{ .Values.istio.gateway.name }}
+  name: {{ include "otterscale.fullname" . }}-gateway
   namespace: istio-system
   labels:
     {{- include "otterscale.labels" . | nindent 4 }}
@@ -10,5 +10,23 @@ spec:
   selector:
     istio: istiod-ingress
   servers:
-    {{- toYaml .Values.istio.gateway.servers | nindent 4 }}
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+      {{- toYaml .Values.istio.gateway.hosts | nindent 6 }}
+    {{- if .Values.istio.tls.enabled }}
+    tls:
+      httpsRedirect: true
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    hosts:
+      {{- toYaml .Values.istio.gateway.hosts | nindent 6 }}
+    tls:
+      mode: SIMPLE
+      credentialName: {{ include "otterscale.fullname" . }}-tls-cert
+    {{- end }}
 {{- end }}

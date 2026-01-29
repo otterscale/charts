@@ -47,31 +47,67 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
-Get nodeSelector from component or global
+Get or generate Keycloak client secret (32 characters)
+Caches the value to ensure consistency across all template usages
 */}}
-{{- define "otterscale.nodeSelector" -}}
-{{- $nodeSelector := .component.nodeSelector | default .global.nodeSelector | default dict }}
-{{- if $nodeSelector }}
-{{- toYaml $nodeSelector }}
-{{- end }}
+{{- define "otterscale.keycloak.clientSecret" -}}
+{{- if not .Values._generatedClientSecret -}}
+  {{- $secretName := printf "%s-keycloak-client-secret" (include "otterscale.fullname" .) -}}
+  {{- $existingSecret := lookup "v1" "Secret" .Release.Namespace $secretName -}}
+  {{- if $existingSecret -}}
+    {{/* Use existing secret value during upgrades */}}
+    {{- $_ := set .Values "_generatedClientSecret" (index $existingSecret.data "client-secret" | b64dec) -}}
+  {{- else if .Values.keycloakx.client.secret -}}
+    {{/* Use user-provided value */}}
+    {{- $_ := set .Values "_generatedClientSecret" .Values.keycloakx.client.secret -}}
+  {{- else -}}
+    {{/* Generate new random 32-character secret for first installation */}}
+    {{- $_ := set .Values "_generatedClientSecret" (randAlphaNum 32) -}}
+  {{- end -}}
+{{- end -}}
+{{- .Values._generatedClientSecret -}}
 {{- end }}
 
 {{/*
-Get tolerations from component or global
+Get or generate Postgres database password (10 characters)
+Caches the value to ensure consistency across all template usages
 */}}
-{{- define "otterscale.tolerations" -}}
-{{- $tolerations := .component.tolerations | default .global.tolerations | default list }}
-{{- if $tolerations }}
-{{- toYaml $tolerations }}
-{{- end }}
+{{- define "otterscale.postgres.password" -}}
+{{- if not .Values._generatedPostgresPassword -}}
+  {{- $secretName := .Values.keycloakx.database.existingSecret -}}
+  {{- $existingSecret := lookup "v1" "Secret" .Release.Namespace $secretName -}}
+  {{- if $existingSecret -}}
+    {{/* Use existing secret value during upgrades */}}
+    {{- $_ := set .Values "_generatedPostgresPassword" (index $existingSecret.data "postgres-password" | b64dec) -}}
+  {{- else if .Values.keycloakx.database.password -}}
+    {{/* Use user-provided value */}}
+    {{- $_ := set .Values "_generatedPostgresPassword" .Values.keycloakx.database.password -}}
+  {{- else -}}
+    {{/* Generate new random 10-character password for first installation */}}
+    {{- $_ := set .Values "_generatedPostgresPassword" (randAlphaNum 10) -}}
+  {{- end -}}
+{{- end -}}
+{{- .Values._generatedPostgresPassword -}}
 {{- end }}
 
 {{/*
-Get affinity from component or global
+Get or generate Valkey password (10 characters)
+Caches the value to ensure consistency across all template usages
 */}}
-{{- define "otterscale.affinity" -}}
-{{- $affinity := .component.affinity | default .global.affinity | default dict }}
-{{- if $affinity }}
-{{- toYaml $affinity }}
-{{- end }}
+{{- define "otterscale.valkey.password" -}}
+{{- if not .Values._generatedValkeyPassword -}}
+  {{- $secretName := printf "%s-valkey" (include "otterscale.fullname" .) -}}
+  {{- $existingSecret := lookup "v1" "Secret" .Release.Namespace $secretName -}}
+  {{- if $existingSecret -}}
+    {{/* Use existing secret value during upgrades */}}
+    {{- $_ := set .Values "_generatedValkeyPassword" (index $existingSecret.data "valkey-password" | b64dec) -}}
+  {{- else if .Values.valkey.aclUsers.default.password -}}
+    {{/* Use user-provided value */}}
+    {{- $_ := set .Values "_generatedValkeyPassword" .Values.valkey.aclUsers.default.password -}}
+  {{- else -}}
+    {{/* Generate new random 10-character password for first installation */}}
+    {{- $_ := set .Values "_generatedValkeyPassword" (randAlphaNum 10) -}}
+  {{- end -}}
+{{- end -}}
+{{- .Values._generatedValkeyPassword -}}
 {{- end }}

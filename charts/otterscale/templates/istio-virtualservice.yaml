@@ -6,12 +6,11 @@ metadata:
   namespace: istio-system
   labels:
     {{- include "otterscale.labels" . | nindent 4 }}
-    app.kubernetes.io/component: frontend
 spec:
   hosts:
-  - "*"
+    {{- toYaml .Values.istio.gateway.hosts | nindent 4 }}
   gateways:
-    - {{ $.Values.istio.gateway.name }}
+    - {{ include "otterscale.fullname" . }}-gateway
   http:
     - match:
       - uri:
@@ -21,6 +20,10 @@ spec:
           host: {{ .Release.Name }}-keycloakx-http.{{ .Release.Namespace }}.svc.cluster.local
           port:
             number: 80
+      headers:
+        request:
+          set:
+            X-Forwarded-Proto: {{ if and .Values.istio.gateway .Values.istio.gateway.tls .Values.istio.gateway.tls.enabled }}"https"{{ else }}"http"{{ end }}
     - match:
       - uri:
           prefix: /api/
@@ -30,7 +33,7 @@ spec:
       - destination:
           host: {{ include "otterscale.fullname" $ }}.{{ .Release.Namespace }}.svc.cluster.local
           port:
-            number: {{ $.Values.otterscale.service.port }}
+            number: 8299
     - match:
       - uri:
           prefix: /vnc/
@@ -41,7 +44,7 @@ spec:
       - destination:
           host: {{ include "otterscale.fullname" $ }}.{{ .Release.Namespace }}.svc.cluster.local
           port:
-            number: {{ $.Values.otterscale.service.port }}
+            number: 8299
     - match:
       - uri:
           prefix: /
@@ -49,5 +52,5 @@ spec:
       - destination:
           host: {{ include "otterscale.fullname" $ }}-web.{{ .Release.Namespace }}.svc.cluster.local
           port:
-            number: {{ $.Values.otterscaleWeb.service.port }}
+            number: 3000
 {{- end }}

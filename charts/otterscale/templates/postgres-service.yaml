@@ -1,0 +1,21 @@
+{{- if .Values.keycloakx.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.keycloakx.database.hostname }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+spec:
+  type: ClusterIP
+  clusterIP: None  # Headless service for StatefulSet-like behavior
+  selector:
+    {{- include "otterscale.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+  ports:
+    - name: postgres
+      port: {{ .Values.keycloakx.database.port | default 5432 }}
+      targetPort: postgres
+      protocol: TCP
+{{- end }}

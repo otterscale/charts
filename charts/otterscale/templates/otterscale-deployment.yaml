@@ -7,7 +7,7 @@ metadata:
     {{- include "otterscale.labels" . | nindent 4 }}
     app.kubernetes.io/component: backend
 spec:
-  replicas: {{ .Values.otterscale.replicas }}
+  replicas: {{ .Values.otterscale.replicas | default 1 }}
   selector:
     matchLabels:
       {{- include "otterscale.selectorLabels" . | nindent 6 }}
@@ -22,65 +22,19 @@ spec:
         {{- end }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/otterscale-configmap.yaml") . | sha256sum }}
-        {{- if .Values.openfeature.sidecar.enabled }}
-        openfeature.dev/enabled: "true"
-        openfeature.dev/featureflagsource: {{ .Values.openfeature.flagsource }}
-        {{- end }}
-        {{- with .Values.otterscale.podAnnotations }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
     spec:
       containers:
         - name: otterscale
           image: "{{ tpl .Values.otterscale.image.repository . }}:{{ tpl .Values.otterscale.image.tag . | default .Chart.AppVersion}}"
           imagePullPolicy: "{{ .Values.otterscale.image.pullPolicy }}"
-          {{- if .Values.openfeature.sidecar.enabled }}
-          command: ["/bin/sh", "-c"]
-          args:
-            - |
-              echo "Waiting for flagd sidecar to be ready..."
-              max_attempts=30
-              attempt=0
-              while [ $attempt -lt $max_attempts ]; do
-                # Try to connect to flagd using /dev/tcp (works in most shells)
-                if timeout 1 sh -c "echo > /dev/tcp/localhost/8013" 2>/dev/null; then
-                  echo "flagd is ready!"
-                  break
-                fi
-                # Fallback: check if port is listening using netstat if available
-                if command -v netstat >/dev/null 2>&1; then
-                  if netstat -tln 2>/dev/null | grep -q ":8013 "; then
-                    echo "flagd is ready (detected via netstat)!"
-                    break
-                  fi
-                fi
-                # Another fallback: just wait a reasonable time
-                if [ $attempt -ge 10 ]; then
-                  echo "Waited 20 seconds, assuming flagd is ready..."
-                  break
-                fi
-                attempt=$((attempt + 1))
-                echo "Attempt $attempt/$max_attempts: flagd not ready yet, waiting..."
-                sleep 2
-              done
-              echo "Starting otterscale service..."
-              exec /app/otterscale serve
-          {{- else }}
           command: ["/app/otterscale", "serve"]
-          {{- end }}
           ports:
             - name: http
               containerPort: 8299
               protocol: TCP
-          {{- if or .Values.otterscale.env .Values.otterscale.envFrom }}
           {{- with .Values.otterscale.env }}
           env:
             {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.otterscale.envFrom }}
-          envFrom:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
           {{- end }}
           volumeMounts:
             - name: config
@@ -88,20 +42,13 @@ spec:
               subPath: otterscale.yaml
               readOnly: true
           resources:
-            {{- toYaml .Values.otterscale.resources | nindent 12 }}
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1024Mi"
       volumes:
         - name: config
           configMap:
             name: {{ include "otterscale.fullname" . }}-config
-      {{- with include "otterscale.nodeSelector" (dict "component" .Values.otterscale "global" .Values.global) }}
-      nodeSelector:
-        {{- . | nindent 8 }}
-      {{- end }}
-      {{- with include "otterscale.affinity" (dict "component" .Values.otterscale "global" .Values.global) }}
-      affinity:
-        {{- . | nindent 8 }}
-      {{- end }}
-      {{- with include "otterscale.tolerations" (dict "component" .Values.otterscale "global" .Values.global) }}
-      tolerations:
-        {{- . | nindent 8 }}
-      {{- end }}

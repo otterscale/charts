@@ -1,0 +1,17 @@
+{{- if .Values.istio.tls.enabled }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "otterscale.fullname" . }}-tls-cert
+  namespace: istio-system
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+type: kubernetes.io/tls
+data:
+  {{- if .Values.istio.tls.crt }}
+  tls.crt: {{ .Values.istio.tls.crt }}
+  {{- end }}
+  {{- if .Values.istio.tls.key }}
+  tls.key: {{ .Values.istio.tls.key }}
+  {{- end }}
+{{- end }}

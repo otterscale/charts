@@ -6,20 +6,13 @@ metadata:
   labels:
     {{- include "otterscale.labels" . | nindent 4 }}
     app.kubernetes.io/component: frontend
-  {{- with .Values.otterscaleWeb.service.annotations }}
-  annotations:
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
 spec:
-  type: {{ .Values.otterscaleWeb.service.type }}
+  type: ClusterIP
   selector:
     {{- include "otterscale.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: frontend
   ports:
     - name: http
-      port: {{ .Values.otterscaleWeb.service.port }}
-      targetPort: {{ .Values.otterscaleWeb.service.targetPort }}
+      port: 3000
+      targetPort: 3000
       protocol: TCP
-      {{- if and (eq .Values.otterscaleWeb.service.type "NodePort") .Values.otterscaleWeb.service.nodePort }}
-      nodePort: {{ .Values.otterscaleWeb.service.nodePort }}
-      {{- end }}
