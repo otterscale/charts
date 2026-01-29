@@ -23,23 +23,23 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
-          imagePullPolicy: {{ .Values.postgres.image.pullPolicy }}
+          image: "{{ .Values.keycloakx.database.image.repository }}:{{ .Values.keycloakx.database.image.tag }}"
+          imagePullPolicy: {{ .Values.keycloakx.database.image.pullPolicy }}
           env:
             - name: POSTGRES_DB
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "otterscale.fullname" . }}-postgres
+                  name: {{ .Values.keycloakx.database.existingSecret }}
                   key: postgres-db
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "otterscale.fullname" . }}-postgres
+                  name: {{ .Values.keycloakx.database.existingSecret }}
                   key: postgres-user
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "otterscale.fullname" . }}-postgres
+                  name: {{ .Values.keycloakx.database.existingSecret }}
                   key: postgres-password
             - name: PGDATA
               value: /var/lib/postgresql/data/pgdata
@@ -79,7 +79,7 @@ spec:
               cpu: "250m"
       volumes:
         - name: postgres-data
-        {{- if .Values.postgres.persistence.enabled }}
+        {{- if .Values.keycloakx.database.persistence.enabled }}
           persistentVolumeClaim:
             claimName: {{ include "otterscale.fullname" . }}-postgres-data
         {{- else }}

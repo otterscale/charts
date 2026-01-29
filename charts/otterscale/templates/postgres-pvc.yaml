@@ -1,4 +1,4 @@
-{{- if .Values.postgres.persistence.enabled -}}
+{{- if .Values.keycloakx.database.persistence.enabled -}}
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
@@ -9,11 +9,11 @@ metadata:
     app.kubernetes.io/component: database
 spec:
   accessModes:
-    - {{ .Values.postgres.persistence.accessMode }}
+    - {{ .Values.keycloakx.database.persistence.accessMode }}
   resources:
     requests:
-      storage: {{ .Values.postgres.persistence.size }}
-  {{- if .Values.postgres.persistence.storageClassName }}
-  storageClassName: {{ .Values.postgres.persistence.storageClassName }}
+      storage: {{ .Values.keycloakx.database.persistence.size }}
+  {{- if .Values.keycloakx.database.persistence.storageClassName }}
+  storageClassName: {{ .Values.keycloakx.database.persistence.storageClassName }}
   {{- end }}
 {{- end }}

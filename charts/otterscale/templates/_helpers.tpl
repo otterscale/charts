@@ -67,3 +67,44 @@ Caches the value to ensure consistency across all template usages
 {{- end -}}
 {{- .Values._generatedClientSecret -}}
 {{- end }}
+
+{{/*
+Get or generate Postgres database password (10 characters)
+Caches the value to ensure consistency across all template usages
+*/}}
+{{- define "otterscale.postgres.password" -}}
+{{- if not .Values._generatedPostgresPassword -}}
+  {{- $secretName := printf "%s-postgres" (include "otterscale.fullname" .) -}}
+  {{- $existingSecret := lookup "v1" "Secret" .Release.Namespace $secretName -}}
+  {{- if $existingSecret -}}
+    {{/* Use existing secret value during upgrades */}}
+    {{- $_ := set .Values "_generatedPostgresPassword" (index $existingSecret.data "postgres-password" | b64dec) -}}
+  {{- else -}}
+    {{/* Generate new random 10-character password for first installation */}}
+    {{- $_ := set .Values "_generatedPostgresPassword" (randAlphaNum 10) -}}
+  {{- end -}}
+{{- end -}}
+{{- .Values._generatedPostgresPassword -}}
+{{- end }}
+
+{{/*
+Get or generate Valkey password (10 characters)
+Caches the value to ensure consistency across all template usages
+*/}}
+{{- define "otterscale.valkey.password" -}}
+{{- if not .Values._generatedValkeyPassword -}}
+  {{- $secretName := printf "%s-valkey" (include "otterscale.fullname" .) -}}
+  {{- $existingSecret := lookup "v1" "Secret" .Release.Namespace $secretName -}}
+  {{- if $existingSecret -}}
+    {{/* Use existing secret value during upgrades */}}
+    {{- $_ := set .Values "_generatedValkeyPassword" (index $existingSecret.data "valkey-password" | b64dec) -}}
+  {{- else if .Values.valkey.aclUsers.default.password -}}
+    {{/* Use user-provided value */}}
+    {{- $_ := set .Values "_generatedValkeyPassword" .Values.valkey.aclUsers.default.password -}}
+  {{- else -}}
+    {{/* Generate new random 10-character password for first installation */}}
+    {{- $_ := set .Values "_generatedValkeyPassword" (randAlphaNum 10) -}}
+  {{- end -}}
+{{- end -}}
+{{- .Values._generatedValkeyPassword -}}
+{{- end }}

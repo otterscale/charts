@@ -14,6 +14,6 @@ spec:
     app.kubernetes.io/component: database
   ports:
     - name: postgres
-      port: 5432
+      port: {{ .Values.keycloakx.database.port | default 5432}}
       targetPort: postgres
       protocol: TCP

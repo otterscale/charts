@@ -13,7 +13,6 @@ otterscale:
   env: []
 
 otterscaleWeb:
-  urlIP: "192.168.196.48"
   image:
     repository: ghcr.io/otterscale/otterscale/web
     tag: ""
@@ -25,6 +24,7 @@ otterscaleWeb:
 # -----------------------------------------------------------------------------
 istio:
   enabled: true
+  externalIP: ""
   sidecarInjection:
     enabled: true
   virtualService:
@@ -49,29 +49,10 @@ istio:
 # -----------------------------------------------------------------------------
 valkey:
   enabled: true
-  #auth:
-  #  enabled: true
-  #  aclConfig: |
-  #    user default on >password ~* &* +@all
   aclUsers:
     default:
       permissions: "~* &* +@all"
-      password: "password"
-      passwordKey: "admin-pwd"
-
-# -----------------------------------------------------------------------------
-# PostgreSQL Configuration (for Keycloak)
-# -----------------------------------------------------------------------------
-postgres:
-  image:
-    repository: postgres
-    tag: "15"
-    pullPolicy: IfNotPresent
-  persistence:
-    enabled: true
-    storageClassName: "microk8s-hostpath"
-    accessMode: ReadWriteOnce
-    size: 5Gi
+      password: ""
 
 # -----------------------------------------------------------------------------
 # Keycloak Configuration
@@ -109,12 +90,22 @@ keycloakx:
     enabled: true
   database:
     vendor: postgres
-    port: "5432"
-    username: keycloak
-    password: keycloak
     database: keycloak
-    hostname: otterscale-keycloakx-postgres
-  
+    username: keycloak
+    existingSecret: keycloak-postgres
+    existingSecretKey: "postgres-password"
+    hostname: keycloak-postgres
+    port: "5432"
+    image:
+      repository: postgres
+      tag: "15"
+      pullPolicy: IfNotPresent
+    persistence:
+      enabled: true
+      storageClassName: "microk8s-hostpath"
+      accessMode: ReadWriteOnce
+      size: 5Gi
+
   extraInitContainers: |
     - name: theme-provider
       image: ghcr.io/otterscale/keycloakify:1.0.6
@@ -153,45 +144,24 @@ keycloakx:
 # -----------------------------------------------------------------------------
 configContent: |
   maas:
-    url: http://192.168.196.22:5240/MAAS
-    key: Zk3X2XA3ancu4yt0bk:ogyqJanjPwbQ378bYR:0VLIAb0htVjaxfmQ4pjcm8MMYtbAVmKf
+    url: http://127.0.0.1:5240/MAAS
+    key: ""
     version: "2.0"
   juju:
     controller: maas-cloud-controller
     controller_addresses:
-    - 192.168.196.62:17070
+    - 127.0.0.1:17070
     username: admin
-    password: d61f24da2bb3e7b5d00d4ed083e39904
+    password: ""
     ca_cert: |
       -----BEGIN CERTIFICATE-----
-      MIIEEzCCAnugAwIBAgIVAJIqWdhz/8XyRf9C2dkwTge8YuHqMA0GCSqGSIb3DQEB
-      CwUAMCExDTALBgNVBAoTBEp1anUxEDAOBgNVBAMTB2p1anUtY2EwHhcNMjUxMjIz
-      MDc0NzA2WhcNMzUxMjIzMDc1MjA2WjAhMQ0wCwYDVQQKEwRKdWp1MRAwDgYDVQQD
-      EwdqdWp1LWNhMIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAr/GdynDy
-      DxyG9D2TS63JMCD3ijLDp0FpBH/+tIYR7ENKO4b9ueHOrCkcSRSza0G0WS5Wkd2Q
-      L674NfMz3tn7SBpC9/P5RLD8nLM7ge2QI6rdR8gGfZaYA3GFWUoOWrBykfB1hvo9
-      O0bmlTKhWDGtFC1NWEzJWJlq9h3EIz9VxzvpFnK+WfwlfsY2CyRDrbkna2SJ386a
-      pWhXe0S3g/eDGOIN+8E1bsjIgi5EuhiqLu27rs6hY3CXRBpwFLwYJ0L5Dsr45xiM
-      l3dW2jaPQJ3XaN1ULQxqaVXBC9Ds7/nqMgz95ekoDPD3tQSJa0Zk9xw+dGGf1a6A
-      RR9DbH0yg0/2Gv3bVwADyK6x9uo93VrWWY/hkWk3HH35EWaCOVficSUiemHTimiC
-      mXBGcOA8cZFWUnjk0LReUn10Ly1U5bu5Kxx4LTACv19ZAcIDEzhpvqwSqCfnL1S5
-      owZrxZTMYx8kZXCuYgcPqY4IzYCxDq+AZJsvEr4ZpAjCcNs73yp4SnLDAgMBAAGj
-      QjBAMA4GA1UdDwEB/wQEAwICpDAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBQY
-      4GSxd6vHozPWjIQqx3w48po51zANBgkqhkiG9w0BAQsFAAOCAYEAlzW0Cqu5zNJV
-      QqnoOIJrTLKopJeeCQ+68sYVIuXgrZiqhckHVvv06OUxWF5qwKGhgDeO7VqxoCF7
-      e+xawv/LjzM5InIm2tKuoeBtj9zMCe0YiQhO0CZHHK2MzlX9l+iEzzvoiNkBaFc3
-      lsDZgA18YqIco9dnNqqmb7xEnDGGnpOLZ+ofOKVIGu1y4E+xsIZwku7bgQ7iDY6H
-      sLuN1paZYRO/S5Pv7nTpQpmn1hqat5TmYk7EclNpyaHjl62HpO9dDO5HKEY3bdMm
-      upbaDyBLhZ09yaAoWG80+5lCxdQIFG0rhmw0cx4z8YZn0X6L8a0rrXsT5o+y8wmF
-      +K4N1n3Yky7YbWQAuvVtNoZbUpALbhnWl5AJdebkqs5Icc/sUnPAlDQHaA6nX+WD
-      HuscvOpR/KDBGTJIJakIvtFWL6CHAw2x1KuNBj2gBZJQxv85jOahAgRXh1kpDJny
-      yHDdSs+/vIouZHHgyynEGXUUnxcTcjqXSeZDJNJsATfdmXXoraxl
+      xxxx
       -----END CERTIFICATE-----
     cloud_name: maas-cloud
     cloud_region: default
   ceph:
     rados_timeout: 0s
   keycloak:
-    realm_url: http://192.168.196.48/auth/realms/otterscale
+    realm_url: http://127.0.0.01/auth/realms/otterscale
     client_id: otterscale
   
