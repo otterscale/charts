@@ -1,3 +1,4 @@
+{{- if .Values.keycloakx.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -14,6 +15,7 @@ spec:
     app.kubernetes.io/component: database
   ports:
     - name: postgres
-      port: {{ .Values.keycloakx.database.port | default 5432}}
+      port: {{ .Values.keycloakx.database.port | default 5432 }}
       targetPort: postgres
       protocol: TCP
+{{- end }}

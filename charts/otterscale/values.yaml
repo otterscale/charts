@@ -77,7 +77,7 @@ keycloakx:
     --http-enabled=true \
     --hostname-strict=false \
     --spi-events-listener-jboss-logging-success-level=info \
-    --spi-events-listener-jboss-logging-error-level=warn 
+    --spi-events-listener-jboss-logging-error-level=warn
 
   extraEnvFrom: |
     - configMapRef:
@@ -94,7 +94,7 @@ keycloakx:
     existingSecret: keycloak-postgres
     existingSecretKey: "postgres-password"
     hostname: keycloak-postgres
-    port: "5432"
+    port: 5432
     image:
       repository: postgres
       tag: "15"
@@ -134,7 +134,7 @@ keycloakx:
   extraVolumes: |
     - name: realm-import-volume
       secret:
-        secretName: {{ .Release.Name }}-realm
+        secretName: otterscale-realm
     - name: theme-import-volume
       emptyDir: {}
 
@@ -161,6 +161,6 @@ configContent: |
   ceph:
     rados_timeout: 0s
   keycloak:
-    realm_url: http://127.0.0.01/auth/realms/otterscale
+    realm_url: http://127.0.0.1/auth/realms/otterscale
     client_id: otterscale
   

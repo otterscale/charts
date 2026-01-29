@@ -1,3 +1,4 @@
+{{- if .Values.keycloakx.enabled -}}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -7,7 +8,7 @@ metadata:
     {{- include "otterscale.labels" . | nindent 4 }}
     app.kubernetes.io/component: database
 spec:
-  serviceName: {{ include "otterscale.fullname" . }}-postgres
+  serviceName: {{ .Values.keycloakx.database.hostname }}
   replicas: 1
   selector:
     matchLabels:
@@ -75,8 +76,8 @@ spec:
               memory: "256Mi"
               cpu: "250m"
             limits:
-              memory: "256Mi"
-              cpu: "250m"
+              memory: "512Mi"
+              cpu: "500m"
       volumes:
         - name: postgres-data
         {{- if .Values.keycloakx.database.persistence.enabled }}
@@ -85,3 +86,4 @@ spec:
         {{- else }}
           emptyDir: {}
         {{- end }}
+{{- end }}

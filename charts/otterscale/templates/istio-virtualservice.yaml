@@ -23,7 +23,7 @@ spec:
       headers:
         request:
           set:
-            X-Forwarded-Proto: "https"
+            X-Forwarded-Proto: {{ if .Values.istio.gateway.tls.enabled }}"https"{{ else }}"http"{{ end }}
     - match:
       - uri:
           prefix: /api/

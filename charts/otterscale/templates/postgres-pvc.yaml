@@ -1,4 +1,4 @@
-{{- if .Values.keycloakx.database.persistence.enabled -}}
+{{- if and .Values.keycloakx.enabled .Values.keycloakx.database.persistence.enabled -}}
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
