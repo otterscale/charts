@@ -29,6 +29,8 @@ spec:
           {{- toYaml .Values.securityContext | nindent 10 }}
         workingDir: /home/root/aiDAPTIV2/script
         env:
+        - name: k8s
+          value: "true"
         - name: VLLM_USE_V1
           value: {{ .Values.vllm.env.vllmUseV1 | quote }}
         - name: VLLM_WORKER_MULTIPROC_METHOD
@@ -96,12 +98,24 @@ spec:
         - name: dshm
           mountPath: /dev/shm
         {{- end }}
+        {{- if .Values.volumes.pvc.enabled }}
+        - name: pvc-volume
+          mountPath: {{ .Values.volumes.pvc.mountPath }}
+          {{- if .Values.volumes.pvc.readOnly }}
+          readOnly: true
+          {{- end }}
+        {{- end }}
       volumes:
       {{- if .Values.volumes.dshm.enabled }}
       - name: dshm
         emptyDir:
           medium: Memory
           sizeLimit: {{ .Values.volumes.dshm.sizeLimit }}
+      {{- end }}
+      {{- if .Values.volumes.pvc.enabled }}
+      - name: pvc-volume
+        persistentVolumeClaim:
+          claimName: {{ .Values.volumes.pvc.claimName | quote }}
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
