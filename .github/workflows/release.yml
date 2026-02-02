@@ -33,6 +33,7 @@ jobs:
           helm repo add grafana https://grafana.github.io/helm-charts
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
           helm repo add codecentric https://codecentric.github.io/helm-charts
+          helm repo add valkey https://valkey.io/valkey-helm/
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.7.0
