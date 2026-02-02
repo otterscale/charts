@@ -55,6 +55,31 @@ schedulerName: "hami-scheduler"
 
 - `schedulerName`: Kubernetes scheduler name (optional, set to empty string to use default scheduler)
 
+### Init Container Configuration
+
+```yaml
+initContainer:
+  enabled: true
+  image:
+    repository: ubuntu
+    tag: 24.04
+    pullPolicy: IfNotPresent
+  sharedDataPath: /shared
+```
+
+- `enabled`: Enable/disable init container (default: true)
+- `image.repository`: Init container image repository
+- `image.tag`: Init container image tag
+- `image.pullPolicy`: Image pull policy
+- `sharedDataPath`: Shared volume mount path between init container and main container
+
+**Important Notes**:
+- The init container runs with `privileged: true` security context (hardcoded in template)
+- It executes the `prescript` before the main vLLM container starts
+- Use it for NFS mounting, file preparation, or other setup tasks requiring elevated privileges
+- Files copied to `sharedDataPath` are accessible to the main container
+- The main container does NOT run with privileged mode for security
+
 ### vLLM Configuration
 
 #### Environment Variables
@@ -127,13 +152,19 @@ vllm:
     maxRank: 32
 ```
 
-### NFS Mount Configuration
+### Pre-execution Script (prescript)
 
-Configure `prescript` to mount NFS storage for model access:
+The `prescript` runs in a privileged init container before the main vLLM service starts. This is ideal for:
+- Mounting NFS storage
+- Preparing model files
+- Setting up directories
+- Any privileged operations
+
+**Example: NFS Mount and Model Copy**
 
 ```yaml
 prescript: |
-  apt install -y nfs-common
+  apt update && apt install -y nfs-common
   echo "Starting NFS mount process..."
   mkdir -p /mnt/data
   TIMEOUT=300
@@ -154,9 +185,21 @@ prescript: |
     echo "NFS mount timeout after ${TIMEOUT} seconds. Exiting..."
     exit 1
   fi
+  
+  # Optional: Copy model to shared volume for faster access
+  echo "Copying model to shared volume..."
+  cp -rf /mnt/data/model/Meta-Llama-3.1-8B-Instruct /shared/
+  echo "Model copy completed"
 ```
 
 Replace `10.102.197.0:/volumes/_nogroup/your-nfs-path` with your actual NFS server address.
+
+**Note**: If you copy models to `/shared`, update the vLLM `model` path accordingly:
+```yaml
+vllm:
+  args:
+    model: /shared/Meta-Llama-3.1-8B-Instruct/  # Use shared path
+```
 
 ### Service Configuration
 
@@ -243,9 +286,6 @@ service:
   type: NodePort
   port: 8000
   targetPort: 8000
-
-securityContext:
-  privileged: true
 
 prescript: |
   apt install -y nfs-common

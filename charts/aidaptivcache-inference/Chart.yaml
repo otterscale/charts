@@ -1,14 +1,14 @@
 apiVersion: v2
-name: aidaptivcache-inference
+appVersion: "1.0"
 description: A Helm chart for vLLM API inference server
 home: https://www.phison.com/
-type: application
-keywords:
-  - aidaptivcache
-  - inference
 icon: https://otterscale.com/phison-logo-p.svg
-version: 0.1.6
-appVersion: "1.0"
+keywords:
+- aidaptivcache
+- inference
 maintainers:
-- name: Shawn
-  email: shawn_tsai@phison.com
+- email: shawn_tsai@phison.com
+  name: Shawn
+name: aidaptivcache-inference
+type: application
+version: 0.2.0

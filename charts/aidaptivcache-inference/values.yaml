@@ -7,9 +7,13 @@ imagePullSecrets: []
 
 schedulerName: "hami-scheduler"
 
+# Init container configuration
+initContainer:
+  enabled: true
+  sharedDataPath: /data
+
 # Deployment configuration
 deployment:
-  name: vllm-api
   replicas: 1
 
 # vLLM server configuration
@@ -22,7 +26,7 @@ vllm:
   
   # Command line arguments
   args:
-    model: /mnt/data/model/Meta-Llama-3.1-8B-Instruct/
+    model: /data/model/Meta-Llama-3.1-8B-Instruct/
     nvmePath: /mnt/nvme0
     port: 8000
     gpuMemoryUtilization: 0.9
@@ -55,10 +59,6 @@ service:
   # Optional: uncomment to set a specific nodePort
   # nodePort: 30299
 
-# Security context
-securityContext:
-  privileged: true
-
 # Volume configuration
 volumes:
   dshm:
@@ -77,6 +77,7 @@ volumes:
 # Pre-execution script (runs before main command)
 prescript: |
   echo "Start"
+#  apt update
 #  apt install -y nfs-common
 #  echo "Starting NFS mount process..."
 #  mkdir -p /mnt/data
@@ -98,6 +99,7 @@ prescript: |
 #    echo "NFS mount timeout after ${TIMEOUT} seconds. Exiting..."
 #    exit 1
 #  fi
+#  cp -rf /mnt/data/model/Meta-Llama-3.1-8B-Instruct /data
 
 # Post-execution script (runs after main command)
 #postscript: |
