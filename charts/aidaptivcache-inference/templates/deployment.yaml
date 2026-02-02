@@ -21,12 +21,28 @@ spec:
       {{- if .Values.schedulerName }}
       schedulerName: {{ .Values.schedulerName }}
       {{- end }}
+      {{- if .Values.initContainer.enabled }}
+      initContainers:
+      - name: prescript
+        image: "{{ .Values.initContainer.image.repository }}:{{ .Values.initContainer.image.tag }}"
+        imagePullPolicy: {{ .Values.initContainer.image.pullPolicy }}
+        securityContext:
+          privileged: true
+        command:
+        - /bin/sh
+        - -c
+        - |
+          {{- if .Values.prescript }}
+{{ .Values.prescript | indent 10 }}
+          {{- end }}
+        volumeMounts:
+        - name: shared-data
+          mountPath: {{ .Values.initContainer.sharedDataPath }}
+      {{- end }}
       containers:
       - name: vllm-api
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        securityContext:
-          {{- toYaml .Values.securityContext | nindent 10 }}
         workingDir: /home/root/aiDAPTIV2/script
         env:
         - name: k8s
@@ -41,9 +57,6 @@ spec:
         - /bin/sh
         - -c
         - |
-          {{- if .Values.prescript }}
-{{ .Values.prescript | indent 10 }}
-          {{- end }}
           python3 vllm_api_server.py \
           --model {{ .Values.vllm.args.model }} \
           --nvme_path {{ .Values.vllm.args.nvmePath }} \
@@ -94,6 +107,10 @@ spec:
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
         volumeMounts:
+        {{- if .Values.initContainer.enabled }}
+        - name: shared-data
+          mountPath: {{ .Values.initContainer.sharedDataPath }}
+        {{- end }}
         {{- if .Values.volumes.dshm.enabled }}
         - name: dshm
           mountPath: /dev/shm
@@ -106,6 +123,10 @@ spec:
           {{- end }}
         {{- end }}
       volumes:
+      {{- if .Values.initContainer.enabled }}
+      - name: shared-data
+        emptyDir: {}
+      {{- end }}
       {{- if .Values.volumes.dshm.enabled }}
       - name: dshm
         emptyDir:
