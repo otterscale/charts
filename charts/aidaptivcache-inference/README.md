@@ -188,7 +188,8 @@ prescript: |
   
   # Optional: Copy model to shared volume for faster access
   echo "Copying model to shared volume..."
-  cp -rf /mnt/data/model/Meta-Llama-3.1-8B-Instruct /shared/
+  mkdir -p /data/model
+  cp -rf /mnt/data/model/Meta-Llama-3.1-8B-Instruct /data/model/
   echo "Model copy completed"
 ```
 

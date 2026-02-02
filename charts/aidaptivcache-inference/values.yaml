@@ -10,6 +10,10 @@ schedulerName: "hami-scheduler"
 # Init container configuration
 initContainer:
   enabled: true
+  image:
+    repository: ubuntu
+    tag: 24.04
+    pullPolicy: IfNotPresent
   sharedDataPath: /data
 
 # Deployment configuration

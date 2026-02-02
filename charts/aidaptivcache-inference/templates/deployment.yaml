@@ -24,8 +24,8 @@ spec:
       {{- if .Values.initContainer.enabled }}
       initContainers:
       - name: prescript
-        image: "ubuntu:24.04"
-        imagePullPolicy: IfNotPresent
+        image: "{{ .Values.initContainer.image.repository }}:{{ .Values.initContainer.image.tag }}"
+        imagePullPolicy: {{ .Values.initContainer.image.pullPolicy }}
         securityContext:
           privileged: true
         command:
