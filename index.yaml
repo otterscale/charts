@@ -78,6 +78,24 @@ entries:
   aidaptivcache-inference:
   - apiVersion: v2
     appVersion: "1.0"
+    created: "2026-02-02T09:43:08.007701948Z"
+    description: A Helm chart for vLLM API inference server
+    digest: d67bcffeb14c1b8626a73d686ae54b1f4c0c460db38d1ea47c542c88a9a73de8
+    home: https://www.phison.com/
+    icon: https://otterscale.com/phison-logo-p.svg
+    keywords:
+    - aidaptivcache
+    - inference
+    maintainers:
+    - email: shawn_tsai@phison.com
+      name: Shawn
+    name: aidaptivcache-inference
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/aidaptivcache-inference-0.2.0/aidaptivcache-inference-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
+    appVersion: "1.0"
     created: "2026-01-28T10:41:11.616488618Z"
     description: A Helm chart for vLLM API inference server
     digest: b83c75ac638340027f8bddf7ad9daf1d207d756be8dc157637e305cc028a6c38
@@ -399,6 +417,42 @@ entries:
     - https://github.com/otterscale/charts/releases/download/model-artifact-helper-0.0.1/model-artifact-helper-0.0.1.tgz
     version: 0.0.1
   otterscale:
+  - apiVersion: v2
+    appVersion: v0.7.0-alpha.3
+    created: "2026-02-02T09:43:08.248368771Z"
+    dependencies:
+    - condition: keycloakx.enabled
+      name: keycloakx
+      repository: https://codecentric.github.io/helm-charts
+      version: 7.1.7
+    - condition: valkey.enabled
+      name: valkey
+      repository: https://valkey.io/valkey-helm/
+      version: 0.9.3
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: OtterScale - A unified platform for simplified compute, storage,
+      and networking
+    digest: abbae00897ed90ceb09c32d3eb97a1c8d16c4b68ee983d5714ebbaa814a44251
+    home: https://otterscale.github.io
+    icon: https://github.com/otterscale.png
+    keywords:
+    - otterscale
+    maintainers:
+    - email: terry_wu@phison.com
+      name: Yi-Lin Wu
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale
+    sources:
+    - https://github.com/otterscale/otterscale
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-0.3.0-alpha.3/otterscale-0.3.0-alpha.3.tgz
+    version: 0.3.0-alpha.3
   - apiVersion: v2
     appVersion: v0.6.3
     created: "2026-01-06T12:52:16.961284108Z"
@@ -1189,4 +1243,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-01-28T11:35:37.077710838Z"
+generated: "2026-02-02T09:43:08.24864292Z"
