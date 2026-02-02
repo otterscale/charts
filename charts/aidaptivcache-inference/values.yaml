@@ -1,9 +1,11 @@
 image:
   repository: docker.io/library/aidaptiv
-  tag: vNXUN_3_03AA
+  tag: vNXUN_3_03_AA
   pullPolicy: IfNotPresent
 
 imagePullSecrets: []
+
+schedulerName: "hami-scheduler"
 
 # Deployment configuration
 deployment:
@@ -62,10 +64,20 @@ volumes:
   dshm:
     enabled: true
     sizeLimit: 30Gi
+  pvc:
+    # Set to true to enable mounting an existing PersistentVolumeClaim
+    enabled: false
+    # Name of an existing PVC to mount into the pod
+    claimName: ""
+    # Path inside the container where the PVC will be mounted
+    mountPath: /mnt/data
+    # Mount readOnly if desired
+    readOnly: false
 
 # Pre-execution script (runs before main command)
 prescript: |
   echo "Start"
+#  apt install -y nfs-common
 #  echo "Starting NFS mount process..."
 #  mkdir -p /mnt/data
 #  TIMEOUT=300
