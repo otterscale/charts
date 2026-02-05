@@ -67,7 +67,6 @@ service:
 volumes:
   dshm:
     enabled: true
-    sizeLimit: 30Gi
   pvc:
     # Set to true to enable mounting an existing PersistentVolumeClaim
     enabled: false

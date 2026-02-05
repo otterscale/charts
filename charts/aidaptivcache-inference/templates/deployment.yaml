@@ -131,7 +131,6 @@ spec:
       - name: dshm
         emptyDir:
           medium: Memory
-          sizeLimit: {{ .Values.volumes.dshm.sizeLimit }}
       {{- end }}
       {{- if .Values.volumes.pvc.enabled }}
       {{- $claimName := .Values.volumes.pvc.claimName | required "volumes.pvc.claimName is required when volumes.pvc.enabled is true" }}
