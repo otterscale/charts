@@ -33,7 +33,8 @@ serviceAccount:
   name: ""
 
 # Pod annotations
-podAnnotations: {}
+podAnnotations:
+  traffic.sidecar.istio.io/excludeInboundPorts: "22"
 # Pod labels
 podLabels: {}
 
