@@ -1,17 +1,24 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: { { .Values.pvc.name } }
-  labels: { { - toYaml (default dict .Values.commonLabels) | nindent 4 } }
+  name: {{ .Values.pvc.name }}
+  labels: {{- toYaml (default dict .Values.commonLabels) | nindent 4 }}
 spec:
   template:
     metadata:
-      labels: { { - toYaml (default dict .Values.commonLabels) | nindent 8 } }
+      labels: {{- toYaml (default dict .Values.commonLabels) | nindent 8 }}
     spec:
       restartPolicy: Never
       containers:
-        - name: { { .Values.pvc.name } }
+        - name: {{ .Values.pvc.name }}
           image: ghcr.io/otterscale/model-artifact:0.0.1
+          resources:
+            limits:
+              cpu: 2000m
+              memory: 4Gi
+            requests:
+              cpu: 2000m
+              memory: 4Gi
           env:
             - name: HF_ENDPOINT
               value: https://hf-mirror.com
@@ -27,7 +34,7 @@ spec:
             #       name: hf-token
             #       key: token
             - name: MODEL
-              value: { { .Values.model.name } } #RedHatAI/Qwen3-0.6B-FP8-dynamic
+              value: {{ .Values.model.name }} #RedHatAI/Qwen3-0.6B-FP8-dynamic
           command: ["bash", "-lc"]
           args:
             - |
@@ -47,9 +54,9 @@ spec:
       volumes:
         - name: app
           configMap:
-            name: { { .Values.pvc.name } }
+            name: {{ .Values.pvc.name }}
         - name: cache
           emptyDir: {}
         - name: model
           persistentVolumeClaim:
-            claimName: { { .Values.pvc.name } }
+            claimName: {{ .Values.pvc.name }}
