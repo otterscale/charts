@@ -64,7 +64,7 @@ initContainer:
     repository: ubuntu
     tag: 24.04
     pullPolicy: IfNotPresent
-  sharedDataPath: /shared
+  sharedDataPath: /data
 ```
 
 - `enabled`: Enable/disable init container (default: true)
@@ -100,11 +100,11 @@ vllm:
 ```yaml
 vllm:
   args:
-    model: /mnt/data/model/Meta-Llama-3.1-8B-Instruct/
+    model: /data/model/Meta-Llama-3.1-8B-Instruct/
     nvmePath: /mnt/nvme0
     port: 8000
     gpuMemoryUtilization: 0.9
-    maxModelLen: 32768
+    maxModelLen: 8192
     tensorParallelSize: 1
     dramKvOffloadGb: 0
     ssdKvOffloadGb: 500
@@ -171,7 +171,7 @@ prescript: |
   ELAPSED=0
   while [ $ELAPSED -lt $TIMEOUT ]; do
     echo "Attempting to mount NFS to /mnt/data"
-    mount -t nfs4 -o nfsvers=4.1 -v 10.102.197.0:/volumes/_nogroup/your-nfs-path /mnt/data
+    mount -t nfs4 -o nfsvers=4.1 -v <NFS_SERVER> /mnt/data
     if mountpoint -q /mnt/data; then
       echo "NFS mount successful!"
       break
@@ -193,13 +193,20 @@ prescript: |
   echo "Model copy completed"
 ```
 
-Replace `10.102.197.0:/volumes/_nogroup/your-nfs-path` with your actual NFS server address.
+Replace `<NFS_SERVER>` with your actual NFS server address (e.g., `10.102.197.0:/volumes/_nogroup/your-nfs-path`).
 
-**Note**: If you copy models to `/shared`, update the vLLM `model` path accordingly:
+**Important Notes**: 
+- The target path for copying files in the prescript must be `initContainer.sharedDataPath` (default is `/data`)
+- This shared path is mounted to both the init container and the main vLLM container
+- If you copy models to `/data`, update the vLLM `model` path accordingly:
+
 ```yaml
+initContainer:
+  sharedDataPath: /data  # Shared data path
+
 vllm:
   args:
-    model: /shared/Meta-Llama-3.1-8B-Instruct/  # Use shared path
+    model: /data/model/Meta-Llama-3.1-8B-Instruct/  # Use model from shared path
 ```
 
 ### Service Configuration
@@ -227,7 +234,6 @@ volumes:
 ```
 
 - `dshm.enabled`: Enable /dev/shm (shared memory, required for vLLM)
-- `dshm.sizeLimit`: Shared memory size
 
 ### Resource Configuration
 
@@ -271,11 +277,11 @@ vllm:
     vllmWorkerMultiprocMethod: "spawn"
   
   args:
-    model: /mnt/data/model/Meta-Llama-3.1-8B-Instruct/
+    model: /data/model/Meta-Llama-3.1-8B-Instruct/
     nvmePath: /mnt/nvme0
     port: 8000
     gpuMemoryUtilization: 0.9
-    maxModelLen: 32768
+    maxModelLen: 8192
     tensorParallelSize: 1
     ssdKvOffloadGb: 500
     enableChunkedPrefill: true
@@ -289,7 +295,7 @@ service:
   targetPort: 8000
 
 prescript: |
-  apt install -y nfs-common
+  apt update && apt install -y nfs-common
   echo "Starting NFS mount process..."
   mkdir -p /mnt/data
   TIMEOUT=300
@@ -310,6 +316,9 @@ prescript: |
     echo "NFS mount timeout after ${TIMEOUT} seconds. Exiting..."
     exit 1
   fi
+  # Copy model to shared volume
+  mkdir -p /data/model
+  cp -rf /mnt/data/model/Meta-Llama-3.1-8B-Instruct /data/model/
 
 volumes:
   dshm:
@@ -332,14 +341,14 @@ resources:
 ```yaml
 vllm:
   args:
-    model: /mnt/data/model/Meta-Llama-3.1-8B-Instruct/
+    model: /data/model/Meta-Llama-3.1-8B-Instruct/
     tensorParallelSize: 4
-    maxModelLen: 32768
+    maxModelLen: 8192
     gpuMemoryUtilization: 0.85
   
   lora:
     enable: true
-    modules: "lora=/mnt/data/lora-adapters/llama3.1-8B-lora/"
+    modules: "lora=/data/lora-adapters/llama3.1-8B-lora/"
     maxRank: 32
 
 resources:

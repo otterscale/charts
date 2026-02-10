@@ -55,6 +55,9 @@ vllm:
     modules: ""  # Example: "lora=/app/llama3.1-8B-lora/" (required if enable is true)
     maxRank: 32  # Maximum LoRA rank (required if enable is true)
 
+  # Sleep duration (in seconds) before starting the vLLM server
+  # Set to 0 to disable sleep
+  waiting: 0
 # Service configuration
 service:
   type: NodePort
@@ -67,7 +70,7 @@ service:
 volumes:
   dshm:
     enabled: true
-    sizeLimit: 30Gi
+    sizeLimit: 16Gi
   pvc:
     # Set to true to enable mounting an existing PersistentVolumeClaim
     enabled: false
@@ -112,11 +115,15 @@ prescript: |
 # Resource requests and limits
 resources:
   requests:
+    #cpu: 1
+    #memory: 2Gi
     otterscale.com/vgpu: 1
     #otterscale.com/vgpumem: 2048
     otterscale.com/vgpumem-percentage: 60
     phison.com/ai100: 1
   limits:
+    #cpu: 1
+    #memory: 2Gi
     otterscale.com/vgpu: 1
     #otterscale.com/vgpumem: 2048
     otterscale.com/vgpumem-percentage: 60

@@ -47,6 +47,10 @@ spec:
         env:
         - name: k8s
           value: "true"
+        - name: NCCL_P2P_DISABLE
+          value: "1"
+        - name: NCCL_IB_DISABLE
+          value: "1"
         - name: VLLM_USE_V1
           value: {{ .Values.vllm.env.vllmUseV1 | quote }}
         - name: VLLM_WORKER_MULTIPROC_METHOD
@@ -57,6 +61,9 @@ spec:
         - /bin/sh
         - -c
         - |
+          {{- if gt (.Values.vllm.waiting | int) 0 }}
+          sleep {{ .Values.vllm.waiting }}
+          {{- end }}
           python3 vllm_api_server.py \
           --model {{ .Values.vllm.args.model }} \
           --nvme_path {{ .Values.vllm.args.nvmePath }} \
