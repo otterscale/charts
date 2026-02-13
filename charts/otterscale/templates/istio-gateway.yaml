@@ -27,6 +27,6 @@ spec:
       {{- toYaml .Values.istio.gateway.hosts | nindent 6 }}
     tls:
       mode: SIMPLE
-      credentialName: {{ include "otterscale.fullname" . }}-tls-cert
+      credentialName: {{ include "otterscale.tls.secretName" . }}
     {{- end }}
 {{- end }}

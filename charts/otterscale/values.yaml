@@ -34,7 +34,10 @@ istio:
   tls:
     # Enable TLS for the gateway
     enabled: false
-    name: otterscale-tls-cert
+    # Use an existing Secret (must contain tls.crt and tls.key)
+    # If set, crt/key fields below are ignored
+    existingSecret: ""
+    # Alternatively, provide crt/key directly (base64-encoded)
     crt: ""
     key: ""
 

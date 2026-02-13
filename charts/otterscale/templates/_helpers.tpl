@@ -47,6 +47,31 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
+Return the TLS credential secret name for Istio Gateway
+*/}}
+{{- define "otterscale.tls.secretName" -}}
+{{- if .Values.istio.tls.existingSecret -}}
+  {{- .Values.istio.tls.existingSecret -}}
+{{- else -}}
+  {{- printf "%s-tls-cert" (include "otterscale.fullname" .) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the URL scheme (http or https) based on TLS setting
+*/}}
+{{- define "otterscale.scheme" -}}
+{{- if .Values.istio.tls.enabled -}}https{{- else -}}http{{- end -}}
+{{- end -}}
+
+{{/*
+Return the external base URL (scheme + externalIP)
+*/}}
+{{- define "otterscale.externalURL" -}}
+{{- printf "%s://%s" (include "otterscale.scheme" .) .Values.istio.externalIP -}}
+{{- end -}}
+
+{{/*
 Get or generate Keycloak client secret (32 characters)
 Caches the value in .Values._cache to ensure consistency across all templates
 */}}
