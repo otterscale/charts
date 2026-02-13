@@ -47,67 +47,74 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
+Return the TLS credential secret name for Istio Gateway
+*/}}
+{{- define "otterscale.tls.secretName" -}}
+{{- if .Values.istio.tls.existingSecret -}}
+  {{- .Values.istio.tls.existingSecret -}}
+{{- else -}}
+  {{- printf "%s-tls-cert" (include "otterscale.fullname" .) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the URL scheme (http or https) based on TLS setting
+*/}}
+{{- define "otterscale.scheme" -}}
+{{- if .Values.istio.tls.enabled -}}https{{- else -}}http{{- end -}}
+{{- end -}}
+
+{{/*
+Return the external base URL (scheme + externalIP)
+*/}}
+{{- define "otterscale.externalURL" -}}
+{{- printf "%s://%s" (include "otterscale.scheme" .) .Values.istio.externalIP -}}
+{{- end -}}
+
+{{/*
 Get or generate Keycloak client secret (32 characters)
-Caches the value to ensure consistency across all template usages
+Caches the value in .Values._cache to ensure consistency across all templates
 */}}
 {{- define "otterscale.keycloak.clientSecret" -}}
-{{- if not .Values._generatedClientSecret -}}
+{{- if not (index .Values "_cachedClientSecret" | default "") -}}
   {{- $secretName := printf "%s-keycloak-client-secret" (include "otterscale.fullname" .) -}}
-  {{- $existingSecret := lookup "v1" "Secret" .Release.Namespace $secretName -}}
-  {{- if $existingSecret -}}
-    {{/* Use existing secret value during upgrades */}}
-    {{- $_ := set .Values "_generatedClientSecret" (index $existingSecret.data "client-secret" | b64dec) -}}
-  {{- else if .Values.keycloakx.client.secret -}}
-    {{/* Use user-provided value */}}
-    {{- $_ := set .Values "_generatedClientSecret" .Values.keycloakx.client.secret -}}
+  {{- $secretKey := "client-secret" -}}
+  {{- $value := "" -}}
+  {{- if .Values.keycloakx.client.secret -}}
+    {{- $value = .Values.keycloakx.client.secret -}}
   {{- else -}}
-    {{/* Generate new random 32-character secret for first installation */}}
-    {{- $_ := set .Values "_generatedClientSecret" (randAlphaNum 32) -}}
+    {{- $existingSecret := (lookup "v1" "Secret" .Release.Namespace $secretName) -}}
+    {{- if and $existingSecret (hasKey $existingSecret.data $secretKey) -}}
+      {{- $value = index $existingSecret.data $secretKey | b64dec -}}
+    {{- else -}}
+      {{- $value = randAlphaNum 32 -}}
+    {{- end -}}
   {{- end -}}
+  {{- $_ := set .Values "_cachedClientSecret" $value -}}
 {{- end -}}
-{{- .Values._generatedClientSecret -}}
-{{- end }}
+{{- index .Values "_cachedClientSecret" -}}
+{{- end -}}
 
 {{/*
-Get or generate Postgres database password (10 characters)
-Caches the value to ensure consistency across all template usages
-*/}}
-{{- define "otterscale.postgres.password" -}}
-{{- if not .Values._generatedPostgresPassword -}}
-  {{- $secretName := .Values.keycloakx.database.existingSecret -}}
-  {{- $existingSecret := lookup "v1" "Secret" .Release.Namespace $secretName -}}
-  {{- if $existingSecret -}}
-    {{/* Use existing secret value during upgrades */}}
-    {{- $_ := set .Values "_generatedPostgresPassword" (index $existingSecret.data "postgres-password" | b64dec) -}}
-  {{- else if .Values.keycloakx.database.password -}}
-    {{/* Use user-provided value */}}
-    {{- $_ := set .Values "_generatedPostgresPassword" .Values.keycloakx.database.password -}}
-  {{- else -}}
-    {{/* Generate new random 10-character password for first installation */}}
-    {{- $_ := set .Values "_generatedPostgresPassword" (randAlphaNum 10) -}}
-  {{- end -}}
-{{- end -}}
-{{- .Values._generatedPostgresPassword -}}
-{{- end }}
-
-{{/*
-Get or generate Valkey password (10 characters)
-Caches the value to ensure consistency across all template usages
+Get or generate Valkey password
+Caches the value in .Values._cache to ensure consistency across all templates
 */}}
 {{- define "otterscale.valkey.password" -}}
-{{- if not .Values._generatedValkeyPassword -}}
+{{- if not (index .Values "_cachedValkeyPassword" | default "") -}}
   {{- $secretName := printf "%s-valkey" (include "otterscale.fullname" .) -}}
-  {{- $existingSecret := lookup "v1" "Secret" .Release.Namespace $secretName -}}
-  {{- if $existingSecret -}}
-    {{/* Use existing secret value during upgrades */}}
-    {{- $_ := set .Values "_generatedValkeyPassword" (index $existingSecret.data "valkey-password" | b64dec) -}}
-  {{- else if .Values.valkey.aclUsers.default.password -}}
-    {{/* Use user-provided value */}}
-    {{- $_ := set .Values "_generatedValkeyPassword" .Values.valkey.aclUsers.default.password -}}
+  {{- $secretKey := "valkey-password" -}}
+  {{- $value := "" -}}
+  {{- if .Values.valkey.password -}}
+    {{- $value = .Values.valkey.password -}}
   {{- else -}}
-    {{/* Generate new random 10-character password for first installation */}}
-    {{- $_ := set .Values "_generatedValkeyPassword" (randAlphaNum 10) -}}
+    {{- $existingSecret := (lookup "v1" "Secret" .Release.Namespace $secretName) -}}
+    {{- if and $existingSecret (hasKey $existingSecret.data $secretKey) -}}
+      {{- $value = index $existingSecret.data $secretKey | b64dec -}}
+    {{- else -}}
+      {{- $value = randAlphaNum 10 -}}
+    {{- end -}}
   {{- end -}}
+  {{- $_ := set .Values "_cachedValkeyPassword" $value -}}
 {{- end -}}
-{{- .Values._generatedValkeyPassword -}}
-{{- end }}
+{{- index .Values "_cachedValkeyPassword" -}}
+{{- end -}}

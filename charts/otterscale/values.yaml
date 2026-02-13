@@ -34,7 +34,10 @@ istio:
   tls:
     # Enable TLS for the gateway
     enabled: false
-    name: otterscale-tls-cert
+    # Use an existing Secret (must contain tls.crt and tls.key)
+    # If set, crt/key fields below are ignored
+    existingSecret: ""
+    # Alternatively, provide crt/key directly (base64-encoded)
     crt: ""
     key: ""
 
@@ -52,6 +55,7 @@ valkey:
   aclUsers:
     default:
       permissions: "~* &* +@all"
+  password: ""
 
 # -----------------------------------------------------------------------------
 # Keycloak Configuration
@@ -67,17 +71,17 @@ keycloakx:
     relativePath: /auth/
 
   command:
-    - /bin/sh
-    - -c
-    - |
-      /opt/keycloak/bin/kc.sh start \
-      --verbose \
-      --import-realm \
-      --http-port=8080 \
-      --http-enabled=true \
-      --hostname-strict=false \
-      --spi-events-listener-jboss-logging-success-level=info \
-      --spi-events-listener-jboss-logging-error-level=warn
+  - /bin/sh
+  - -c
+  - |
+    /opt/keycloak/bin/kc.sh start \
+    --verbose \
+    --import-realm \
+    --http-port=8080 \
+    --http-enabled=true \
+    --hostname-strict=false \
+    --spi-events-listener-jboss-logging-success-level=info \
+    --spi-events-listener-jboss-logging-error-level=warn
 
   extraEnvFrom: |
     - configMapRef:
@@ -107,7 +111,7 @@ keycloakx:
 
   extraInitContainers: |
     - name: theme-provider
-      image: ghcr.io/otterscale/keycloakify:1.1.1
+      image: ghcr.io/otterscale/keycloakify:1.0.6
       imagePullPolicy: IfNotPresent
       command:
         - sh
@@ -144,17 +148,17 @@ keycloakx:
 configContent: |
   maas:
     url: http://127.0.0.1:5240/MAAS
-    key: ""
+    key: xxx
     version: "2.0"
   juju:
     controller: maas-cloud-controller
     controller_addresses:
     - 127.0.0.1:17070
     username: admin
-    password: ""
+    password: xxx
     ca_cert: |
       -----BEGIN CERTIFICATE-----
-      xxxx
+      xxx
       -----END CERTIFICATE-----
     cloud_name: maas-cloud
     cloud_region: default
@@ -163,3 +167,4 @@ configContent: |
   keycloak:
     realm_url: http://127.0.0.1/auth/realms/otterscale
     client_id: otterscale
+  
