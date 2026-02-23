@@ -167,4 +167,81 @@ configContent: |
   keycloak:
     realm_url: http://127.0.0.1/auth/realms/otterscale
     client_id: otterscale
-  
+
+# -----------------------------------------------------------------------------
+# Harbor Configuration (Container Registry)
+# -----------------------------------------------------------------------------
+# Harbor is accessed at <externalIP>/harbor/ via Istio pass-through routing.
+# Harbor's native paths (/harbor/, /api/v2.0/, /c/, /v2/, etc.) are passed
+# directly to the Harbor service without URI rewrite.
+#
+# Docker push/pull also works via the same IP:
+#   docker login <externalIP>
+#
+# harbor.externalURL defaults to the same base URL as OtterScale (scheme://externalIP).
+# Override only if Harbor needs a different base URL.
+# -----------------------------------------------------------------------------
+harbor:
+  enabled: true
+  # Base URL for Harbor (defaults to otterscale externalURL, e.g. http://<externalIP>)
+  # Harbor internally appends /harbor/ for the UI.
+  # IMPORTANT: Must match the actual browser URL scheme (http/https).
+  # If set to https:// but accessed via http://, CSRF cookies will be rejected.
+  externalURL: "http://127.0.0.1/harbor/"
+
+  # Harbor admin password (change after first login)
+  harborAdminPassword: "Harbor12345"
+
+  # Expose via ClusterIP — Istio handles external ingress
+  expose:
+    type: clusterIP
+    tls:
+      enabled: false
+    clusterIP:
+      name: harbor
+      ports:
+        httpPort: 80
+
+  ipFamily:
+    ipv6:
+      enabled: false
+
+  # Persistence
+  persistence:
+    enabled: true
+    persistentVolumeClaim:
+      registry:
+        storageClass: "microk8s-hostpath"
+        size: 50Gi
+      database:
+        storageClass: "microk8s-hostpath"
+        size: 5Gi
+      jobservice:
+        jobLog:
+          storageClass: "microk8s-hostpath"
+          size: 1Gi
+      redis:
+        storageClass: "microk8s-hostpath"
+        size: 1Gi
+      trivy:
+        storageClass: "microk8s-hostpath"
+        size: 5Gi
+
+  # Internal PostgreSQL & Redis
+  database:
+    type: internal
+  redis:
+    type: internal
+
+  # ---------------------------------------------------------
+  # OIDC integration with Keycloak (custom values for parent chart)
+  # These are NOT native Harbor chart values; they are used by
+  # the harbor-oidc-job template to auto-configure OIDC via API.
+  # ---------------------------------------------------------
+  oidc:
+    enabled: true
+    # Harbor shares the 'otterscale' Keycloak client (no separate client needed)
+    scope: "openid,profile,email"
+    autoOnboard: true
+    groupsClaim: "groups"
+    adminGroup: "harbor_admins"

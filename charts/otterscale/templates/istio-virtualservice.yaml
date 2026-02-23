@@ -24,6 +24,147 @@ spec:
         request:
           set:
             X-Forwarded-Proto: {{ if and .Values.istio.gateway .Values.istio.gateway.tls .Values.istio.gateway.tls.enabled }}"https"{{ else }}"http"{{ end }}
+    {{- if .Values.harbor.enabled }}
+    # ---- Harbor routes ----
+    # Harbor's externalURL includes the /harbor/ prefix, so Harbor core
+    # generates redirect_uris like /harbor/c/oidc/callback.  We must
+    # strip the /harbor prefix for paths that Harbor's nginx proxies
+    # to core (/c/, /api/, /service/, /v2/, /chartrepo/).
+    - match:
+      - uri:
+          exact: /harbor
+      redirect:
+        uri: /harbor/
+    # Backend paths under /harbor/ – rewrite to strip the /harbor prefix
+    # so Harbor nginx routes them to core (not the portal catch-all).
+    - match:
+      - uri:
+          prefix: /harbor/c/
+      rewrite:
+        uri: /c/
+      route:
+      - destination:
+          host: {{ include "otterscale.harbor.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local
+          port:
+            number: 80
+    - match:
+      - uri:
+          prefix: /harbor/api/
+      rewrite:
+        uri: /api/
+      route:
+      - destination:
+          host: {{ include "otterscale.harbor.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local
+          port:
+            number: 80
+    - match:
+      - uri:
+          prefix: /harbor/service/
+      rewrite:
+        uri: /service/
+      route:
+      - destination:
+          host: {{ include "otterscale.harbor.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local
+          port:
+            number: 80
+    - match:
+      - uri:
+          prefix: /harbor/v2/
+      rewrite:
+        uri: /v2/
+      route:
+      - destination:
+          host: {{ include "otterscale.harbor.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local
+          port:
+            number: 80
+    - match:
+      - uri:
+          prefix: /harbor/chartrepo/
+      rewrite:
+        uri: /chartrepo/
+      route:
+      - destination:
+          host: {{ include "otterscale.harbor.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local
+          port:
+            number: 80
+    # Portal catch-all – no rewrite; Harbor nginx serves the Angular app
+    - match:
+      - uri:
+          prefix: /harbor/
+      route:
+      - destination:
+          host: {{ include "otterscale.harbor.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local
+          port:
+            number: 80
+    - match:
+      - uri:
+          prefix: /api/v2.0/
+      route:
+      - destination:
+          host: {{ include "otterscale.harbor.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local
+          port:
+            number: 80
+    - match:
+      - uri:
+          prefix: /c/
+      route:
+      - destination:
+          host: {{ include "otterscale.harbor.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local
+          port:
+            number: 80
+    - match:
+      - uri:
+          prefix: /service/
+      route:
+      - destination:
+          host: {{ include "otterscale.harbor.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local
+          port:
+            number: 80
+    - match:
+      - uri:
+          prefix: /v2/
+      route:
+      - destination:
+          host: {{ include "otterscale.harbor.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local
+          port:
+            number: 80
+    - match:
+      - uri:
+          prefix: /chartrepo/
+      route:
+      - destination:
+          host: {{ include "otterscale.harbor.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local
+          port:
+            number: 80
+    # Harbor portal static assets (JS, CSS, JSON, images, fonts, etc.) are served
+    # at root "/" with <base href="/">. OtterScale web uses /_app/ so no conflict.
+    # Also route /i18n/ and /images/ subdirs used by Harbor portal.
+    - match:
+      - uri:
+          prefix: /i18n/
+      route:
+      - destination:
+          host: {{ include "otterscale.harbor.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local
+          port:
+            number: 80
+    - match:
+      - uri:
+          prefix: /images/
+      route:
+      - destination:
+          host: {{ include "otterscale.harbor.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local
+          port:
+            number: 80
+    - match:
+      - uri:
+          regex: "^/[^/]+\\.(js|css|json|ico|txt|map|woff2?|ttf|eot|svg|png|jpg|jpeg|gif|html)(\\?.*)?$"
+      route:
+      - destination:
+          host: {{ include "otterscale.harbor.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local
+          port:
+            number: 80
+    {{- end }}
+    # ---- OtterScale routes ----
     - match:
       - uri:
           prefix: /api/

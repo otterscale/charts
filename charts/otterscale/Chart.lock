@@ -5,8 +5,11 @@ dependencies:
 - name: valkey
   repository: https://valkey.io/valkey-helm/
   version: 0.9.3
+- name: harbor
+  repository: https://helm.goharbor.io
+  version: 1.18.2
 - name: common
   repository: oci://registry-1.docker.io/bitnamicharts
-  version: 2.31.4
-digest: sha256:78a73308e7f5d82592a9a13a9ca11c0eed2018dafe8caf7d719bcaea5b9b55a4
-generated: "2026-01-28T14:59:27.397484694+08:00"
+  version: 2.36.0
+digest: sha256:37ffb8c719fa3060ed5cf82b2d943a7d8e27e2653e3a3d43cffed9d1906573ab
+generated: "2026-02-13T17:27:34.384063924+08:00"
