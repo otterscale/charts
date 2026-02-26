@@ -1,18 +1,19 @@
 apiVersion: v2
-appVersion: v0.7.3
+appVersion: v0.7.5
 description: An operator for aiDAPTIVCache
 home: https://www.phison.com/
-icon: https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRb8swXMofartTcrJnNDStOhr8dnL_aw9DXFA&s
+icon: https://otterscale.com/phison-logo-p.svg
 keywords:
 - aidaptivcache
 - device-plugin
 - operator
 - finetune
 - inference
+- exporter
 maintainers:
 - name: Phison, Inc. All Rights Reserved.
 name: aidaptivcache-operator
 sources:
-- http://192.168.1.154/d6/d69/ifas/k8s-service/k8s-operator/phison-operator-helm-chart
+- https://github.com/otterscale/charts/tree/main/charts/aidaptivcache-operator
 type: application
-version: 0.4.3
+version: 0.4.5

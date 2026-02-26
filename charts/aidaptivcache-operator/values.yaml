@@ -28,7 +28,7 @@ tls:
     # keyName: "tls.key"
 # Service configuration
 service:
-  name: phison-service
+  name: aidaptivcache-service
   type: ClusterIP
   ports:
     - name: https
@@ -37,6 +37,10 @@ service:
     - name: handshake
       protocol: TCP
       port: 8443
+# Webhook configuration
+webhook:
+  name: aidaptivcache-webhook
+  checkInterval: "10s"
 # ServiceAccount configuration
 serviceAccount:
   create: true
@@ -65,7 +69,7 @@ operator:
   image:
     repository: licensesp/aidaptivcache-operator
     pullPolicy: IfNotPresent
-    tag: "v0.7.3"
+    tag: "v0.7.5"
   nameOverride: ""
   fullnameOverride: ""
   podAnnotations: {}
@@ -159,7 +163,7 @@ devicePlugin:
   image:
     repository: licensesp/aidaptivcache-device-plugin
     pullPolicy: IfNotPresent
-    tag: "v0.4.6"
+    tag: "v0.4.7"
   arguments: []
   hostPID: true
   securityContext:
@@ -215,10 +219,12 @@ exporter:
   image:
     repository: licensesp/nvme-exporter
     pullPolicy: IfNotPresent
-    tag: "1.0.8"
+    tag: "1.0.8s"
   nodeSelector:
     phison.com/ai100-present: "true"
   containerPort: 9299
+  allDisk: false
+  allNvme: false
   resources:
     limits:
       cpu: "150m"

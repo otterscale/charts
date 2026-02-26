@@ -32,6 +32,11 @@ spec:
             {{- toYaml .Values.operator.securityContext | nindent 12 }}
           image: "{{ .Values.operator.image.repository }}:{{ .Values.operator.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.operator.image.pullPolicy }}
+          env:
+            - name: PHISON_WEBHOOK_NAME
+              value: {{ .Values.webhook.name | quote }}
+            - name: PHISON_SERVICE_NAME
+              value: {{ .Values.service.name | quote }}
           {{- if .Values.tls.enabled }}
           args:
             - --webhook-cert-path={{ .Values.tls.certPath }}
