@@ -188,6 +188,29 @@ entries:
     version: 0.1.0
   aidaptivcache-operator:
   - apiVersion: v2
+    appVersion: v0.7.5
+    created: "2026-02-26T05:54:25.501914247Z"
+    description: An operator for aiDAPTIVCache
+    digest: 58d61f659bc4a0b5aeba4d11109632fad1d7514dbecfc950b50085d1af4a1a24
+    home: https://www.phison.com/
+    icon: https://otterscale.com/phison-logo-p.svg
+    keywords:
+    - aidaptivcache
+    - device-plugin
+    - operator
+    - finetune
+    - inference
+    - exporter
+    maintainers:
+    - name: Phison, Inc. All Rights Reserved.
+    name: aidaptivcache-operator
+    sources:
+    - https://github.com/otterscale/charts/tree/main/charts/aidaptivcache-operator
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/aidaptivcache-operator-0.4.5/aidaptivcache-operator-0.4.5.tgz
+    version: 0.4.5
+  - apiVersion: v2
     appVersion: v0.7.3
     created: "2026-01-14T01:59:32.794549483Z"
     description: An operator for aiDAPTIVCache
@@ -1368,4 +1391,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-02-13T09:06:39.646314622Z"
+generated: "2026-02-26T05:54:25.502051946Z"
