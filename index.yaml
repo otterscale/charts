@@ -78,6 +78,24 @@ entries:
   aidaptivcache-inference:
   - apiVersion: v2
     appVersion: "1.0"
+    created: "2026-02-26T07:11:11.802224301Z"
+    description: A Helm chart for vLLM API inference server
+    digest: 3a03946e9a1b86f3fefb37024a5cb39cabb01f73f3badba98f712e8a4994c5e2
+    home: https://www.phison.com/
+    icon: https://otterscale.com/phison-logo-p.svg
+    keywords:
+    - aidaptivcache
+    - inference
+    maintainers:
+    - email: shawn_tsai@phison.com
+      name: Shawn
+    name: aidaptivcache-inference
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/aidaptivcache-inference-0.2.1/aidaptivcache-inference-0.2.1.tgz
+    version: 0.2.1
+  - apiVersion: v2
+    appVersion: "1.0"
     created: "2026-02-02T09:43:08.007701948Z"
     description: A Helm chart for vLLM API inference server
     digest: d67bcffeb14c1b8626a73d686ae54b1f4c0c460db38d1ea47c542c88a9a73de8
@@ -1391,4 +1409,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-02-26T05:54:25.502051946Z"
+generated: "2026-02-26T07:11:11.802374109Z"
