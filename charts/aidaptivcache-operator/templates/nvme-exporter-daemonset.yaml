@@ -20,6 +20,15 @@ spec:
           imagePullPolicy: {{ .Values.exporter.image.pullPolicy }}
           securityContext:
             privileged: true
+          {{- if or .Values.exporter.allDisk .Values.exporter.allNvme }}
+          args:
+          {{- if .Values.exporter.allDisk }}
+            - "--all-disk"
+          {{- end }}
+          {{- if .Values.exporter.allNvme }}
+            - "--all-nvme"
+          {{- end }}
+          {{- end }}
           env:
             - name: NODE_NAME
               valueFrom:

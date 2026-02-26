@@ -10,17 +10,20 @@ metadata:
 spec:
   servicename: {{ .Values.service.name }}
   serviceaccount: {{ include "aidaptivcache-operator.serviceAccountName" . }}
-  serviceport: 
-  {{- range .Values.service.ports }}
+  {{- with .Values.service.ports }}
+  serviceport:
+  {{- range . }}
     - name: {{ .name }}
       protocol: {{ .protocol }}
       port: {{ .port }}
+  {{- end }}
   {{- end }}
   plugins:
     {{- if .Values.devicePlugin.enabled }}
     - pluginname: {{ .Values.devicePlugin.name }}
       pluginnamespace:  {{ .Values.global.namespace }}
       pluginspec:
+        serviceAccountName: {{ include "aidaptivcache-operator.serviceAccountName" . }}
         hostPID: {{ .Values.devicePlugin.hostPID }}
         containers:
           - name: {{ .Values.devicePlugin.name }}
@@ -28,14 +31,20 @@ spec:
               {{- toYaml .Values.devicePlugin.securityContext | nindent 16 }}
             image: {{ .Values.devicePlugin.image.repository }}:{{ .Values.devicePlugin.image.tag }}
             imagePullPolicy: {{ .Values.devicePlugin.image.pullPolicy }}
-            {{- with .Values.devicePlugin.env }}
             env:
-              {{- toYaml . | nindent 16 }}
-            {{- end }}
+              {{- if .Values.devicePlugin.env }}
+              {{ toYaml .Values.devicePlugin.env | nindent 14 }}
+              {{- end }}
+              - name: PHISON_WEBHOOK_NAME
+                value: {{ .Values.webhook.name | quote }}
+              - name: PHISON_WEBHOOK_CHECK_INTERVAL
+                value: {{ .Values.webhook.checkInterval | quote }}
+            {{- with .Values.devicePlugin.arguments }}
             args:
-              {{  range .Values.devicePlugin.arguments }}
+              {{- range . }}
                 - {{ . }}
-              {{ end }}
+              {{- end }}
+            {{- end }}
             resources:
               {{- toYaml .Values.devicePlugin.resources | nindent 16 }}
             {{- with .Values.devicePlugin.volumeMounts }}
@@ -48,8 +57,10 @@ spec:
         volumes:
           {{- toYaml . | nindent 12 }}
         {{- end }}
+        {{- with .Values.devicePlugin.affinity }}
         affinity:
-          {{- toYaml .Values.devicePlugin.affinity | nindent 12 }}
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
     {{- end }}
     {{- if .Values.nodeDiscovery.enabled }}
     - pluginname: {{ .Values.nodeDiscovery.name }}
@@ -74,8 +85,10 @@ spec:
             volumeMounts:
               {{- toYaml . | nindent 16 }}
             {{- end }}
+        {{- with .Values.nodeDiscovery.affinity }}
         affinity:
-          {{- toYaml .Values.nodeDiscovery.affinity | nindent 12 }}
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
         
         {{- with .Values.nodeDiscovery.tolerations }}
         tolerations:
@@ -86,5 +99,3 @@ spec:
           {{- toYaml . | nindent 12 }}
         {{- end }}
     {{- end }}
-
-
