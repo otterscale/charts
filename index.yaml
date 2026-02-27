@@ -3,6 +3,24 @@ entries:
   aidaptivcache-finetune:
   - apiVersion: v2
     appVersion: "1.0"
+    created: "2026-02-27T17:32:38.956444283Z"
+    description: A Helm chart for running AI model fine-tuning jobs
+    digest: 695f85686fa82bbdcfa454162daee16fe2651d20b82468e85e128d3d7a5169d0
+    home: https://www.phison.com/
+    icon: https://otterscale.io/phison-logo-p.svg
+    keywords:
+    - aidaptivcache
+    - finetune
+    maintainers:
+    - email: shawn_tsai@phison.com
+      name: Shawn
+    name: aidaptivcache-finetune
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/aidaptivcache-finetune-0.1.5/aidaptivcache-finetune-0.1.5.tgz
+    version: 0.1.5
+  - apiVersion: v2
+    appVersion: "1.0"
     created: "2026-01-22T08:17:23.979146204Z"
     description: A Helm chart for running AI model fine-tuning jobs
     digest: 2cc47874368af848d81026bb8743f4d5838c5342d6a02388f9f1bbfc5e3cd27b
@@ -76,6 +94,24 @@ entries:
     - https://github.com/otterscale/charts/releases/download/aidaptivcache-finetune-0.1.0/aidaptivcache-finetune-0.1.0.tgz
     version: 0.1.0
   aidaptivcache-inference:
+  - apiVersion: v2
+    appVersion: "1.0"
+    created: "2026-02-27T17:32:39.097922657Z"
+    description: A Helm chart for vLLM API inference server
+    digest: 246106e775e5053b911051dc2c901628ff10f18c79f64484838cbbdae888b592
+    home: https://www.phison.com/
+    icon: https://otterscale.io/phison-logo-p.svg
+    keywords:
+    - aidaptivcache
+    - inference
+    maintainers:
+    - email: shawn_tsai@phison.com
+      name: Shawn
+    name: aidaptivcache-inference
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/aidaptivcache-inference-0.2.2/aidaptivcache-inference-0.2.2.tgz
+    version: 0.2.2
   - apiVersion: v2
     appVersion: "1.0"
     created: "2026-02-26T07:11:11.802224301Z"
@@ -205,6 +241,29 @@ entries:
     - https://github.com/otterscale/charts/releases/download/aidaptivcache-inference-0.1.0/aidaptivcache-inference-0.1.0.tgz
     version: 0.1.0
   aidaptivcache-operator:
+  - apiVersion: v2
+    appVersion: v0.7.5
+    created: "2026-02-27T17:32:39.269917943Z"
+    description: An operator for aiDAPTIVCache
+    digest: e0e6105a0c45be0d6058279babb5faf3483c5f34c30354f26befb9f95e86f1f4
+    home: https://www.phison.com/
+    icon: https://otterscale.io/phison-logo-p.svg
+    keywords:
+    - aidaptivcache
+    - device-plugin
+    - operator
+    - finetune
+    - inference
+    - exporter
+    maintainers:
+    - name: Phison, Inc. All Rights Reserved.
+    name: aidaptivcache-operator
+    sources:
+    - https://github.com/otterscale/charts/tree/main/charts/aidaptivcache-operator
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/aidaptivcache-operator-0.4.6/aidaptivcache-operator-0.4.6.tgz
+    version: 0.4.6
   - apiVersion: v2
     appVersion: v0.7.5
     created: "2026-02-26T05:54:25.501914247Z"
@@ -1409,4 +1468,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-02-26T07:11:11.802374109Z"
+generated: "2026-02-27T17:32:39.270084607Z"
