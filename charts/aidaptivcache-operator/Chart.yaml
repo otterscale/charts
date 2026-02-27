@@ -2,18 +2,18 @@ apiVersion: v2
 appVersion: v0.7.5
 description: An operator for aiDAPTIVCache
 home: https://www.phison.com/
-icon: https://otterscale.com/phison-logo-p.svg
+icon: https://otterscale.io/phison-logo-p.svg
 keywords:
-- aidaptivcache
-- device-plugin
-- operator
-- finetune
-- inference
-- exporter
+  - aidaptivcache
+  - device-plugin
+  - operator
+  - finetune
+  - inference
+  - exporter
 maintainers:
-- name: Phison, Inc. All Rights Reserved.
+  - name: Phison, Inc. All Rights Reserved.
 name: aidaptivcache-operator
 sources:
-- https://github.com/otterscale/charts/tree/main/charts/aidaptivcache-operator
+  - https://github.com/otterscale/charts/tree/main/charts/aidaptivcache-operator
 type: application
-version: 0.4.5
+version: 0.4.6

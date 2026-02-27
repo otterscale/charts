@@ -6,9 +6,9 @@ type: application
 keywords:
   - aidaptivcache
   - finetune
-icon: https://otterscale.com/phison-logo-p.svg
-version: 0.1.4
+icon: https://otterscale.io/phison-logo-p.svg
+version: 0.1.5
 appVersion: "1.0"
 maintainers:
-- name: Shawn
-  email: shawn_tsai@phison.com
+  - name: Shawn
+    email: shawn_tsai@phison.com
