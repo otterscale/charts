@@ -1,12 +1,12 @@
 dependencies:
 - name: keycloakx
   repository: https://codecentric.github.io/helm-charts
-  version: 7.1.7
+  version: 7.1.8
 - name: valkey
   repository: https://valkey.io/valkey-helm/
   version: 0.9.3
 - name: common
   repository: oci://registry-1.docker.io/bitnamicharts
-  version: 2.31.4
-digest: sha256:78a73308e7f5d82592a9a13a9ca11c0eed2018dafe8caf7d719bcaea5b9b55a4
-generated: "2026-01-28T14:59:27.397484694+08:00"
+  version: 2.36.0
+digest: sha256:9f2efe8db210a966bf928941cbd952f018f0f6a61a21b6d2aa093c477dbd2773
+generated: "2026-02-27T17:32:53.901154513Z"
