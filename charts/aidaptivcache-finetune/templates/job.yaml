@@ -22,27 +22,94 @@ spec:
       {{- if .Values.schedulerName }}
       schedulerName: {{ .Values.schedulerName }}
       {{- end }}
-      
-      containers:
-      - name: finetune
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
-        securityContext:
-          {{- toYaml .Values.securityContext | nindent 10 }}
+      initContainers:
+      {{- if .Values.initContainer.enabled }}
+      - name: model-loader
+        image: "{{ .Values.initContainer.image.repository }}:{{ .Values.initContainer.image.tag }}"
+        imagePullPolicy: {{ .Values.initContainer.image.pullPolicy }}
         command:
         - /bin/sh
         - -c
         - |
+          cp -a {{ .Values.initContainer.modelSourcePath }}/ {{ .Values.initContainer.sharedDataPath }}/
+          echo "Model copied from {{ .Values.initContainer.modelSourcePath }} to {{ .Values.initContainer.sharedDataPath }}"
           {{- if .Values.prescript }}
 {{ .Values.prescript | indent 10 }}
           {{- end }}
+        volumeMounts:
+        - name: shared-data
+          mountPath: {{ .Values.initContainer.sharedDataPath }}
+      {{- end }}
+      {{- if and .Values.outputImage.enabled (not .Values.outputImage.crane.useImageVolume) }}
+      - name: crane-setup
+        image: {{ include "aidaptivcache-finetune.craneImage" . | quote }}
+        imagePullPolicy: IfNotPresent
+        command: ["cp", "/ko-app/crane", "/crane-bin/crane"]
+        volumeMounts:
+        - name: crane-bin
+          mountPath: /crane-bin
+      {{- end }}
+      containers:
+      - name: finetune
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command:
+        - /bin/sh
+        - -c
+        - |
+          mkdir -p {{ .Values.envConfig.pathSettings.outputDir }}
+          echo "Starting training job..."
           phisonai2 --env_config /config/env/env_config.yaml --exp_config /config/exp/exp_config.yaml
-          {{- if .Values.postscript }}
-{{ .Values.postscript | indent 10 }}
+          TRAIN_EXIT_CODE=$?
+          echo "Training finished with exit code: $TRAIN_EXIT_CODE"
+          {{- if .Values.outputImage.enabled }}
+          if [ $TRAIN_EXIT_CODE -eq 0 ]; then
+            echo "Packaging output model as OCI image..."
+            tar -cf {{ .Values.envConfig.pathSettings.outputDir }}/model-layer.tar -C {{ .Values.envConfig.pathSettings.outputDir }} .
+            {{ include "aidaptivcache-finetune.craneBin" . }} append \
+              --base {{ .Values.outputImage.baseImage }} \
+              -f {{ .Values.envConfig.pathSettings.outputDir }}/model-layer.tar \
+              {{- if .Values.outputImage.insecure }}
+              --insecure \
+              {{- end }}
+              -t {{ .Values.outputImage.repository }}:{{ .Values.outputImage.tag }}
+            PUSH_EXIT_CODE=$?
+            if [ $PUSH_EXIT_CODE -eq 0 ]; then
+              echo "Model image pushed to {{ .Values.outputImage.repository }}:{{ .Values.outputImage.tag }}"
+            else
+              echo "Failed to push model image (exit code: $PUSH_EXIT_CODE)"
+              exit $PUSH_EXIT_CODE
+            fi
+            rm -f {{ .Values.envConfig.pathSettings.outputDir }}/model-layer.tar
+          fi
           {{- end }}
+          exit $TRAIN_EXIT_CODE
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
         volumeMounts:
+        {{- if .Values.modelImage.enabled }}
+        - name: model-volume
+          mountPath: {{ .Values.modelImage.mountPath }}
+          readOnly: true
+        {{- end }}
+        {{- if .Values.initContainer.enabled }}
+        - name: shared-data
+          mountPath: {{ .Values.initContainer.sharedDataPath }}
+        {{- end }}
+        {{- if .Values.outputImage.enabled }}
+        - name: crane-bin
+          {{- if .Values.outputImage.crane.useImageVolume }}
+          mountPath: /opt/crane
+          {{- else }}
+          mountPath: /crane-bin
+          {{- end }}
+          readOnly: true
+        {{- end }}
+        {{- if .Values.outputImage.pushSecret }}
+        - name: docker-config
+          mountPath: /root/.docker
+          readOnly: true
+        {{- end }}
         - name: env-config
           mountPath: /config/env
           readOnly: true
@@ -53,6 +120,34 @@ spec:
           mountPath: /config/train_data
           readOnly: true
       volumes:
+      {{- if .Values.modelImage.enabled }}
+      - name: model-volume
+        image:
+          reference: {{ .Values.modelImage.reference | quote }}
+          pullPolicy: {{ .Values.modelImage.pullPolicy }}
+      {{- end }}
+      {{- if .Values.initContainer.enabled }}
+      - name: shared-data
+        emptyDir: {}
+      {{- end }}
+      {{- if .Values.outputImage.enabled }}
+      - name: crane-bin
+        {{- if .Values.outputImage.crane.useImageVolume }}
+        image:
+          reference: {{ include "aidaptivcache-finetune.craneImage" . | quote }}
+          pullPolicy: IfNotPresent
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
+      {{- end }}
+      {{- if .Values.outputImage.pushSecret }}
+      - name: docker-config
+        secret:
+          secretName: {{ .Values.outputImage.pushSecret }}
+          items:
+          - key: .dockerconfigjson
+            path: config.json
+      {{- end }}
       - name: env-config
         configMap:
           name: {{ include "aidaptivcache-finetune.fullname" . }}-env-config

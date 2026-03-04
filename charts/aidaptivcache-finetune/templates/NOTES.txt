@@ -1,0 +1,27 @@
+🚀 {{ .Chart.Name }} has been deployed!
+
+Job: {{ include "aidaptivcache-finetune.fullname" . }}
+
+📦 Training Image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+{{- if .Values.initContainer.enabled }}
+📂 Model Source:   {{ .Values.initContainer.image.repository }}:{{ .Values.initContainer.image.tag }} ({{ .Values.initContainer.modelSourcePath }})
+{{- end }}
+{{- if .Values.modelImage.enabled }}
+📂 Model Volume:   {{ .Values.modelImage.reference }} → {{ .Values.modelImage.mountPath }}
+{{- end }}
+📁 Output Dir:     {{ .Values.envConfig.pathSettings.outputDir }}
+{{- if .Values.outputImage.enabled }}
+📤 Output Image:   {{ .Values.outputImage.repository }}:{{ .Values.outputImage.tag }}
+{{- end }}
+
+Monitor the job:
+
+  kubectl get job {{ include "aidaptivcache-finetune.fullname" . }} -n {{ .Release.Namespace }}
+
+Watch logs:
+
+  kubectl logs -f job/{{ include "aidaptivcache-finetune.fullname" . }} -n {{ .Release.Namespace }}
+{{- if .Values.job.ttlSecondsAfterFinished }}
+
+⏱ The job will be automatically cleaned up {{ .Values.job.ttlSecondsAfterFinished }}s after completion.
+{{- end }}

@@ -46,5 +46,4 @@ Selector labels
 {{- define "aidaptivcache-inference.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "aidaptivcache-inference.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app: {{ .Values.deployment.name }}
 {{- end }}

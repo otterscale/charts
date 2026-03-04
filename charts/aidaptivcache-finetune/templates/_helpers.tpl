@@ -47,3 +47,29 @@ Selector labels
 app.kubernetes.io/name: {{ include "aidaptivcache-finetune.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{/*
+Crane OCI image reference.
+  imageVolume  → distroless (latest)
+  initContainer → debug (includes busybox for cp)
+*/}}
+{{- define "aidaptivcache-finetune.craneImage" -}}
+{{- if .Values.outputImage.crane.image -}}
+  {{- .Values.outputImage.crane.image -}}
+{{- else if .Values.outputImage.crane.useImageVolume -}}
+  gcr.io/go-containerregistry/crane:latest
+{{- else -}}
+  gcr.io/go-containerregistry/crane:debug
+{{- end -}}
+{{- end }}
+
+{{/*
+Path to the crane binary inside the main container.
+*/}}
+{{- define "aidaptivcache-finetune.craneBin" -}}
+{{- if .Values.outputImage.crane.useImageVolume -}}
+/opt/crane/ko-app/crane
+{{- else -}}
+/crane-bin/crane
+{{- end -}}
+{{- end }}
