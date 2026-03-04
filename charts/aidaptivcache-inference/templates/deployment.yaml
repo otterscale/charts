@@ -23,15 +23,15 @@ spec:
       {{- end }}
       {{- if .Values.initContainer.enabled }}
       initContainers:
-      - name: prescript
+      - name: model-loader
         image: "{{ .Values.initContainer.image.repository }}:{{ .Values.initContainer.image.tag }}"
         imagePullPolicy: {{ .Values.initContainer.image.pullPolicy }}
-        securityContext:
-          privileged: true
         command:
         - /bin/sh
         - -c
         - |
+          cp -a {{ .Values.initContainer.modelSourcePath }}/ {{ .Values.initContainer.sharedDataPath }}/
+          echo "Model copied from {{ .Values.initContainer.modelSourcePath }} to {{ .Values.initContainer.sharedDataPath }}"
           {{- if .Values.prescript }}
 {{ .Values.prescript | indent 10 }}
           {{- end }}
@@ -55,8 +55,10 @@ spec:
           value: {{ .Values.vllm.env.vllmUseV1 | quote }}
         - name: VLLM_WORKER_MULTIPROC_METHOD
           value: {{ .Values.vllm.env.vllmWorkerMultiprocMethod | quote }}
+        {{- if .Values.vllm.env.tiktokenEncodingsBase }}
         - name: TIKTOKEN_ENCODINGS_BASE
           value: {{ .Values.vllm.env.tiktokenEncodingsBase | quote }}
+        {{- end }}
         command:
         - /bin/sh
         - -c
@@ -67,7 +69,7 @@ spec:
           python3 vllm_api_server.py \
           --model {{ .Values.vllm.args.model }} \
           --nvme_path {{ .Values.vllm.args.nvmePath }} \
-          --port {{ .Values.vllm.args.port }} \
+          --port {{ .Values.service.targetPort }} \
           --gpu-memory-utilization {{ .Values.vllm.args.gpuMemoryUtilization }} \
           --max-model-len {{ .Values.vllm.args.maxModelLen }} \
           --tensor-parallel-size {{ .Values.vllm.args.tensorParallelSize }} \
@@ -105,15 +107,18 @@ spec:
           --lora-modules {{ .Values.vllm.lora.modules }} \
           --max-lora-rank {{ .Values.vllm.lora.maxRank }} \
           {{- end }}
-          {{- if .Values.postscript }}
-{{ .Values.postscript | indent 10 }}
-          {{- end }}
+
         ports:
         - containerPort: {{ .Values.service.targetPort }}
           name: http
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
         volumeMounts:
+        {{- if .Values.modelImage.enabled }}
+        - name: model-volume
+          mountPath: {{ .Values.modelImage.mountPath }}
+          readOnly: true
+        {{- end }}
         {{- if .Values.initContainer.enabled }}
         - name: shared-data
           mountPath: {{ .Values.initContainer.sharedDataPath }}
@@ -130,6 +135,12 @@ spec:
           {{- end }}
         {{- end }}
       volumes:
+      {{- if .Values.modelImage.enabled }}
+      - name: model-volume
+        image:
+          reference: {{ .Values.modelImage.reference | quote }}
+          pullPolicy: {{ .Values.modelImage.pullPolicy }}
+      {{- end }}
       {{- if .Values.initContainer.enabled }}
       - name: shared-data
         emptyDir: {}

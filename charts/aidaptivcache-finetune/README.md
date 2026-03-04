@@ -1,20 +1,22 @@
 # aiDAPTIVCache Finetune Helm Chart
 
-This Helm chart enables efficient fine-tuning of Large Language Models (LLMs) using aiDAPTIVCache within Kubernetes clusters.
+This Helm chart runs LLM fine-tuning jobs using aiDAPTIV Cache within Kubernetes clusters. After training, the finetuned model is automatically packaged as an OCI image and pushed to a registry.
 
 ## Features
 
 - Kubernetes Job-based model fine-tuning
 - Distributed training support (Multi-GPU)
 - LoRA fine-tuning support
-- ConfigMap-based configuration management
-- Customizable pre/post execution scripts
-- Flexible resource allocation (vGPU, memory)
+- ConfigMap-based configuration management (env, exp, trainData)
+- InitContainer-based model loading (same pattern as aidaptivcache-inference)
+- **Automatic OCI image push** of finetuned model output via `crane`
 - Automatic job cleanup with TTL
 
 ## Prerequisites
 
-**Required**: Before using this chart, you must install the **aiDAPTIVCache Operator** to enable Kubernetes to recognize and allocate Phison aiDAPTIVCache devices (`phison.com/ai100`).
+- **aiDAPTIVCache Operator**: Must be installed to enable `phison.com/ai100` device allocation.
+- **Model OCI image**: Base model packaged as an OCI image with a shell (e.g., `FROM busybox`).
+- **Registry access**: If `outputImage.enabled`, the pod must be able to push to the target registry.
 
 ## Installation
 
@@ -22,177 +24,163 @@ This Helm chart enables efficient fine-tuning of Large Language Models (LLMs) us
 helm install ft1 ./aidaptivcache-finetune -f custom-values.yaml
 ```
 
-## Configuration
+## Architecture
 
-### Image Configuration
-
-```yaml
-image:
-  repository: docker.io/library/aidaptiv
-  tag: vNXUN_2_05BA0
-  pullPolicy: IfNotPresent
+```
+Pod
+├── initContainers
+│   ├── model-loader     # Copies base model from OCI image → emptyDir
+│   └── crane-setup      # Copies crane binary → tools volume
+└── containers
+    └── finetune          # Runs phisonai2 training, then pushes output as OCI image
 ```
 
-- `repository`: Container image address
-- `tag`: Image version tag
-- `pullPolicy`: Image pull policy (IfNotPresent/Always/Never)
+**Volumes:**
+
+| Volume | Type | Purpose |
+|--------|------|---------|
+| `shared-data` | emptyDir | Base model (input) + training output |
+| `tools` | emptyDir | `crane` binary for OCI push |
+| `docker-config` | Secret | Registry credentials (optional) |
+| `env-config` | ConfigMap | phisonai2 environment config |
+| `exp-config` | ConfigMap | phisonai2 experiment config |
+| `train-data-config` | ConfigMap | Training data config |
+
+## Configuration
+
+### Model Loading (initContainer)
+
+Same pattern as `aidaptivcache-inference` — the base model is packaged in an OCI image and copied into an emptyDir via initContainer.
+
+```yaml
+initContainer:
+  enabled: true
+  image:
+    repository: docker.io/library/tinyllama-1.1b
+    tag: latest
+    pullPolicy: IfNotPresent
+  modelSourcePath: /model
+  sharedDataPath: /data
+```
+
+| Parameter | Description |
+|-----------|-------------|
+| `image.*` | OCI image containing the base model (must include a shell) |
+| `modelSourcePath` | Path of the model inside the image |
+| `sharedDataPath` | emptyDir mount path (shared with main container) |
+
+`envConfig.pathSettings.modelNameOrPath` must match where the model lands after copy.
+
+### Output Model OCI Push
+
+After training completes successfully, the finetuned model at `envConfig.pathSettings.outputDir` is packaged as an OCI image and pushed to a registry using `crane`.
+
+```yaml
+outputImage:
+  enabled: true
+  repository: "registry.example.com/models/finetuned-model"
+  tag: "latest"
+  baseImage: "busybox:latest"
+  crane:
+    repository: gcr.io/go-containerregistry/crane
+    tag: latest
+  pushSecret: ""
+```
+
+| Parameter | Description |
+|-----------|-------------|
+| `repository` | Target OCI registry and repository |
+| `tag` | Image tag for the finetuned model |
+| `baseImage` | Base image layer (use `busybox:latest` so the output image is usable as an initContainer) |
+| `crane.*` | Crane image for OCI operations |
+| `pushSecret` | Name of a `kubernetes.io/dockerconfigjson` Secret for registry auth |
+
+The output image can be directly used as the `initContainer.image` in `aidaptivcache-inference` to serve the finetuned model.
+
+**Creating a push secret:**
+
+```bash
+kubectl create secret docker-registry my-registry-cred \
+  --docker-server=registry.example.com \
+  --docker-username=<user> \
+  --docker-password=<password>
+```
+
+Then set `outputImage.pushSecret: "my-registry-cred"`.
 
 ### Job Configuration
 
 ```yaml
 job:
-  name: finetune-job
   backoffLimit: 1
   restartPolicy: Never
   ttlSecondsAfterFinished: 60
 ```
 
-- `name`: Kubernetes Job name
-- `backoffLimit`: Number of retry attempts on failure
-- `restartPolicy`: Restart policy (Never/OnFailure)
-- `ttlSecondsAfterFinished`: Time to retain Job after completion (seconds)
-
-### Scheduler Configuration
-
-```yaml
-schedulerName: "hami-scheduler"
-```
-
-- `schedulerName`: Kubernetes scheduler name (optional, set to empty string to use default scheduler)
-
-### Training Configuration
-
-#### Experiment Configuration (expConfig)
-
-**Process Settings**:
-
-```yaml
-expConfig:
-  processSettings:
-    numGpus: 1                    # Number of GPUs to use
-    specifyGpus: null             # Specific GPU IDs (e.g., "0,1,2,3")
-    masterPort: 8299              # Master port for distributed training
-    multiNodeSettings:
-      enable: false               # Enable multi-node training
-      masterAddr: "127.0.0.1"     # Master node address
-```
-
-**Run Settings**:
-
-```yaml
-expConfig:
-  runSettings:
-    taskType: "text-generation"        # Task type
-    taskMode: "train"                  # Mode: train/eval/inference
-    perDeviceTrainBatchSize: 4         # Batch size per device
-    perUpdateTotalBatchSize: 16        # Total batch size (gradient accumulation)
-    numTrainEpochs: 1                  # Number of training epochs
-    maxIter: 12                        # Maximum iterations
-    maxSeqLen: 2048                    # Maximum sequence length
-    triton: true                       # Enable Triton optimization
-    precisionMode: 1                   # Precision mode (0: FP32, 1: Mixed)
-```
-
-**LoRA Settings**:
-
-```yaml
-expConfig:
-  runSettings:
-    lora:
-      enableLora: false              # Enable LoRA fine-tuning
-      loraRank: 8                    # LoRA rank
-      loraAlpha: 16                  # LoRA alpha parameter
-      loraTaskType: "CAUSAL_LM"      # Task type for LoRA
-      loraTargetModules: null        # Target modules (null for auto)
-```
-
-**Learning Rate and Optimizer**:
-
-```yaml
-expConfig:
-  runSettings:
-    lrScheduler:
-      mode: 1                        # LR scheduler mode
-      learningRate: 0.000007         # Learning rate
-    
-    optimizer:
-      beta1: 0.9                     # Adam beta1
-      beta2: 0.95                    # Adam beta2
-      eps: 0.00000001                # Epsilon
-      weightDecay: 0.01              # Weight decay
-```
-
-#### Environment Configuration (envConfig)
+### Environment Configuration (envConfig)
 
 ```yaml
 envConfig:
   pathSettings:
-    modelNameOrPath: "/mnt/data/models/TinyLlama-1.1B-Chat-v1.0"  # Model input path
-    nvmePath: "/mnt/nvme0"                                        # NVMe cache path
-    outputDir: "/mnt/data/output"                                 # Training output path
-    trainDataPath:                                                # Training data config
+    modelNameOrPath: "/data/model"
+    nvmePath: "/mnt/nvme0"
+    outputDir: "/data/output"
+    trainDataPath:
       - /config/train_data/QA_dataset_config.yaml
-    logName: "output.log"                                         # Log file name
+    logName: "output.log"
 ```
 
-**Key Path Explanations**:
-- `modelNameOrPath`: Path to the pre-trained model (container path)
-- `outputDir`: Where fine-tuned model weights will be saved (must be on NFS for persistence)
-- `nvmePath`: NVMe device path for temporary storage and cache
-- `trainDataPath`: Path to training data configuration file(s)
+| Parameter | Description |
+|-----------|-------------|
+| `modelNameOrPath` | Base model path (must be under `initContainer.sharedDataPath`) |
+| `outputDir` | Training output directory (source for OCI push) |
+| `nvmePath` | NVMe device path for temporary storage |
+| `trainDataPath` | Paths to training data config YAML files |
 
-#### Training Data Configuration (trainDataConfig)
+### Experiment Configuration (expConfig)
+
+```yaml
+expConfig:
+  processSettings:
+    numGpus: 1
+    masterPort: 8299
+    multiNodeSettings:
+      enable: false
+
+  runSettings:
+    taskType: "text-generation"
+    taskMode: "train"
+    perDeviceTrainBatchSize: 4
+    perUpdateTotalBatchSize: 16
+    numTrainEpochs: 1
+    maxIter: 12
+    maxSeqLen: 2048
+    triton: true
+    precisionMode: 1
+
+    lrScheduler:
+      mode: 1
+      learningRate: 0.000007
+
+    lora:
+      enableLora: false
+      loraRank: 8
+      loraAlpha: 16
+```
+
+### Training Data Configuration
 
 ```yaml
 trainDataConfig: |
   instruction-dataset:
-    data_path: "HuggingFaceH4/instruction-dataset"  # HuggingFace dataset or local path
-    strategy: "QA"                                  # Data strategy (QA/Chat)
-    system_prompt: "A chat between a curious user and an artificial intelligence assistant."
-    user_prompt: "{question}"                       # User prompt template
-    question_key: "prompt"                          # Column name for questions
-    answer_key: "completion"                        # Column name for answers
-    exp_type: train                                 # Experiment type: train/eval/inference
-    label_key: "completion"                         # Label column (same as answer_key)
-```
-
-### NFS Mount Configuration
-
-Configure `prescript` to mount NFS storage for model access and output storage:
-
-```yaml
-prescript: |
-  apt install -y nfs-common
-  echo "Starting NFS mount process..."
-  mkdir -p /mnt/data
-  TIMEOUT=300
-  ELAPSED=0
-  while [ $ELAPSED -lt $TIMEOUT ]; do
-    echo "Attempting to mount NFS to /mnt/data"
-    mount -t nfs4 -o nfsvers=4.1 -v 10.102.197.0:/volumes/_nogroup/your-nfs-path /mnt/data
-    if mountpoint -q /mnt/data; then
-      echo "NFS mount successful!"
-      break
-    else
-      echo "Mount failed, retrying in 5 seconds... (${ELAPSED}s/${TIMEOUT}s)"
-      sleep 5
-      ELAPSED=$((ELAPSED + 5))
-    fi
-  done
-  if [ $ELAPSED -ge $TIMEOUT ]; then
-    echo "NFS mount timeout after ${TIMEOUT} seconds. Exiting..."
-    exit 1
-  fi
-```
-
-Replace `10.102.197.0:/volumes/_nogroup/your-nfs-path` with your actual NFS server address.
-
-**Optional Post-execution Script**:
-
-```yaml
-postscript: |
-  echo "Training job completed"
-  echo "Model saved to: $outputDir"
+    data_path: "HuggingFaceH4/instruction-dataset"
+    strategy: "QA"
+    system_prompt: "A chat between a curious user and an AI assistant."
+    user_prompt: "{question}"
+    question_key: "prompt"
+    answer_key: "completion"
+    exp_type: train
+    label_key: "completion"
 ```
 
 ### Resource Configuration
@@ -209,98 +197,39 @@ resources:
     phison.com/ai100: 1
 ```
 
-- `otterscale.com/vgpu`: vGPU count
-- `otterscale.com/vgpumem-percentage`: vGPU memory percentage (0-100)
-- `phison.com/ai100`: Phison aiDAPTIVCache accelerator count
-
 ## Usage Examples
 
-### Basic Fine-tuning Job
+### Basic Finetune with Output Push
 
 ```yaml
-image:
-  repository: docker.io/library/aidaptiv
-  tag: vNXUN_2_05BA0
-  pullPolicy: IfNotPresent
+initContainer:
+  enabled: true
+  image:
+    repository: registry.example.com/models/tinyllama-1.1b
+    tag: v1
+  modelSourcePath: /model
+  sharedDataPath: /data
 
-job:
-  name: finetune-llama-job
-  backoffLimit: 1
-  restartPolicy: Never
-  ttlSecondsAfterFinished: 60
-
-schedulerName: "hami-scheduler"
-
-securityContext:
-  privileged: true
-
-# NFS Mount Script (Required)
-prescript: |
-  apt install -y nfs-common
-  echo "Starting NFS mount process..."
-  mkdir -p /mnt/data
-  TIMEOUT=300
-  ELAPSED=0
-  while [ $ELAPSED -lt $TIMEOUT ]; do
-    echo "Attempting to mount NFS to /mnt/data"
-    mount -t nfs4 -o nfsvers=4.1 -v 10.102.197.0:/volumes/_nogroup/my-nfs-path /mnt/data
-    if mountpoint -q /mnt/data; then
-      echo "NFS mount successful!"
-      break
-    else
-      echo "Mount failed, retrying in 5 seconds... (${ELAPSED}s/${TIMEOUT}s)"
-      sleep 5
-      ELAPSED=$((ELAPSED + 5))
-    fi
-  done
-  if [ $ELAPSED -ge $TIMEOUT ]; then
-    echo "NFS mount timeout after ${TIMEOUT} seconds. Exiting..."
-    exit 1
-  fi
+outputImage:
+  enabled: true
+  repository: "registry.example.com/models/tinyllama-finetuned"
+  tag: "v1"
+  pushSecret: "my-registry-cred"
 
 envConfig:
   pathSettings:
-    modelNameOrPath: "/mnt/data/models/TinyLlama-1.1B-Chat-v1.0"
+    modelNameOrPath: "/data/model"
+    outputDir: "/data/output"
     nvmePath: "/mnt/nvme0"
-    outputDir: "/mnt/data/output"
     trainDataPath:
       - /config/train_data/QA_dataset_config.yaml
-    logName: "finetune_output.log"
+    logName: "output.log"
 
 expConfig:
-  processSettings:
-    numGpus: 1
-    masterPort: 8299
-    multiNodeSettings:
-      enable: false
-  
   runSettings:
-    taskType: "text-generation"
-    taskMode: "train"
-    perDeviceTrainBatchSize: 4
-    perUpdateTotalBatchSize: 16
-    numTrainEpochs: 1
+    numTrainEpochs: 3
     maxIter: 100
     maxSeqLen: 2048
-    triton: true
-    
-    lrScheduler:
-      mode: 1
-      learningRate: 0.000007
-    
-    lora:
-      enableLora: false
-
-trainDataConfig: |
-  instruction-dataset:
-    data_path: "HuggingFaceH4/instruction-dataset"
-    strategy: "QA"
-    system_prompt: "A chat between a curious user and an artificial intelligence assistant."
-    user_prompt: "{question}"
-    question_key: "prompt"
-    answer_key: "completion"
-    exp_type: train
-    label_key: "completion"
 
 resources:
   requests:
@@ -313,7 +242,7 @@ resources:
     phison.com/ai100: 1
 ```
 
-### LoRA Fine-tuning
+### LoRA Finetune
 
 ```yaml
 expConfig:
@@ -323,12 +252,6 @@ expConfig:
       loraRank: 8
       loraAlpha: 16
       loraTaskType: "CAUSAL_LM"
-      loraTargetModules: null
-
-envConfig:
-  pathSettings:
-    lora:
-      loraWeight: ""  # Leave empty for new LoRA training
 ```
 
 ### Multi-GPU Training
@@ -348,61 +271,46 @@ resources:
     phison.com/ai100: 2
 ```
 
-## Installation
+### End-to-End Workflow: Finetune → Inference
+
+1. **Build base model image:**
+
+```dockerfile
+FROM busybox:1.37
+COPY ./TinyLlama-1.1B-Chat-v1.0/ /model/
+```
 
 ```bash
-# Install with custom configuration
-helm install ft1 ./aidaptivcache-finetune -f custom-values.yaml
+docker build -t registry.example.com/models/tinyllama-1.1b:v1 .
+docker push registry.example.com/models/tinyllama-1.1b:v1
+```
 
-# Install in a specific namespace
-helm install ft1 ./aidaptivcache-finetune -f custom-values.yaml -n finetune-ns
+2. **Run finetune Job** with `outputImage` pushing to `registry.example.com/models/tinyllama-finetuned:v1`
+
+3. **Deploy inference** using the finetuned model:
+
+```yaml
+# aidaptivcache-inference values
+initContainer:
+  enabled: true
+  image:
+    repository: registry.example.com/models/tinyllama-finetuned
+    tag: v1
+  modelSourcePath: /
+  sharedDataPath: /data
+
+vllm:
+  args:
+    model: /data/
 ```
 
 ## Monitoring
 
-### Check Job Status
-
 ```bash
-# View Job status
 kubectl get jobs
-
-# View Pod status
 kubectl get pods
-
-# View Pod logs
 kubectl logs -f job/<job-name>
 ```
-
-### Retrieve Fine-tuned Model
-
-After training completes, the fine-tuned model will be saved in the path specified by `outputDir`:
-
-```bash
-# Access via the same NFS mount used during training
-# Mount the NFS on your local machine or a node
-mount -t nfs4 10.102.197.0:/volumes/_nogroup/your-nfs-path /mnt/nfs
-ls /mnt/nfs/output/
-```
-
-## Troubleshooting
-
-### Job Fails to Start
-
-- Check if aiDAPTIVCache Operator is installed
-- Verify resource availability (vGPU, phison.com/ai100)
-- Check NFS mount configuration and accessibility
-
-### NFS Mount Fails
-
-- Verify NFS server address is correct
-- Check network connectivity from cluster to NFS server
-- Ensure NFS server allows connections from cluster nodes
-
-### Out of Memory Errors
-
-- Reduce `perDeviceTrainBatchSize`
-- Reduce `maxSeqLen`
-- Increase `otterscale.com/vgpumem-percentage`
 
 ## Uninstall
 

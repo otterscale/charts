@@ -5,135 +5,98 @@ image:
 
 imagePullSecrets: []
 
-schedulerName: "hami-scheduler"
+# Model image volume (OCI image as volume - requires Kubernetes 1.31+ with ImageVolume feature gate)
+# Uncomment and enable when your cluster supports ImageVolume (Kubernetes 1.31+).
+modelImage:
+  enabled: false
+  reference: "docker.io/library/llama3.1-8b-instruct:latest"
+  pullPolicy: IfNotPresent
+  mountPath: /data/model
 
-# Init container configuration
+# Init container: copies model from the model image into a shared emptyDir volume.
+# Build your model image with a shell (e.g., FROM busybox), then set the image reference here.
 initContainer:
   enabled: true
   image:
-    repository: ubuntu
-    tag: 24.04
+    repository: docker.io/library/llama3.1-8b-instruct
+    tag: latest
     pullPolicy: IfNotPresent
+  modelSourcePath: /model
   sharedDataPath: /data
 
-# Deployment configuration
 deployment:
   replicas: 1
 
-# vLLM server configuration
 vllm:
-  # Environment variables
   env:
     vllmUseV1: "1"
     vllmWorkerMultiprocMethod: "spawn"
-    tiktokenEncodingsBase: ""
-  
-  # Command line arguments
+    # tiktokenEncodingsBase: "https://example.com/encodings/"
+
   args:
-    model: /data/model/Meta-Llama-3.1-8B-Instruct/
+    model: /data/model/
     nvmePath: /mnt/nvme0
-    port: 8000
     gpuMemoryUtilization: 0.9
     maxModelLen: 8192
     tensorParallelSize: 1
     dramKVOffloadGb: 0
     ssdKVOffloadGb: 500
     noResumeKVCache: true
-    disableGpuReuse: false
+    disableGpuReuse: true
     enableChunkedPrefill: true
-    # Optional flags (commented out by default)
     # disableLongToken: true
     # resumeKVCache: true
     # cleanObsoleteKVCache: true
     # enablePrefixCaching: true
     # enforceEager: true
     # disableKVCache: true
-  
-  # LoRA configuration (all three parameters must be set together)
-  lora:
-    enable: false  # Set to true to enable LoRA
-    modules: ""  # Example: "lora=/app/llama3.1-8B-lora/" (required if enable is true)
-    maxRank: 32  # Maximum LoRA rank (required if enable is true)
 
-  # Sleep duration (in seconds) before starting the vLLM server
-  # Set to 0 to disable sleep
-  waiting: 0
-# Service configuration
+  lora:
+    enable: false
+    modules: ""
+    maxRank: 32
+
+  # Seconds to sleep before starting vLLM (0 = disabled)
+  waiting: 36000
+
 service:
   type: NodePort
   port: 8000
   targetPort: 8000
-  # Optional: uncomment to set a specific nodePort
   # nodePort: 30299
 
-# Volume configuration
 volumes:
   dshm:
     enabled: true
     sizeLimit: 16Gi
   pvc:
-    # Set to true to enable mounting an existing PersistentVolumeClaim
     enabled: false
-    # Name of an existing PVC to mount into the pod
     claimName: ""
-    # Path inside the container where the PVC will be mounted
     mountPath: /mnt/data
-    # Mount readOnly if desired
     readOnly: false
 
-# Pre-execution script (runs before main command)
-prescript: |
-  echo "Start"
-#  apt update
-#  apt install -y nfs-common
-#  echo "Starting NFS mount process..."
-#  mkdir -p /mnt/data
-#  TIMEOUT=300
-#  ELAPSED=0
-#  while [ $ELAPSED -lt $TIMEOUT ]; do
-#    echo "Attempting to mount NFS: <NFS_SERVER> to /mnt/data"
-#    mount -t nfs4 -o nfsvers=4.1 -v <NFS_SERVER> /mnt/data
-#    if mountpoint -q /mnt/data; then
-#      echo "NFS mount successful!"
-#      break
-#    else
-#      echo "Mount failed, retrying in 5 seconds... (${ELAPSED}s/${TIMEOUT}s)"
-#      sleep 5
-#      ELAPSED=$((ELAPSED + 5))
-#    fi
-#  done
-#  if [ $ELAPSED -ge $TIMEOUT ]; then
-#    echo "NFS mount timeout after ${TIMEOUT} seconds. Exiting..."
-#    exit 1
-#  fi
-#  cp -rf /mnt/data/model/Meta-Llama-3.1-8B-Instruct /data
+# Extra commands to run in initContainer after model copy (requires initContainer.enabled: true)
+prescript: ""
 
-# Post-execution script (runs after main command)
-#postscript: |
-#  echo "Server stopped"
+resources: {}
+#resources:
+#  requests:
+#    cpu: 1
+#    memory: 2Gi
+#    otterscale.com/vgpu: 1
+#    otterscale.com/vgpumem: 2048
+#    #otterscale.com/vgpumem-percentage: 60
+#    phison.com/ai100: 1
+#  limits:
+#    cpu: 1
+#    memory: 2Gi
+#    otterscale.com/vgpu: 1
+#    otterscale.com/vgpumem: 2048
+#    #otterscale.com/vgpumem-percentage: 60
+#    phison.com/ai100: 1
 
-# Resource requests and limits
-resources:
-  requests:
-    #cpu: 1
-    #memory: 2Gi
-    otterscale.com/vgpu: 1
-    #otterscale.com/vgpumem: 2048
-    otterscale.com/vgpumem-percentage: 60
-    phison.com/ai100: 1
-  limits:
-    #cpu: 1
-    #memory: 2Gi
-    otterscale.com/vgpu: 1
-    #otterscale.com/vgpumem: 2048
-    otterscale.com/vgpumem-percentage: 60
-    phison.com/ai100: 1
-
-# Node selector for GPU nodes
 nodeSelector: {}
 
-# Tolerations for GPU taints
 tolerations: []
 
-# Affinity rules
 affinity: {}
