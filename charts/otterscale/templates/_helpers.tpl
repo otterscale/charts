@@ -120,7 +120,7 @@ Caches the value in .Values._cache to ensure consistency across all templates
 {{- end -}}
 
 {{/*
-Harbor external URL (same as OtterScale base URL — Harbor adds /harbor/ internally)
+Harbor external URL (same as OtterScale base URL)
 */}}
 {{- define "otterscale.harbor.externalURL" -}}
 {{- if .Values.harbor.externalURL -}}
@@ -131,8 +131,12 @@ Harbor external URL (same as OtterScale base URL — Harbor adds /harbor/ intern
 {{- end -}}
 
 {{/*
-Harbor ClusterIP service name (matches expose.clusterIP.name in Harbor chart)
+Harbor ClusterIP / NodePort service name (matches expose.*.name in Harbor chart)
 */}}
 {{- define "otterscale.harbor.serviceName" -}}
-{{- .Values.harbor.expose.clusterIP.name | default "harbor" -}}
+{{- if eq (toString .Values.harbor.expose.type) "nodePort" -}}
+  {{- .Values.harbor.expose.nodePort.name | default "harbor" -}}
+{{- else -}}
+  {{- .Values.harbor.expose.clusterIP.name | default "harbor" -}}
+{{- end -}}
 {{- end -}}

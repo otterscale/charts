@@ -111,7 +111,7 @@ keycloakx:
 
   extraInitContainers: |
     - name: theme-provider
-      image: ghcr.io/otterscale/keycloakify:1.0.6
+      image: ghcr.io/otterscale/keycloakify:1.2.1
       imagePullPolicy: IfNotPresent
       command:
         - sh
@@ -171,36 +171,33 @@ configContent: |
 # -----------------------------------------------------------------------------
 # Harbor Configuration (Container Registry)
 # -----------------------------------------------------------------------------
-# Harbor is accessed at <externalIP>/harbor/ via Istio pass-through routing.
-# Harbor's native paths (/harbor/, /api/v2.0/, /c/, /v2/, etc.) are passed
-# directly to the Harbor service without URI rewrite.
+# Harbor is exposed via NodePort (HTTP 32180) — no Istio routing needed.
+# Docker push/pull:
+#   docker login <externalIP>:32180
 #
-# Docker push/pull also works via the same IP:
-#   docker login <externalIP>
-#
-# harbor.externalURL defaults to the same base URL as OtterScale (scheme://externalIP).
-# Override only if Harbor needs a different base URL.
+# harbor.externalURL must match the actual browser URL (scheme://IP:nodePort).
 # -----------------------------------------------------------------------------
 harbor:
   enabled: true
-  # Base URL for Harbor (defaults to otterscale externalURL, e.g. http://<externalIP>)
-  # Harbor internally appends /harbor/ for the UI.
-  # IMPORTANT: Must match the actual browser URL scheme (http/https).
+  # Base URL for Harbor as seen from the browser.
+  # IMPORTANT: Must match the actual browser URL scheme and port.
   # If set to https:// but accessed via http://, CSRF cookies will be rejected.
-  externalURL: "http://127.0.0.1/harbor/"
+  externalURL: "http://127.0.0.1:32180"
 
   # Harbor admin password (change after first login)
   harborAdminPassword: "Harbor12345"
 
-  # Expose via ClusterIP — Istio handles external ingress
+  # Expose via NodePort — accessed directly without Istio
   expose:
-    type: clusterIP
+    type: nodePort
     tls:
       enabled: false
-    clusterIP:
+    nodePort:
       name: harbor
       ports:
-        httpPort: 80
+        http:
+          port: 80
+          nodePort: 32180
 
   ipFamily:
     ipv6:
@@ -212,7 +209,7 @@ harbor:
     persistentVolumeClaim:
       registry:
         storageClass: "microk8s-hostpath"
-        size: 50Gi
+        size: 100Gi
       database:
         storageClass: "microk8s-hostpath"
         size: 5Gi
