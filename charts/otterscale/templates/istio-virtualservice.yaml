@@ -24,6 +24,7 @@ spec:
         request:
           set:
             X-Forwarded-Proto: {{ if and .Values.istio.gateway .Values.istio.gateway.tls .Values.istio.gateway.tls.enabled }}"https"{{ else }}"http"{{ end }}
+    # ---- OtterScale routes ----
     - match:
       - uri:
           prefix: /api/

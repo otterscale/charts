@@ -1,8 +1,8 @@
 apiVersion: v2
 name: otterscale
 # renovate: github=otterscale/otterscale
-appVersion: v0.7.1
-version: 0.3.0-alpha.4
+appVersion: v0.7.4
+version: 0.7.4
 description: OtterScale - A unified platform for simplified compute, storage, and networking
 home: https://otterscale.github.io
 icon: https://github.com/otterscale.png
@@ -25,6 +25,10 @@ dependencies:
     repository: "https://valkey.io/valkey-helm/"
     name: valkey
     version: 0.9.3
+  - condition: harbor.enabled
+    repository: "https://helm.goharbor.io"
+    name: harbor
+    version: 1.18.2
   - name: common
     repository: oci://registry-1.docker.io/bitnamicharts
     tags:

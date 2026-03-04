@@ -1,0 +1,84 @@
+{{- if and .Values.harbor.enabled .Values.keycloakx.enabled .Values.harbor.oidc.enabled }}
+# -----------------------------------------------------------------------
+# Post-install Job: Configure Harbor OIDC authentication via Harbor API
+# This avoids the limitation of not being able to template subchart values.
+# -----------------------------------------------------------------------
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "otterscale.fullname" . }}-harbor-oidc-setup
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 6
+  template:
+    metadata:
+      labels:
+        {{- include "otterscale.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: harbor-oidc-setup
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: harbor-oidc-setup
+          image: curlimages/curl:8.7.1
+          env:
+            - name: HARBOR_PASSWORD
+              value: {{ .Values.harbor.harborAdminPassword | quote }}
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "otterscale.fullname" . }}-keycloak-client-secret
+                  key: client-secret
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -e
+              HARBOR_URL="http://{{ include "otterscale.harbor.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local"
+              HARBOR_ADMIN="admin"
+
+              echo "==> Waiting for Harbor to become healthy..."
+              for i in $(seq 1 90); do
+                if curl -sf "${HARBOR_URL}/api/v2.0/health" > /dev/null 2>&1; then
+                  echo "==> Harbor is healthy!"
+                  break
+                fi
+                if [ "$i" -eq 90 ]; then
+                  echo "ERROR: Harbor did not become healthy within 15 minutes"
+                  exit 1
+                fi
+                echo "    Attempt ${i}/90 — waiting 10s..."
+                sleep 10
+              done
+
+              echo "==> Configuring Harbor OIDC authentication..."
+              HTTP_CODE=$(curl -s -o /tmp/response.txt -w "%{http_code}" -X PUT \
+                "${HARBOR_URL}/api/v2.0/configurations" \
+                -u "${HARBOR_ADMIN}:${HARBOR_PASSWORD}" \
+                -H "Content-Type: application/json" \
+                -d "{
+                  \"auth_mode\": \"oidc_auth\",
+                  \"oidc_name\": \"Keycloak\",
+                  \"oidc_endpoint\": \"{{ include "otterscale.externalURL" . }}/auth/realms/otterscale\",
+                  \"oidc_client_id\": \"otterscale\",
+                  \"oidc_client_secret\": \"${OIDC_CLIENT_SECRET}\",
+                  \"oidc_scope\": \"{{ .Values.harbor.oidc.scope }}\",
+                  \"oidc_auto_onboard\": {{ .Values.harbor.oidc.autoOnboard }},
+                  \"oidc_groups_claim\": \"{{ .Values.harbor.oidc.groupsClaim }}\",
+                  \"oidc_admin_group\": \"{{ .Values.harbor.oidc.adminGroup }}\",
+                  \"oidc_verify_cert\": false,
+                  \"oidc_logout\": true
+                }")
+
+              if [ "$HTTP_CODE" = "200" ]; then
+                echo "==> Harbor OIDC configuration successful!"
+              else
+                echo "ERROR: Failed to configure Harbor OIDC (HTTP ${HTTP_CODE})"
+                cat /tmp/response.txt
+                exit 1
+              fi
+{{- end }}

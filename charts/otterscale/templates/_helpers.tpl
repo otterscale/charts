@@ -118,3 +118,25 @@ Caches the value in .Values._cache to ensure consistency across all templates
 {{- end -}}
 {{- index .Values "_cachedValkeyPassword" -}}
 {{- end -}}
+
+{{/*
+Harbor external URL (same as OtterScale base URL)
+*/}}
+{{- define "otterscale.harbor.externalURL" -}}
+{{- if .Values.harbor.externalURL -}}
+  {{- .Values.harbor.externalURL -}}
+{{- else -}}
+  {{- include "otterscale.externalURL" . -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Harbor ClusterIP / NodePort service name (matches expose.*.name in Harbor chart)
+*/}}
+{{- define "otterscale.harbor.serviceName" -}}
+{{- if eq (toString .Values.harbor.expose.type) "nodePort" -}}
+  {{- .Values.harbor.expose.nodePort.name | default "harbor" -}}
+{{- else -}}
+  {{- .Values.harbor.expose.clusterIP.name | default "harbor" -}}
+{{- end -}}
+{{- end -}}
