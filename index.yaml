@@ -3,6 +3,24 @@ entries:
   aidaptivcache-finetune:
   - apiVersion: v2
     appVersion: "1.0"
+    created: "2026-03-04T09:15:36.091155929Z"
+    description: A Helm chart for running AI model fine-tuning jobs
+    digest: 7baaca1ea339c1cab48bb4938a363abd6d7075b253b4fa341b956d53bfac82b6
+    home: https://www.phison.com/
+    icon: https://otterscale.io/phison-logo-p.svg
+    keywords:
+    - aidaptivcache
+    - finetune
+    maintainers:
+    - email: shawn_tsai@phison.com
+      name: Shawn
+    name: aidaptivcache-finetune
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/aidaptivcache-finetune-0.3.0/aidaptivcache-finetune-0.3.0.tgz
+    version: 0.3.0
+  - apiVersion: v2
+    appVersion: "1.0"
     created: "2026-02-27T17:32:38.956444283Z"
     description: A Helm chart for running AI model fine-tuning jobs
     digest: 695f85686fa82bbdcfa454162daee16fe2651d20b82468e85e128d3d7a5169d0
@@ -94,6 +112,24 @@ entries:
     - https://github.com/otterscale/charts/releases/download/aidaptivcache-finetune-0.1.0/aidaptivcache-finetune-0.1.0.tgz
     version: 0.1.0
   aidaptivcache-inference:
+  - apiVersion: v2
+    appVersion: "1.0"
+    created: "2026-03-04T09:15:36.311446617Z"
+    description: A Helm chart for vLLM API inference server
+    digest: 95b7c8f5b6086540b00d0eb0fa9d339edfcf3fbd89c542326df27ed8a305264e
+    home: https://www.phison.com/
+    icon: https://otterscale.io/phison-logo-p.svg
+    keywords:
+    - aidaptivcache
+    - inference
+    maintainers:
+    - email: shawn_tsai@phison.com
+      name: Shawn
+    name: aidaptivcache-inference
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/aidaptivcache-inference-0.3.0/aidaptivcache-inference-0.3.0.tgz
+    version: 0.3.0
   - apiVersion: v2
     appVersion: "1.0"
     created: "2026-02-27T17:32:39.097922657Z"
@@ -1468,4 +1504,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-02-27T17:32:39.270084607Z"
+generated: "2026-03-04T09:15:36.311626786Z"
