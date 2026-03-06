@@ -22,7 +22,7 @@ storage:
     reclaimPolicy: Retain
     image:
       repository: rancher/local-path-provisioner
-      tag: v0.0.28
+      tag: v0.0.34
       pullPolicy: IfNotPresent
 
 # -----------------------------------------------------------------------------

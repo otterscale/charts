@@ -2,7 +2,7 @@ apiVersion: v2
 name: otterscale
 # renovate: github=otterscale/otterscale
 appVersion: v0.8.0
-version: 0.8.2
+version: 0.8.3
 description: OtterScale - A unified platform for simplified compute, storage, and networking
 home: https://otterscale.github.io
 icon: https://github.com/otterscale.png
@@ -20,7 +20,7 @@ dependencies:
   - condition: keycloakx.enabled
     repository: "https://codecentric.github.io/helm-charts"
     name: keycloakx
-    version: 7.1.7
+    version: 7.1.8
   - condition: valkey.enabled
     repository: "https://valkey.io/valkey-helm/"
     name: valkey
