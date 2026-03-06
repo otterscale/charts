@@ -136,6 +136,7 @@ data:
     metadata:
       name: helper-pod
     spec:
+      serviceAccountName: {{ include "otterscale.fullname" . }}-local-path-sa
       priorityClassName: system-node-critical
       tolerations:
         - key: node.kubernetes.io/disk-pressure
@@ -181,6 +182,8 @@ spec:
             - {{ include "otterscale.fullname" . }}-local-path-config
             - --provisioner-name
             - {{ include "otterscale.localPath.provisionerName" . }}
+            - --service-account-name
+            - {{ include "otterscale.fullname" . }}-local-path-sa
             - --helper-image
             - busybox
           env:
