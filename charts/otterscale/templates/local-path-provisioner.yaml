@@ -25,8 +25,14 @@ metadata:
     {{- include "otterscale.labels" . | nindent 4 }}
     app.kubernetes.io/component: local-path-provisioner
 rules:
+  # Nodes: read-only — only needed to locate the node's local path.
+  # NEVER grant create/update/delete on nodes.
   - apiGroups: [""]
-    resources: ["nodes", "persistentvolumes"]
+    resources: ["nodes"]
+    verbs: ["get", "list", "watch"]
+  # PersistentVolumes: full lifecycle management required.
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
     verbs: ["get", "list", "watch", "create", "patch", "update", "delete"]
   - apiGroups: [""]
     resources: ["persistentvolumeclaims"]
@@ -37,6 +43,7 @@ rules:
   - apiGroups: [""]
     resources: ["events"]
     verbs: ["create", "patch"]
+  # Pods: provisioner spawns helper pods to create/delete volume directories.
   - apiGroups: [""]
     resources: ["pods"]
     verbs: ["get", "list", "watch", "create", "delete"]
