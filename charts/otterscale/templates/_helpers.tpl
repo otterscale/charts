@@ -1,4 +1,28 @@
 {{/*
+Return the internal provisioner name used by the local-path StorageClass
+and the provisioner Deployment --provisioner-name flag.
+Formatted as "<fullname>/local-path" to be unique per release.
+*/}}
+{{- define "otterscale.localPath.provisionerName" -}}
+{{- printf "%s/local-path" (include "otterscale.fullname" .) -}}
+{{- end -}}
+
+{{/*
+Return the effective StorageClass name for PVCs managed by this chart.
+Priority:
+  1. storage.localPath.enabled → use the chart's own StorageClass
+  2. keycloakx.database.persistence.storageClassName (explicit override)
+  3. "" → let Kubernetes use the cluster default StorageClass
+*/}}
+{{- define "otterscale.storageClassName" -}}
+{{- if .Values.storage.localPath.enabled -}}
+  {{- .Values.storage.localPath.storageClassName -}}
+{{- else if .Values.keycloakx.database.persistence.storageClassName -}}
+  {{- .Values.keycloakx.database.persistence.storageClassName -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Expand the name of the chart.
 */}}
 {{- define "otterscale.name" -}}
@@ -20,6 +44,20 @@ Create a default fully qualified app name.
 {{- end }}
 {{- end }}
 {{- end }}
+
+{{/*
+Fully qualified name for the API (backend) component.
+*/}}
+{{- define "otterscale.api.fullname" -}}
+{{- printf "%s-api" (include "otterscale.fullname" .) -}}
+{{- end -}}
+
+{{/*
+Fully qualified name for the Dashboard (frontend) component.
+*/}}
+{{- define "otterscale.dashboard.fullname" -}}
+{{- printf "%s-dashboard" (include "otterscale.fullname" .) -}}
+{{- end -}}
 
 {{/*
 Create chart name and version as used by the chart label.
@@ -47,13 +85,22 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
-Return the TLS credential secret name for Istio Gateway
+Return the TLS credential secret name for Istio Gateway.
+Requires istio.tls.existingSecret to be set.
 */}}
 {{- define "otterscale.tls.secretName" -}}
-{{- if .Values.istio.tls.existingSecret -}}
-  {{- .Values.istio.tls.existingSecret -}}
+{{- .Values.istio.tls.existingSecret | required "istio.tls.existingSecret must be set when istio.tls.enabled is true" -}}
+{{- end -}}
+
+{{/*
+Return the gateway reference for VirtualService.
+Uses existingGateway if set, otherwise uses the chart-managed gateway name.
+*/}}
+{{- define "otterscale.gatewayRef" -}}
+{{- if .Values.istio.gateway.existingGateway -}}
+  {{- .Values.istio.gateway.existingGateway -}}
 {{- else -}}
-  {{- printf "%s-tls-cert" (include "otterscale.fullname" .) -}}
+  {{- printf "%s-gateway" (include "otterscale.fullname" .) -}}
 {{- end -}}
 {{- end -}}
 
@@ -111,7 +158,7 @@ Caches the value in .Values._cache to ensure consistency across all templates
     {{- if and $existingSecret (hasKey $existingSecret.data $secretKey) -}}
       {{- $value = index $existingSecret.data $secretKey | b64dec -}}
     {{- else -}}
-      {{- $value = randAlphaNum 10 -}}
+      {{- $value = randAlphaNum 24 -}}
     {{- end -}}
   {{- end -}}
   {{- $_ := set .Values "_cachedValkeyPassword" $value -}}

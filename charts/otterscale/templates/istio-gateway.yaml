@@ -1,4 +1,4 @@
-{{- if and .Values.istio.enabled .Values.istio.gateway.enabled }}
+{{- if and .Values.istio.enabled .Values.istio.gateway.enabled (not .Values.istio.gateway.existingGateway) }}
 apiVersion: networking.istio.io/v1beta1
 kind: Gateway
 metadata:

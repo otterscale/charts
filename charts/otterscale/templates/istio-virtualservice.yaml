@@ -10,8 +10,9 @@ spec:
   hosts:
     {{- toYaml .Values.istio.gateway.hosts | nindent 4 }}
   gateways:
-    - {{ include "otterscale.fullname" . }}-gateway
+    - {{ include "otterscale.gatewayRef" . }}
   http:
+    # ---- Keycloak routes ----
     - match:
       - uri:
           prefix: /auth/
@@ -32,7 +33,7 @@ spec:
           uri: /
       route:
       - destination:
-          host: {{ include "otterscale.fullname" $ }}.{{ .Release.Namespace }}.svc.cluster.local
+          host: {{ include "otterscale.api.fullname" $ }}.{{ .Release.Namespace }}.svc.cluster.local
           port:
             number: 8299
     - match:
@@ -43,7 +44,7 @@ spec:
             exact: websocket
       route:
       - destination:
-          host: {{ include "otterscale.fullname" $ }}.{{ .Release.Namespace }}.svc.cluster.local
+          host: {{ include "otterscale.api.fullname" $ }}.{{ .Release.Namespace }}.svc.cluster.local
           port:
             number: 8299
     - match:
@@ -51,7 +52,7 @@ spec:
           prefix: /
       route:
       - destination:
-          host: {{ include "otterscale.fullname" $ }}-web.{{ .Release.Namespace }}.svc.cluster.local
+          host: {{ include "otterscale.dashboard.fullname" $ }}.{{ .Release.Namespace }}.svc.cluster.local
           port:
             number: 3000
 {{- end }}

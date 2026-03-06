@@ -3,20 +3,54 @@ nameOverride: ""
 fullnameOverride: ""
 
 # -----------------------------------------------------------------------------
+# Storage Configuration
+# -----------------------------------------------------------------------------
+storage:
+  localPath:
+    # When enabled, the chart deploys rancher/local-path-provisioner and
+    # creates a dedicated StorageClass.  PostgreSQL will automatically use
+    # this StorageClass — no need to set keycloakx.database.persistence.storageClassName.
+    enabled: false
+    # Absolute host path used for volume storage.  Must exist on every node
+    # (or be created automatically via the setup script in the ConfigMap).
+    path: /opt/otterscale/storage
+    # Name given to the created StorageClass.
+    storageClassName: otterscale-local-path
+    # Set true to make this the cluster default StorageClass.
+    isDefault: false
+    # ReclaimPolicy: Retain (safe default) or Delete.
+    reclaimPolicy: Retain
+    image:
+      repository: rancher/local-path-provisioner
+      tag: v0.0.28
+      pullPolicy: IfNotPresent
+
+# -----------------------------------------------------------------------------
 # OtterScale Service Configuration
 # -----------------------------------------------------------------------------
-otterscale:
+otterscaleApi:
   image:
-    repository: ghcr.io/otterscale/otterscale/service
+    repository: ghcr.io/otterscale/otterscale
     tag: ""
     pullPolicy: IfNotPresent
+  # Container listen ports (must match the application's listen addresses).
+  ports:
+    http: 8299
+    tunnel: 8300
+  # NodePort for external access; drives OTTERSCALE_SERVER_EXTERNAL_*_URL.
+  nodePorts:
+    http: 30299
+    tunnel: 30300
   env: []
 
-otterscaleWeb:
+otterscaleDashboard:
   image:
-    repository: ghcr.io/otterscale/otterscale/web
+    repository: ghcr.io/otterscale/dashboard
     tag: ""
     pullPolicy: IfNotPresent
+  # Container listen port.
+  ports:
+    http: 3000
   env: []
 
 # -----------------------------------------------------------------------------
@@ -34,16 +68,17 @@ istio:
   tls:
     # Enable TLS for the gateway
     enabled: false
-    # Use an existing Secret (must contain tls.crt and tls.key)
-    # If set, crt/key fields below are ignored
+    # Name of an existing Secret containing tls.crt and tls.key.
+    # You are responsible for creating and managing this Secret.
     existingSecret: ""
-    # Alternatively, provide crt/key directly (base64-encoded)
-    crt: ""
-    key: ""
 
   # Gateway configuration for external traffic
   gateway:
     enabled: true
+    # If set, use this existing Gateway instead of creating a new one.
+    # Supports "<name>" (same namespace) or "<namespace>/<name>" format.
+    # When set, the chart will NOT create a Gateway resource.
+    existingGateway: ""
     hosts:
       - "*"
 
@@ -85,8 +120,12 @@ keycloakx:
 
   extraEnvFrom: |
     - configMapRef:
+        # Computed by parent chart as <fullname>-keycloak-env.
+        # Update if using a custom fullnameOverride.
         name: otterscale-keycloak-env
     - secretRef:
+        # Computed by parent chart as <fullname>-keycloak-admin.
+        # Update if using a custom fullnameOverride.
         name: otterscale-keycloak-admin
 
   dbchecker:
@@ -105,7 +144,7 @@ keycloakx:
       pullPolicy: IfNotPresent
     persistence:
       enabled: true
-      storageClassName: "microk8s-hostpath"
+      storageClassName: ""
       accessMode: ReadWriteOnce
       size: 5Gi
 
@@ -138,35 +177,14 @@ keycloakx:
   extraVolumes: |
     - name: realm-import-volume
       secret:
-        secretName: otterscale-realm
+        # This name is computed by the parent chart as <fullname>-realm.
+        # If you customise fullnameOverride, update this value to match.
+        secretName: {{ .Values.realmSecretName }}
     - name: theme-import-volume
       emptyDir: {}
-
-# -----------------------------------------------------------------------------
-# MAAS / Juju Configuration (Hand-made)
-# -----------------------------------------------------------------------------
-configContent: |
-  maas:
-    url: http://127.0.0.1:5240/MAAS
-    key: xxx
-    version: "2.0"
-  juju:
-    controller: maas-cloud-controller
-    controller_addresses:
-    - 127.0.0.1:17070
-    username: admin
-    password: xxx
-    ca_cert: |
-      -----BEGIN CERTIFICATE-----
-      xxx
-      -----END CERTIFICATE-----
-    cloud_name: maas-cloud
-    cloud_region: default
-  ceph:
-    rados_timeout: 0s
-  keycloak:
-    realm_url: http://127.0.0.1/auth/realms/otterscale
-    client_id: otterscale
+  # Computed realm secret name injected via tpl in keycloakx extraVolumes.
+  # Override this only when using a custom fullnameOverride.
+  realmSecretName: "otterscale-realm"
 
 # -----------------------------------------------------------------------------
 # Harbor Configuration (Container Registry)
@@ -178,7 +196,7 @@ configContent: |
 # harbor.externalURL must match the actual browser URL (scheme://IP:nodePort).
 # -----------------------------------------------------------------------------
 harbor:
-  enabled: true
+  enabled: false
   # Base URL for Harbor as seen from the browser.
   # IMPORTANT: Must match the actual browser URL scheme and port.
   # If set to https:// but accessed via http://, CSRF cookies will be rejected.
@@ -209,7 +227,7 @@ harbor:
     persistentVolumeClaim:
       registry:
         storageClass: "microk8s-hostpath"
-        size: 100Gi
+        size: 50Gi
       database:
         storageClass: "microk8s-hostpath"
         size: 5Gi

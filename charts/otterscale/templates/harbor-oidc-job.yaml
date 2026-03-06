@@ -28,7 +28,10 @@ spec:
           image: curlimages/curl:8.7.1
           env:
             - name: HARBOR_PASSWORD
-              value: {{ .Values.harbor.harborAdminPassword | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "otterscale.fullname" . }}-harbor-admin
+                  key: admin-password
             - name: OIDC_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
@@ -64,7 +67,7 @@ spec:
                   \"auth_mode\": \"oidc_auth\",
                   \"oidc_name\": \"Keycloak\",
                   \"oidc_endpoint\": \"{{ include "otterscale.externalURL" . }}/auth/realms/otterscale\",
-                  \"oidc_client_id\": \"otterscale\",
+                  \"oidc_client_id\": \"{{ .Values.keycloakx.client.id }}\",
                   \"oidc_client_secret\": \"${OIDC_CLIENT_SECRET}\",
                   \"oidc_scope\": \"{{ .Values.harbor.oidc.scope }}\",
                   \"oidc_auto_onboard\": {{ .Values.harbor.oidc.autoOnboard }},

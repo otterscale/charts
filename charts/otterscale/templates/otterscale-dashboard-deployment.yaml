@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "otterscale.dashboard.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
+spec:
+  replicas: {{ .Values.otterscaleDashboard.replicas | default 1 }}
+  selector:
+    matchLabels:
+      {{- include "otterscale.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: frontend
+  template:
+    metadata:
+      labels:
+        {{- include "otterscale.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: frontend
+        {{- if and .Values.istio.enabled .Values.istio.sidecarInjection.enabled }}
+        sidecar.istio.io/inject: "true"
+        {{- end }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/otterscale-dashboard-env-configmap.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/otterscale-dashboard-secret.yaml") . | sha256sum }}
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: otterscale-dashboard
+          image: "{{ tpl .Values.otterscaleDashboard.image.repository . }}:{{ tpl .Values.otterscaleDashboard.image.tag . | default .Chart.AppVersion}}"
+          imagePullPolicy: "{{ .Values.otterscaleDashboard.image.pullPolicy }}"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          ports:
+            - name: http
+              containerPort: {{ .Values.otterscaleDashboard.ports.http }}
+              protocol: TCP
+          {{- with .Values.otterscaleDashboard.env }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "otterscale.dashboard.fullname" . }}-env
+            - secretRef:
+                name: {{ include "otterscale.dashboard.fullname" . }}-env
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1024Mi"
