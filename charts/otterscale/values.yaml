@@ -202,8 +202,19 @@ harbor:
   # If set to https:// but accessed via http://, CSRF cookies will be rejected.
   externalURL: "http://127.0.0.1:32180"
 
-  # Harbor admin password (change after first login)
-  harborAdminPassword: "Harbor12345"
+  # Harbor admin password.
+  # Leave empty (default) — a cryptographically random 32-char password is
+  # auto-generated on first install and persisted in a Kubernetes Secret.
+  # This makes the local 'admin' account effectively inaccessible; all
+  # administration should be performed through the OIDC admin (harbor_admins).
+  # Set to a non-empty value ONLY for debugging purposes.
+  harborAdminPassword: ""
+
+  # Harbor subchart: use the auto-created Secret instead of harborAdminPassword.
+  # Value must match the Secret created by this chart: <fullname>-harbor-admin.
+  # Update if your Helm release name is not 'otterscale'.
+  existingSecretAdminPassword: "otterscale-harbor-admin"
+  existingSecretAdminPasswordKey: "HARBOR_ADMIN_PASSWORD"
 
   # Expose via NodePort — accessed directly without Istio
   expose:
