@@ -4,6 +4,10 @@ apiVersion: v1
 metadata:
   name: {{ include "otterscale.fullname" . }}-postgres-data
   namespace: {{ .Release.Namespace }}
+  annotations:
+    # Prevent accidental data loss on `helm uninstall`.
+    # The PVC must be deleted manually when the data is no longer needed.
+    helm.sh/resource-policy: keep
   labels:
     {{- include "otterscale.labels" . | nindent 4 }}
     app.kubernetes.io/component: database
@@ -13,7 +17,7 @@ spec:
   resources:
     requests:
       storage: {{ .Values.keycloakx.database.persistence.size }}
-  {{- if .Values.keycloakx.database.persistence.storageClassName }}
-  storageClassName: {{ .Values.keycloakx.database.persistence.storageClassName }}
+  {{- with include "otterscale.storageClassName" . }}
+  storageClassName: {{ . }}
   {{- end }}
 {{- end }}

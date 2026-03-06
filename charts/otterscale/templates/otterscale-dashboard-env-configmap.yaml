@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "otterscale.dashboard.fullname" . }}-env
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+    app.kubernetes.io/component: frontend
+data:
+  # Non-sensitive configuration only.
+  # Credentials (KEYCLOAK_CLIENT_SECRET, REDIS_URL) live in the
+  # otterscale-dashboard-secret.yaml Secret and are injected separately.
+  API_URL: "http://{{ include "otterscale.api.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.otterscaleApi.ports.http }}"
+  PUBLIC_WEB_URL: "{{ include "otterscale.externalURL" . }}"
+  KEYCLOAK_REALM_URL: "{{ include "otterscale.externalURL" . }}/auth/realms/otterscale"
+  KEYCLOAK_CLIENT_ID: {{ .Values.keycloakx.client.id }}
+  HARBOR_URL: {{ .Values.harbor.externalURL }}

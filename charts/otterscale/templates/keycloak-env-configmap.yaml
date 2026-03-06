@@ -1,3 +1,4 @@
+{{- if .Values.keycloakx.enabled -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -14,3 +15,4 @@ data:
     -XX:MaxRAMPercentage=50.0
     -Djava.awt.headless=true
     -Djgroups.dns.query={{ .Release.Name }}-keycloakx-headless
+{{- end }}
