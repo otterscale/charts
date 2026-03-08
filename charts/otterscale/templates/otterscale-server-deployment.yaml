@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "otterscale.server.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+spec:
+  replicas: {{ .Values.otterscaleServer.replicas | default 1 }}
+  selector:
+    matchLabels:
+      {{- include "otterscale.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: backend
+  template:
+    metadata:
+      labels:
+        {{- include "otterscale.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: backend
+        {{- if and .Values.istio.enabled .Values.istio.sidecarInjection.enabled }}
+        sidecar.istio.io/inject: "true"
+        {{- end }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/otterscale-server-configmap.yaml") . | sha256sum }}
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: otterscale-server
+          image: "{{ tpl .Values.otterscaleServer.image.repository . }}:{{ tpl .Values.otterscaleServer.image.tag . | default .Chart.AppVersion}}"
+          imagePullPolicy: "{{ .Values.otterscaleServer.image.pullPolicy }}"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          args: ["server"]
+          ports:
+            - name: http
+              containerPort: {{ .Values.otterscaleServer.ports.http }}
+              protocol: TCP
+            - name: tunnel
+              containerPort: {{ .Values.otterscaleServer.ports.tunnel }}
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: {{ include "otterscale.server.fullname" . }}-config
+          {{- with .Values.otterscaleServer.env }}
+          env:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1024Mi"

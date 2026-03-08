@@ -17,7 +17,7 @@ storage:
     # Name given to the created StorageClass.
     storageClassName: otterscale-local-path
     # Set true to make this the cluster default StorageClass.
-    isDefault: false
+    isDefault: true
     # ReclaimPolicy: Retain (safe default) or Delete.
     reclaimPolicy: Retain
     image:
@@ -28,7 +28,7 @@ storage:
 # -----------------------------------------------------------------------------
 # OtterScale Service Configuration
 # -----------------------------------------------------------------------------
-otterscaleApi:
+otterscaleServer:
   image:
     repository: ghcr.io/otterscale/otterscale
     tag: ""
@@ -120,12 +120,8 @@ keycloakx:
 
   extraEnvFrom: |
     - configMapRef:
-        # Computed by parent chart as <fullname>-keycloak-env.
-        # Update if using a custom fullnameOverride.
         name: otterscale-keycloak-env
     - secretRef:
-        # Computed by parent chart as <fullname>-keycloak-admin.
-        # Update if using a custom fullnameOverride.
         name: otterscale-keycloak-admin
 
   dbchecker:
@@ -177,13 +173,9 @@ keycloakx:
   extraVolumes: |
     - name: realm-import-volume
       secret:
-        # This name is computed by the parent chart as <fullname>-realm.
-        # If you customise fullnameOverride, update this value to match.
         secretName: {{ .Values.realmSecretName }}
     - name: theme-import-volume
       emptyDir: {}
-  # Computed realm secret name injected via tpl in keycloakx extraVolumes.
-  # Override this only when using a custom fullnameOverride.
   realmSecretName: "otterscale-realm"
 
 # -----------------------------------------------------------------------------
@@ -197,26 +189,19 @@ keycloakx:
 # -----------------------------------------------------------------------------
 harbor:
   enabled: false
-  # Base URL for Harbor as seen from the browser.
-  # IMPORTANT: Must match the actual browser URL scheme and port.
-  # If set to https:// but accessed via http://, CSRF cookies will be rejected.
   externalURL: "http://127.0.0.1:32180"
-
-  # Harbor admin password.
-  # Leave empty (default) — a cryptographically random 32-char password is
-  # auto-generated on first install and persisted in a Kubernetes Secret.
-  # This makes the local 'admin' account effectively inaccessible; all
-  # administration should be performed through the OIDC admin (harbor_admins).
-  # Set to a non-empty value ONLY for debugging purposes.
   harborAdminPassword: ""
-
-  # Harbor subchart: use the auto-created Secret instead of harborAdminPassword.
-  # Value must match the Secret created by this chart: <fullname>-harbor-admin.
-  # Update if your Helm release name is not 'otterscale'.
   existingSecretAdminPassword: "otterscale-harbor-admin"
   existingSecretAdminPasswordKey: "HARBOR_ADMIN_PASSWORD"
 
-  # Expose via NodePort — accessed directly without Istio
+  core:
+    extraEnvVars:
+      - name: CONFIG_OVERWRITE_JSON
+        valueFrom:
+          secretKeyRef:
+            name: "otterscale-harbor-oidc-config"
+            key: CONFIG_OVERWRITE_JSON
+
   expose:
     type: nodePort
     tls:
@@ -232,28 +217,26 @@ harbor:
     ipv6:
       enabled: false
 
-  # Persistence
   persistence:
     enabled: true
     persistentVolumeClaim:
       registry:
-        storageClass: "microk8s-hostpath"
+        storageClass: ""
         size: 50Gi
       database:
-        storageClass: "microk8s-hostpath"
+        storageClass: ""
         size: 5Gi
       jobservice:
         jobLog:
-          storageClass: "microk8s-hostpath"
+          storageClass: ""
           size: 1Gi
       redis:
-        storageClass: "microk8s-hostpath"
+        storageClass: ""
         size: 1Gi
       trivy:
-        storageClass: "microk8s-hostpath"
+        storageClass: ""
         size: 5Gi
 
-  # Internal PostgreSQL & Redis
   database:
     type: internal
   redis:
@@ -266,7 +249,6 @@ harbor:
   # ---------------------------------------------------------
   oidc:
     enabled: true
-    # Harbor shares the 'otterscale' Keycloak client (no separate client needed)
     scope: "openid,profile,email"
     autoOnboard: true
     groupsClaim: "groups"

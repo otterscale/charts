@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/component: database
 spec:
   type: ClusterIP
-  clusterIP: None  # Headless service for StatefulSet-like behavior
+  clusterIP: None
   selector:
     {{- include "otterscale.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: database
