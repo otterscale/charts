@@ -11,7 +11,7 @@ Job: {{ include "aidaptivcache-finetune.fullname" . }}
 {{- end }}
 📁 Output Dir:     {{ .Values.envConfig.pathSettings.outputDir }}
 {{- if .Values.outputImage.enabled }}
-📤 Output Image:   {{ .Values.outputImage.repository }}:{{ .Values.outputImage.tag }}
+📤 Output Image:   {{ .Values.outputImage.repository }}:{{ .Values.outputImage.tag }} ({{ .Values.outputImage.type }})
 {{- end }}
 
 Monitor the job:

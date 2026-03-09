@@ -22,23 +22,28 @@ initContainer:
   modelSourcePath: /app/TinyLlama-1.1B-Chat-v1.0
   sharedDataPath: /data
 
-# Output model: package finetuned model as OCI image and push to registry after training.
+# Output model: package finetuned model as OCI artifact and push to registry after training.
 outputImage:
   enabled: true
+  # Output type: "crane" (plain OCI image layer) or "kitops" (ModelKit via kit CLI)
+  type: "crane"
   repository: "<ip>:<port>/finetuned-model"
   tag: "latest"
-  baseImage: "busybox:latest"
-  crane:
-    # Use Image Volume (requires Kubernetes 1.31+ with ImageVolume feature gate).
-    # When false, uses an init container to copy the crane binary instead.
-    useImageVolume: false
-    # Override crane image (default: crane:debug for initContainer, crane:latest for imageVolume)
-    # image: "gcr.io/go-containerregistry/crane:debug"
   # Use plain HTTP instead of HTTPS when pushing to the registry.
   insecure: true
   # Name of a K8s Secret (type: kubernetes.io/dockerconfigjson) for registry push auth.
   # Leave empty if the registry is public or uses node-level credentials.
   pushSecret: ""
+  # -- crane options (type: crane)
+  crane:
+    # Override crane image (default: gcr.io/go-containerregistry/crane:debug)
+    # image: "gcr.io/go-containerregistry/crane:debug"
+  # -- kitops options (type: kitops) — https://kitops.org
+  kitops:
+    # Image that contains the `kit` CLI (defaults to ghcr.io/kitops-ml/kitops:v1.11.0)
+    # image: "ghcr.io/kitops-ml/kitops:v1.11.0"
+    # Path to the `kit` binary inside the image (default: /usr/local/bin/kit)
+    # binPath: "/usr/local/bin/kit"
 
 job:
   backoffLimit: 1

@@ -40,7 +40,7 @@ spec:
         - name: shared-data
           mountPath: {{ .Values.initContainer.sharedDataPath }}
       {{- end }}
-      {{- if and .Values.outputImage.enabled (not .Values.outputImage.crane.useImageVolume) }}
+      {{- if and .Values.outputImage.enabled (eq .Values.outputImage.type "crane") }}
       - name: crane-setup
         image: {{ include "aidaptivcache-finetune.craneImage" . | quote }}
         imagePullPolicy: IfNotPresent
@@ -48,6 +48,20 @@ spec:
         volumeMounts:
         - name: crane-bin
           mountPath: /crane-bin
+      {{- end }}
+      {{- if and .Values.outputImage.enabled (eq .Values.outputImage.type "kitops") }}
+      - name: kitops-setup
+        image: {{ include "aidaptivcache-finetune.kitopsImage" . | quote }}
+        imagePullPolicy: IfNotPresent
+        command:
+        - /bin/sh
+        - -c
+        - |
+          cp -a {{ .Values.outputImage.kitops.binPath | default "/usr/local/bin/kit" | quote }} /kitops-bin/kit
+          chmod +x /kitops-bin/kit
+        volumeMounts:
+        - name: kitops-bin
+          mountPath: /kitops-bin
       {{- end }}
       containers:
       - name: finetune
@@ -64,23 +78,38 @@ spec:
           echo "Training finished with exit code: $TRAIN_EXIT_CODE"
           {{- if .Values.outputImage.enabled }}
           if [ $TRAIN_EXIT_CODE -eq 0 ]; then
-            echo "Packaging output model as OCI image..."
+            {{- if eq .Values.outputImage.type "crane" }}
+            echo "Packaging output model as OCI image (crane)..."
             tar -cf {{ .Values.envConfig.pathSettings.outputDir }}/model-layer.tar -C {{ .Values.envConfig.pathSettings.outputDir }} .
             {{ include "aidaptivcache-finetune.craneBin" . }} append \
-              --base {{ .Values.outputImage.baseImage }} \
+              --base {{ include "aidaptivcache-finetune.craneBaseImage" . }} \
               -f {{ .Values.envConfig.pathSettings.outputDir }}/model-layer.tar \
               {{- if .Values.outputImage.insecure }}
               --insecure \
               {{- end }}
               -t {{ .Values.outputImage.repository }}:{{ .Values.outputImage.tag }}
             PUSH_EXIT_CODE=$?
+            rm -f {{ .Values.envConfig.pathSettings.outputDir }}/model-layer.tar
+            {{- else if eq .Values.outputImage.type "kitops" }}
+            echo "Packaging output model as ModelKit (kitops)..."
+            {{ include "aidaptivcache-finetune.kitopsBin" . }} init {{ .Values.envConfig.pathSettings.outputDir }}
+            {{ include "aidaptivcache-finetune.kitopsBin" . }} pack {{ .Values.envConfig.pathSettings.outputDir }} \
+              --use-model-pack \
+              -t {{ .Values.outputImage.repository }}:{{ .Values.outputImage.tag }}
+            PACK_EXIT_CODE=$?
+            if [ $PACK_EXIT_CODE -ne 0 ]; then
+              echo "Failed to pack model (exit code: $PACK_EXIT_CODE)"
+              exit $PACK_EXIT_CODE
+            fi
+            {{ include "aidaptivcache-finetune.kitopsBin" . }} push {{ .Values.outputImage.repository }}:{{ .Values.outputImage.tag }}{{ if .Values.outputImage.insecure }} --plain-http{{ end }}
+            PUSH_EXIT_CODE=$?
+            {{- end }}
             if [ $PUSH_EXIT_CODE -eq 0 ]; then
-              echo "Model image pushed to {{ .Values.outputImage.repository }}:{{ .Values.outputImage.tag }}"
+              echo "Model pushed to {{ .Values.outputImage.repository }}:{{ .Values.outputImage.tag }}"
             else
-              echo "Failed to push model image (exit code: $PUSH_EXIT_CODE)"
+              echo "Failed to push model (exit code: $PUSH_EXIT_CODE)"
               exit $PUSH_EXIT_CODE
             fi
-            rm -f {{ .Values.envConfig.pathSettings.outputDir }}/model-layer.tar
           fi
           {{- end }}
           exit $TRAIN_EXIT_CODE
@@ -96,13 +125,14 @@ spec:
         - name: shared-data
           mountPath: {{ .Values.initContainer.sharedDataPath }}
         {{- end }}
-        {{- if .Values.outputImage.enabled }}
+        {{- if and .Values.outputImage.enabled (eq .Values.outputImage.type "crane") }}
         - name: crane-bin
-          {{- if .Values.outputImage.crane.useImageVolume }}
-          mountPath: /opt/crane
-          {{- else }}
           mountPath: /crane-bin
-          {{- end }}
+          readOnly: true
+        {{- end }}
+        {{- if and .Values.outputImage.enabled (eq .Values.outputImage.type "kitops") }}
+        - name: kitops-bin
+          mountPath: /kitops-bin
           readOnly: true
         {{- end }}
         {{- if .Values.outputImage.pushSecret }}
@@ -130,15 +160,13 @@ spec:
       - name: shared-data
         emptyDir: {}
       {{- end }}
-      {{- if .Values.outputImage.enabled }}
+      {{- if and .Values.outputImage.enabled (eq .Values.outputImage.type "crane") }}
       - name: crane-bin
-        {{- if .Values.outputImage.crane.useImageVolume }}
-        image:
-          reference: {{ include "aidaptivcache-finetune.craneImage" . | quote }}
-          pullPolicy: IfNotPresent
-        {{- else }}
         emptyDir: {}
-        {{- end }}
+      {{- end }}
+      {{- if and .Values.outputImage.enabled (eq .Values.outputImage.type "kitops") }}
+      - name: kitops-bin
+        emptyDir: {}
       {{- end }}
       {{- if .Values.outputImage.pushSecret }}
       - name: docker-config
