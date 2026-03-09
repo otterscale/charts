@@ -1,3 +1,10 @@
+{{- $outputImage := .Values.outputImage | default dict -}}
+{{- $outputEnabled := (get $outputImage "enabled") | default false -}}
+{{- $outputType := (get $outputImage "type") | default "" -}}
+{{- if and $outputEnabled (not (or (eq $outputType "crane") (eq $outputType "kitops"))) -}}
+{{- fail (printf "Invalid outputImage.type: %q. Must be 'crane' or 'kitops'." $outputType) -}}
+{{- end -}}
+
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -31,8 +38,12 @@ spec:
         - /bin/sh
         - -c
         - |
-          cp -a {{ .Values.initContainer.modelSourcePath }}/ {{ .Values.initContainer.sharedDataPath }}/
-          echo "Model copied from {{ .Values.initContainer.modelSourcePath }} to {{ .Values.initContainer.sharedDataPath }}"
+          set -eu
+          MODEL_SOURCE_PATH={{ .Values.initContainer.modelSourcePath | quote }}
+          SHARED_DATA_PATH={{ .Values.initContainer.sharedDataPath | quote }}
+
+          cp -a "$MODEL_SOURCE_PATH/" "$SHARED_DATA_PATH/"
+          echo "Model copied from $MODEL_SOURCE_PATH to $SHARED_DATA_PATH"
           {{- if .Values.prescript }}
 {{ .Values.prescript | indent 10 }}
           {{- end }}
@@ -71,7 +82,15 @@ spec:
         - /bin/sh
         - -c
         - |
-          mkdir -p {{ .Values.envConfig.pathSettings.outputDir }}
+          set -eu
+          set -o pipefail 2>/dev/null || true
+
+          OUTPUT_DIR={{ .Values.envConfig.pathSettings.outputDir | quote }}
+          OUTPUT_IMAGE_REPO={{ .Values.outputImage.repository | quote }}
+          OUTPUT_IMAGE_TAG={{ .Values.outputImage.tag | quote }}
+          CRANE_BASE_IMAGE={{ include "aidaptivcache-finetune.craneBaseImage" . | quote }}
+
+          mkdir -p "$OUTPUT_DIR"
           echo "Starting training job..."
           phisonai2 --env_config /config/env/env_config.yaml --exp_config /config/exp/exp_config.yaml
           TRAIN_EXIT_CODE=$?
@@ -80,32 +99,34 @@ spec:
           if [ $TRAIN_EXIT_CODE -eq 0 ]; then
             {{- if eq .Values.outputImage.type "crane" }}
             echo "Packaging output model as OCI image (crane)..."
-            tar -cf {{ .Values.envConfig.pathSettings.outputDir }}/model-layer.tar -C {{ .Values.envConfig.pathSettings.outputDir }} .
+            mkdir -p "$OUTPUT_DIR"
+            tar -cf "$OUTPUT_DIR/model-layer.tar" -C "$OUTPUT_DIR" .
             {{ include "aidaptivcache-finetune.craneBin" . }} append \
-              --base {{ include "aidaptivcache-finetune.craneBaseImage" . }} \
-              -f {{ .Values.envConfig.pathSettings.outputDir }}/model-layer.tar \
+              --base "$CRANE_BASE_IMAGE" \
+              -f "$OUTPUT_DIR/model-layer.tar" \
               {{- if .Values.outputImage.insecure }}
               --insecure \
               {{- end }}
-              -t {{ .Values.outputImage.repository }}:{{ .Values.outputImage.tag }}
+              -t "$OUTPUT_IMAGE_REPO:$OUTPUT_IMAGE_TAG"
             PUSH_EXIT_CODE=$?
-            rm -f {{ .Values.envConfig.pathSettings.outputDir }}/model-layer.tar
+            rm -f "$OUTPUT_DIR/model-layer.tar"
             {{- else if eq .Values.outputImage.type "kitops" }}
             echo "Packaging output model as ModelKit (kitops)..."
-            {{ include "aidaptivcache-finetune.kitopsBin" . }} init {{ .Values.envConfig.pathSettings.outputDir }}
-            {{ include "aidaptivcache-finetune.kitopsBin" . }} pack {{ .Values.envConfig.pathSettings.outputDir }} \
+            mkdir -p "$OUTPUT_DIR"
+            {{ include "aidaptivcache-finetune.kitopsBin" . }} init "$OUTPUT_DIR"
+            {{ include "aidaptivcache-finetune.kitopsBin" . }} pack "$OUTPUT_DIR" \
               --use-model-pack \
-              -t {{ .Values.outputImage.repository }}:{{ .Values.outputImage.tag }}
+              -t "$OUTPUT_IMAGE_REPO:$OUTPUT_IMAGE_TAG"
             PACK_EXIT_CODE=$?
             if [ $PACK_EXIT_CODE -ne 0 ]; then
               echo "Failed to pack model (exit code: $PACK_EXIT_CODE)"
               exit $PACK_EXIT_CODE
             fi
-            {{ include "aidaptivcache-finetune.kitopsBin" . }} push {{ .Values.outputImage.repository }}:{{ .Values.outputImage.tag }}{{ if .Values.outputImage.insecure }} --plain-http{{ end }}
+            {{ include "aidaptivcache-finetune.kitopsBin" . }} push "$OUTPUT_IMAGE_REPO:$OUTPUT_IMAGE_TAG"{{ if .Values.outputImage.insecure }} --plain-http{{ end }}
             PUSH_EXIT_CODE=$?
             {{- end }}
             if [ $PUSH_EXIT_CODE -eq 0 ]; then
-              echo "Model pushed to {{ .Values.outputImage.repository }}:{{ .Values.outputImage.tag }}"
+              echo "Model pushed to $OUTPUT_IMAGE_REPO:$OUTPUT_IMAGE_TAG"
             else
               echo "Failed to push model (exit code: $PUSH_EXIT_CODE)"
               exit $PUSH_EXIT_CODE
