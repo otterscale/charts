@@ -49,27 +49,42 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
-Crane OCI image reference.
-  imageVolume  → distroless (latest)
-  initContainer → debug (includes busybox for cp)
+Crane container image (debug tag includes busybox for cp).
 */}}
 {{- define "aidaptivcache-finetune.craneImage" -}}
-{{- if .Values.outputImage.crane.image -}}
-  {{- .Values.outputImage.crane.image -}}
-{{- else if .Values.outputImage.crane.useImageVolume -}}
-  gcr.io/go-containerregistry/crane:latest
-{{- else -}}
-  gcr.io/go-containerregistry/crane:debug
-{{- end -}}
+{{- $output := .Values.outputImage | default dict -}}
+{{- $crane := (get $output "crane") | default dict -}}
+{{- (get $crane "image") | default "gcr.io/go-containerregistry/crane:debug" -}}
+{{- end }}
+
+{{/*
+Default base image for crane append operation.
+*/}}
+{{- define "aidaptivcache-finetune.craneBaseImage" -}}
+{{- $output := .Values.outputImage | default dict -}}
+{{- $crane := (get $output "crane") | default dict -}}
+{{- (get $crane "baseImage") | default "busybox:latest" -}}
 {{- end }}
 
 {{/*
 Path to the crane binary inside the main container.
 */}}
 {{- define "aidaptivcache-finetune.craneBin" -}}
-{{- if .Values.outputImage.crane.useImageVolume -}}
-/opt/crane/ko-app/crane
-{{- else -}}
 /crane-bin/crane
-{{- end -}}
+{{- end }}
+
+{{/*
+Init-container image providing the kit CLI.
+*/}}
+{{- define "aidaptivcache-finetune.kitopsImage" -}}
+{{- $output := .Values.outputImage | default dict -}}
+{{- $kitops := (get $output "kitops") | default dict -}}
+{{- (get $kitops "image") | default "ghcr.io/kitops-ml/kitops:v1.11.0" -}}
+{{- end }}
+
+{{/*
+Path to the kit binary inside the main container.
+*/}}
+{{- define "aidaptivcache-finetune.kitopsBin" -}}
+/kitops-bin/kit
 {{- end }}
