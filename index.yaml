@@ -3,6 +3,24 @@ entries:
   aidaptivcache-finetune:
   - apiVersion: v2
     appVersion: "1.0"
+    created: "2026-03-09T09:37:42.617852519Z"
+    description: A Helm chart for running AI model fine-tuning jobs
+    digest: 610b41faf513fb37854549b5a58b321c608b996bde530e44ecd920e375460cf3
+    home: https://www.phison.com/
+    icon: https://otterscale.io/phison-logo-p.svg
+    keywords:
+    - aidaptivcache
+    - finetune
+    maintainers:
+    - email: shawn_tsai@phison.com
+      name: Shawn
+    name: aidaptivcache-finetune
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/aidaptivcache-finetune-0.3.1/aidaptivcache-finetune-0.3.1.tgz
+    version: 0.3.1
+  - apiVersion: v2
+    appVersion: "1.0"
     created: "2026-03-04T09:15:36.091155929Z"
     description: A Helm chart for running AI model fine-tuning jobs
     digest: 7baaca1ea339c1cab48bb4938a363abd6d7075b253b4fa341b956d53bfac82b6
@@ -1664,4 +1682,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-03-06T08:01:12.509163683Z"
+generated: "2026-03-09T09:37:42.618015445Z"
