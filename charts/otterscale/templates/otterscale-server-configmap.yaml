@@ -13,4 +13,5 @@ data:
   OTTERSCALE_SERVER_KEYCLOAK_CLIENT_ID: {{ .Values.keycloakx.client.id | quote }}
   OTTERSCALE_SERVER_ALLOWED_ORIGINS: "{{ include "otterscale.externalURL" . }}"
   OTTERSCALE_SERVER_EXTERNAL_URL: "{{ include "otterscale.scheme" . }}://{{ .Values.istio.externalIP }}:{{ .Values.otterscaleServer.nodePorts.http }}"
-  OTTERSCALE_SERVER_EXTERNAL_TUNNEL_URL: "{{ include "otterscale.scheme" . }}://{{ .Values.istio.externalIP }}:{{ .Values.otterscaleServer.nodePorts.tunnel }}"
+  OTTERSCALE_SERVER_EXTERNAL_TUNNEL_URL: "https://{{ .Values.istio.externalIP }}:{{ .Values.otterscaleServer.nodePorts.tunnel }}"
+  

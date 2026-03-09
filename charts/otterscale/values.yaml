@@ -33,11 +33,9 @@ otterscaleServer:
     repository: ghcr.io/otterscale/otterscale
     tag: ""
     pullPolicy: IfNotPresent
-  # Container listen ports (must match the application's listen addresses).
   ports:
     http: 8299
     tunnel: 8300
-  # NodePort for external access; drives OTTERSCALE_SERVER_EXTERNAL_*_URL.
   nodePorts:
     http: 30299
     tunnel: 30300
