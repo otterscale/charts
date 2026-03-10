@@ -12,7 +12,6 @@ spec:
   gateways:
     - {{ include "otterscale.gatewayRef" . }}
   http:
-    # ---- Keycloak routes ----
     - match:
       - uri:
           prefix: /auth/
@@ -33,7 +32,7 @@ spec:
           uri: /
       route:
       - destination:
-          host: {{ include "otterscale.api.fullname" $ }}.{{ .Release.Namespace }}.svc.cluster.local
+          host: {{ include "otterscale.server.fullname" $ }}.{{ .Release.Namespace }}.svc.cluster.local
           port:
             number: 8299
     - match:
@@ -44,7 +43,7 @@ spec:
             exact: websocket
       route:
       - destination:
-          host: {{ include "otterscale.api.fullname" $ }}.{{ .Release.Namespace }}.svc.cluster.local
+          host: {{ include "otterscale.server.fullname" $ }}.{{ .Release.Namespace }}.svc.cluster.local
           port:
             number: 8299
     - match:

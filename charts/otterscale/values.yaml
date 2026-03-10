@@ -17,7 +17,7 @@ storage:
     # Name given to the created StorageClass.
     storageClassName: otterscale-local-path
     # Set true to make this the cluster default StorageClass.
-    isDefault: false
+    isDefault: true
     # ReclaimPolicy: Retain (safe default) or Delete.
     reclaimPolicy: Retain
     image:
@@ -28,16 +28,14 @@ storage:
 # -----------------------------------------------------------------------------
 # OtterScale Service Configuration
 # -----------------------------------------------------------------------------
-otterscaleApi:
+otterscaleServer:
   image:
     repository: ghcr.io/otterscale/otterscale
     tag: ""
     pullPolicy: IfNotPresent
-  # Container listen ports (must match the application's listen addresses).
   ports:
     http: 8299
     tunnel: 8300
-  # NodePort for external access; drives OTTERSCALE_SERVER_EXTERNAL_*_URL.
   nodePorts:
     http: 30299
     tunnel: 30300
@@ -120,12 +118,8 @@ keycloakx:
 
   extraEnvFrom: |
     - configMapRef:
-        # Computed by parent chart as <fullname>-keycloak-env.
-        # Update if using a custom fullnameOverride.
         name: otterscale-keycloak-env
     - secretRef:
-        # Computed by parent chart as <fullname>-keycloak-admin.
-        # Update if using a custom fullnameOverride.
         name: otterscale-keycloak-admin
 
   dbchecker:
@@ -177,13 +171,9 @@ keycloakx:
   extraVolumes: |
     - name: realm-import-volume
       secret:
-        # This name is computed by the parent chart as <fullname>-realm.
-        # If you customise fullnameOverride, update this value to match.
         secretName: {{ .Values.realmSecretName }}
     - name: theme-import-volume
       emptyDir: {}
-  # Computed realm secret name injected via tpl in keycloakx extraVolumes.
-  # Override this only when using a custom fullnameOverride.
   realmSecretName: "otterscale-realm"
 
 # -----------------------------------------------------------------------------
@@ -197,15 +187,19 @@ keycloakx:
 # -----------------------------------------------------------------------------
 harbor:
   enabled: false
-  # Base URL for Harbor as seen from the browser.
-  # IMPORTANT: Must match the actual browser URL scheme and port.
-  # If set to https:// but accessed via http://, CSRF cookies will be rejected.
   externalURL: "http://127.0.0.1:32180"
+  harborAdminPassword: ""
+  existingSecretAdminPassword: "otterscale-harbor-admin"
+  existingSecretAdminPasswordKey: "HARBOR_ADMIN_PASSWORD"
 
-  # Harbor admin password (change after first login)
-  harborAdminPassword: "Harbor12345"
+  core:
+    extraEnvVars:
+      - name: CONFIG_OVERWRITE_JSON
+        valueFrom:
+          secretKeyRef:
+            name: "otterscale-harbor-oidc-config"
+            key: CONFIG_OVERWRITE_JSON
 
-  # Expose via NodePort — accessed directly without Istio
   expose:
     type: nodePort
     tls:
@@ -221,28 +215,26 @@ harbor:
     ipv6:
       enabled: false
 
-  # Persistence
   persistence:
     enabled: true
     persistentVolumeClaim:
       registry:
-        storageClass: "microk8s-hostpath"
+        storageClass: ""
         size: 50Gi
       database:
-        storageClass: "microk8s-hostpath"
+        storageClass: ""
         size: 5Gi
       jobservice:
         jobLog:
-          storageClass: "microk8s-hostpath"
+          storageClass: ""
           size: 1Gi
       redis:
-        storageClass: "microk8s-hostpath"
+        storageClass: ""
         size: 1Gi
       trivy:
-        storageClass: "microk8s-hostpath"
+        storageClass: ""
         size: 5Gi
 
-  # Internal PostgreSQL & Redis
   database:
     type: internal
   redis:
@@ -255,7 +247,6 @@ harbor:
   # ---------------------------------------------------------
   oidc:
     enabled: true
-    # Harbor shares the 'otterscale' Keycloak client (no separate client needed)
     scope: "openid,profile,email"
     autoOnboard: true
     groupsClaim: "groups"
