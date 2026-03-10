@@ -132,6 +132,7 @@ data:
       - name: helper-pod
         image: busybox
         imagePullPolicy: IfNotPresent
+        tag: 1.32
 ---
 apiVersion: apps/v1
 kind: Deployment
