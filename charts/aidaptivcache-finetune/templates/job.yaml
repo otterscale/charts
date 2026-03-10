@@ -83,7 +83,6 @@ spec:
         - -c
         - |
           set -eu
-          set -o pipefail 2>/dev/null || true
 
           OUTPUT_DIR={{ .Values.envConfig.pathSettings.outputDir | quote }}
           OUTPUT_IMAGE_REPO={{ .Values.outputImage.repository | quote }}
