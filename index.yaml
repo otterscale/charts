@@ -591,6 +591,46 @@ entries:
   otterscale:
   - apiVersion: v2
     appVersion: v0.8.0
+    created: "2026-03-10T03:28:59.716292179Z"
+    dependencies:
+    - condition: keycloakx.enabled
+      name: keycloakx
+      repository: https://codecentric.github.io/helm-charts
+      version: 7.1.7
+    - condition: valkey.enabled
+      name: valkey
+      repository: https://valkey.io/valkey-helm/
+      version: 0.9.3
+    - condition: harbor.enabled
+      name: harbor
+      repository: https://helm.goharbor.io
+      version: 1.18.2
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: OtterScale - A unified platform for simplified compute, storage,
+      and networking
+    digest: 80a5cb66c76222be256ed4f4e43dc323f13e8ccf569258b1e2a51bda8f29c9cd
+    home: https://otterscale.github.io
+    icon: https://github.com/otterscale.png
+    keywords:
+    - otterscale
+    maintainers:
+    - email: terry_wu@phison.com
+      name: Yi-Lin Wu
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale
+    sources:
+    - https://github.com/otterscale/otterscale
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-0.8.4/otterscale-0.8.4.tgz
+    version: 0.8.4
+  - apiVersion: v2
+    appVersion: v0.8.0
     created: "2026-03-06T08:01:12.508905353Z"
     dependencies:
     - condition: keycloakx.enabled
@@ -1700,4 +1740,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-03-10T03:27:39.402243967Z"
+generated: "2026-03-10T03:28:59.716615694Z"
