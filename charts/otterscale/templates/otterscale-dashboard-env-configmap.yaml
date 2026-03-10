@@ -9,6 +9,6 @@ metadata:
 data:
   API_URL: "http://{{ include "otterscale.server.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.otterscaleServer.ports.http }}"
   PUBLIC_WEB_URL: "{{ include "otterscale.externalURL" . }}"
+  PUBLIC_HARBOR_URL: {{ .Values.harbor.externalURL }}
   KEYCLOAK_REALM_URL: "{{ include "otterscale.externalURL" . }}/auth/realms/otterscale"
   KEYCLOAK_CLIENT_ID: {{ .Values.keycloakx.client.id }}
-  HARBOR_URL: {{ .Values.harbor.externalURL }}
