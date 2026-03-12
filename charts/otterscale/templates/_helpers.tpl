@@ -71,9 +71,9 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- printf "%s://%s" (include "otterscale.scheme" .) .Values.istio.externalIP -}}
 {{- end -}}
 
-{{- define "otterscale.keycloak.clientSecret" -}}
+{{- define "otterscale.keycloakx.clientSecret" -}}
 {{- if not (index .Values "_cachedClientSecret" | default "") -}}
-  {{- $secretName := printf "%s-keycloak-client-secret" (include "otterscale.fullname" .) -}}
+  {{- $secretName := printf "%s-keycloakx-client-secret" (include "otterscale.fullname" .) -}}
   {{- $secretKey := "client-secret" -}}
   {{- $value := "" -}}
   {{- if .Values.keycloakx.client.secret -}}
@@ -93,11 +93,11 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 
 {{- define "otterscale.valkey.password" -}}
 {{- if not (index .Values "_cachedValkeyPassword" | default "") -}}
-  {{- $secretName := printf "%s-valkey" (include "otterscale.fullname" .) -}}
+  {{- $secretName := printf "%s-dashboard-valkey" (include "otterscale.fullname" .) -}}
   {{- $secretKey := "valkey-password" -}}
   {{- $value := "" -}}
-  {{- if .Values.valkey.password -}}
-    {{- $value = .Values.valkey.password -}}
+  {{- if (index .Values "dashboard-valkey").password -}}
+    {{- $value = (index .Values "dashboard-valkey").password -}}
   {{- else -}}
     {{- $existingSecret := (lookup "v1" "Secret" .Release.Namespace $secretName) -}}
     {{- if and $existingSecret (hasKey $existingSecret.data $secretKey) -}}

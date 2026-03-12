@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "otterscale.fullname" . }}-postgres
+  name: {{ include "otterscale.fullname" . }}-keycloakx-postgres
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "otterscale.labels" . | nindent 4 }}
@@ -20,7 +20,7 @@ spec:
         {{- include "otterscale.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: database
       annotations:
-        checksum/secret: {{ include (print $.Template.BasePath "/postgres-secret.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/keycloakx-postgres-secret.yaml") . | sha256sum }}
     spec:
       containers:
         - name: postgres
@@ -82,7 +82,7 @@ spec:
         - name: postgres-data
         {{- if .Values.keycloakx.database.persistence.enabled }}
           persistentVolumeClaim:
-            claimName: {{ include "otterscale.fullname" . }}-postgres-data
+            claimName: {{ include "otterscale.fullname" . }}-keycloakx-postgres-data
         {{- else }}
           emptyDir: {}
         {{- end }}

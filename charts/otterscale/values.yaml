@@ -24,6 +24,11 @@ storage:
       repository: rancher/local-path-provisioner
       tag: v0.0.28
       pullPolicy: IfNotPresent
+    helperPod:
+      image:
+        repository: busybox
+        tag: "1.32"
+        pullPolicy: IfNotPresent
 
 # -----------------------------------------------------------------------------
 # OtterScale Service Configuration
@@ -81,9 +86,9 @@ istio:
       - "*"
 
 # -----------------------------------------------------------------------------
-# Valkey Configuration (for otterscale-web)
+# Valkey Configuration (for otterscale-dashboard)
 # -----------------------------------------------------------------------------
-valkey:
+dashboard-valkey:
   enabled: true
   aclUsers:
     default:
@@ -118,9 +123,9 @@ keycloakx:
 
   extraEnvFrom: |
     - configMapRef:
-        name: otterscale-keycloak-env
+        name: otterscale-keycloakx-env
     - secretRef:
-        name: otterscale-keycloak-admin
+        name: otterscale-keycloakx-admin
 
   dbchecker:
     enabled: true
@@ -128,9 +133,9 @@ keycloakx:
     vendor: postgres
     database: keycloak
     username: keycloak
-    existingSecret: keycloak-postgres
+    existingSecret: keycloakx-postgres
     existingSecretKey: "postgres-password"
-    hostname: keycloak-postgres
+    hostname: keycloakx-postgres
     port: 5432
     image:
       repository: postgres

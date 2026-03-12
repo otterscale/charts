@@ -28,8 +28,8 @@ spec:
             type: DirectoryOrCreate
       containers:
         - name: mkdir
-          image: busybox:1.32
-          imagePullPolicy: IfNotPresent
+          image: "{{ .Values.storage.localPath.helperPod.image.repository }}:{{ .Values.storage.localPath.helperPod.image.tag }}"
+          imagePullPolicy: {{ .Values.storage.localPath.helperPod.image.pullPolicy }}
           command:
             - sh
             - -c
