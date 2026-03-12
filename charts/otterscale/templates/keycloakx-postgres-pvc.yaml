@@ -2,7 +2,7 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ include "otterscale.fullname" . }}-postgres-data
+  name: {{ include "otterscale.fullname" . }}-keycloakx-postgres-data
   namespace: {{ .Release.Namespace }}
   annotations:
     helm.sh/resource-policy: keep
