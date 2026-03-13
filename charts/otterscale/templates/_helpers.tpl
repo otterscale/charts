@@ -136,20 +136,6 @@ Keycloak internal service FQDN.
 {{- printf "%s-keycloakx-http" .Release.Name -}}
 {{- end -}}
 
-{{/*
-Keycloak realm URL (internal, via cluster DNS).
-Omits port when it is the default HTTP port (80).
-*/}}
-{{- define "otterscale.keycloakx.internalRealmURL" -}}
-{{- $relativePath := .Values.keycloakx.http.relativePath | trimSuffix "/" -}}
-{{- $host := printf "%s.%s.svc.cluster.local" (include "otterscale.keycloakx.serviceName" .) (include "otterscale.namespace" .) -}}
-{{- if eq (int .Values.keycloakx.service.port) 80 -}}
-  {{- printf "http://%s%s/realms/%s" $host $relativePath .Values.keycloakx.realm -}}
-{{- else -}}
-  {{- printf "http://%s:%v%s/realms/%s" $host (.Values.keycloakx.service.port) $relativePath .Values.keycloakx.realm -}}
-{{- end -}}
-{{- end -}}
-
 {{- define "otterscale.keycloakx.clientSecret" -}}
 {{- if not (index .Values "_cachedClientSecret" | default "") -}}
   {{- $secretName := printf "%s-keycloakx-client-secret" (include "otterscale.fullname" .) -}}

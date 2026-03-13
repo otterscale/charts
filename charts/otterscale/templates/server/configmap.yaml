@@ -13,7 +13,7 @@ data:
   OTTERSCALE_SERVER_EXTERNAL_TUNNEL_URL: {{ include "otterscale.server.externalTunnelURL" . | quote }}
   OTTERSCALE_SERVER_ALLOWED_ORIGINS: {{ include "otterscale.externalURL" . | quote }}
   {{- if .Values.keycloakx.enabled }}
-  OTTERSCALE_SERVER_KEYCLOAK_REALM_URL: {{ include "otterscale.keycloakx.internalRealmURL" . | quote }}
+  OTTERSCALE_SERVER_KEYCLOAK_REALM_URL: {{ include "otterscale.keycloakx.realmURL" . | quote }}
   OTTERSCALE_SERVER_KEYCLOAK_CLIENT_ID: {{ .Values.keycloakx.client.id | quote }}
   {{- end }}
   {{- if .Values.harbor.enabled }}
