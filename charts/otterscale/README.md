@@ -211,7 +211,7 @@ ingress:
 
 ```bash
 helm dependency build
-helm install otterscale . -f override.yaml
+helm install otterscale . -f overrides.yaml
 ```
 
 ### 4. Access
