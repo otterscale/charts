@@ -45,7 +45,7 @@ helm install otterscale . \
 ### Install with overrides
 
 ```bash
-helm install otterscale . -f override.yaml
+helm install otterscale . -f overrides.yaml
 ```
 
 ## Networking Modes
@@ -143,6 +143,15 @@ nodes:
       - containerPort: 443
         hostPort: 443
         protocol: TCP
+      - containerPort: 30299
+        hostPort: 30299
+        protocol: TCP
+      - containerPort: 30300
+        hostPort: 30300
+        protocol: TCP
+      - containerPort: 32180
+        hostPort: 32180
+        protocol: TCP
 ```
 
 ```bash
@@ -163,8 +172,20 @@ kubectl wait --namespace ingress-nginx \
 ### 3. Install OtterScale
 
 ```yaml
-# override.yaml
-externalURL: "http://127.0.0.1"
+# overrides.yaml
+externalURL: "http://192.168.1.100"
+serverExternalURL: "http://192.168.1.100:30299"
+serverExternalTunnelURL: "https://192.168.1.100:30300"
+
+harbor:
+  externalURL: http://192.168.1.100:32180
+
+server:
+  service:
+    type: NodePort
+    nodePorts:
+      http: "30299"
+      tunnel: "30300"
 
 ingress:
   enabled: true
@@ -182,6 +203,10 @@ ingress:
         - path: /auth/
           pathType: Prefix
           service: keycloak
+        - path: /harbor
+          pathType: Prefix
+          service: harbor
+          rewrite: true
 ```
 
 ```bash
@@ -192,23 +217,23 @@ helm install otterscale . -f override.yaml
 ### 4. Access
 
 ```
-http://localhost/           -> Dashboard
-http://localhost/api/       -> Server API
-http://localhost/auth/      -> Keycloak
+http://192.168.1.100/           -> Dashboard
+http://192.168.1.100/api/       -> Server API
+http://192.168.1.100/auth/      -> Keycloak
 ```
 
 ## Parameters
 
 ### Global
 
-| Parameter                 | Description                                              | Default |
-| ------------------------- | -------------------------------------------------------- | ------- |
-| `externalURL`               | Base external URL, e.g. `http://192.168.1.100` (required) | `""`    |
-| `global.imageRegistry`    | Override image registry for all images                   | `""`    |
-| `global.imagePullSecrets` | Global image pull secrets                                | `[]`    |
-| `global.storageClass`     | Default StorageClass for all PVCs                        | `""`    |
-| `nameOverride`            | Override chart name in resource names                    | `""`    |
-| `fullnameOverride`        | Override full resource name prefix                       | `""`    |
+| Parameter                 | Description                                               | Default |
+| ------------------------- | --------------------------------------------------------- | ------- |
+| `externalURL`             | Base external URL, e.g. `http://192.168.1.100` (required) | `""`    |
+| `global.imageRegistry`    | Override image registry for all images                    | `""`    |
+| `global.imagePullSecrets` | Global image pull secrets                                 | `[]`    |
+| `global.storageClass`     | Default StorageClass for all PVCs                         | `""`    |
+| `nameOverride`            | Override chart name in resource names                     | `""`    |
+| `fullnameOverride`        | Override full resource name prefix                        | `""`    |
 
 ### Storage
 
