@@ -1,8 +1,8 @@
 apiVersion: v2
 name: otterscale
 # renovate: github=otterscale/otterscale
-appVersion: v0.8.0
-version: 0.8.8
+appVersion: v0.9.0-beta.1
+version: 0.9.0-beta.1
 description: OtterScale - A unified platform for simplified compute, storage, and networking
 home: https://otterscale.github.io
 icon: https://github.com/otterscale.png
@@ -15,7 +15,27 @@ maintainers:
     email: paul_tsai@phison.com
 keywords:
   - otterscale
+  - kubernetes
+  - helm
 type: application
+kubeVersion: ">=1.25.0-0"
+annotations:
+  artifacthub.io/changes: |
+    - kind: added
+      description: ServiceAccount, HPA, PDB, NetworkPolicy, ServiceMonitor templates
+    - kind: added
+      description: Standard Kubernetes Ingress support
+    - kind: added
+      description: values.schema.json for input validation
+    - kind: added
+      description: NOTES.txt post-install instructions
+    - kind: added
+      description: Helm test templates for connectivity verification
+    - kind: changed
+      description: Template directory reorganization by component
+    - kind: changed
+      description: Full parameterization of resources, probes, security contexts, and service types
+  artifacthub.io/license: Apache-2.0
 dependencies:
   - condition: keycloakx.enabled
     repository: "https://codecentric.github.io/helm-charts"

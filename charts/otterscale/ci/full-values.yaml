@@ -1,0 +1,113 @@
+# CI test: all optional features enabled.
+# Used by: helm lint, helm template, chart-testing (ct lint)
+
+global:
+  imageRegistry: "registry.example.com"
+  imagePullSecrets:
+    - name: regcred
+
+externalURL: "https://10.0.0.1"
+
+istio:
+  enabled: true
+  tls:
+    enabled: true
+    existingSecret: otterscale-tls
+  gateway:
+    selector:
+      istio: ingressgateway
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+  hosts:
+    - host: otterscale.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: dashboard
+        - path: /api/
+          pathType: Prefix
+          service: server
+        - path: /auth/
+          pathType: Prefix
+          service: keycloak
+  tls:
+    - secretName: otterscale-tls
+      hosts:
+        - otterscale.example.com
+
+server:
+  replicaCount: 2
+  serviceAccount:
+    create: true
+    annotations:
+      eks.amazonaws.com/role-arn: "arn:aws:iam::role/otterscale"
+  service:
+    type: NodePort
+    nodePorts:
+      http: 30299
+      tunnel: 30300
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 75
+  pdb:
+    create: true
+    minAvailable: 1
+  networkPolicy:
+    enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 15s
+    labels:
+      release: prometheus
+  resources:
+    requests:
+      cpu: "1"
+      memory: "1Gi"
+    limits:
+      cpu: "2"
+      memory: "2Gi"
+  nodeSelector:
+    kubernetes.io/os: linux
+  tolerations:
+    - key: "dedicated"
+      operator: "Equal"
+      value: "otterscale"
+      effect: "NoSchedule"
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: DoNotSchedule
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/component: backend
+
+dashboard:
+  replicaCount: 2
+  serviceAccount:
+    create: true
+  service:
+    type: ClusterIP
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 8
+    targetCPUUtilizationPercentage: 80
+  pdb:
+    create: true
+    minAvailable: 1
+  networkPolicy:
+    enabled: true
+  serviceMonitor:
+    enabled: true
+    labels:
+      release: prometheus
+
+harbor:
+  enabled: true
+  externalURL: "http://10.0.0.1:32180"

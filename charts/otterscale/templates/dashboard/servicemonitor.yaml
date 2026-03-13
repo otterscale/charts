@@ -1,0 +1,31 @@
+{{- if .Values.dashboard.serviceMonitor.enabled -}}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "otterscale.dashboard.fullname" . }}
+  namespace: {{ .Values.dashboard.serviceMonitor.namespace | default (include "otterscale.namespace" .) }}
+  labels:
+    {{- include "otterscale.dashboard.labels" . | nindent 4 }}
+    {{- with .Values.dashboard.serviceMonitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "otterscale.dashboard.selectorLabels" . | nindent 6 }}
+  namespaceSelector:
+    matchNames:
+      - {{ include "otterscale.namespace" . }}
+  endpoints:
+    - port: http
+      interval: {{ .Values.dashboard.serviceMonitor.interval }}
+      scrapeTimeout: {{ .Values.dashboard.serviceMonitor.scrapeTimeout }}
+      {{- with .Values.dashboard.serviceMonitor.metricRelabelings }}
+      metricRelabelings:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.dashboard.serviceMonitor.relabelings }}
+      relabelings:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

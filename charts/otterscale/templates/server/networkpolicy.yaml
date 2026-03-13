@@ -1,0 +1,39 @@
+{{- if .Values.server.networkPolicy.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "otterscale.server.fullname" . }}
+  namespace: {{ include "otterscale.namespace" . }}
+  labels:
+    {{- include "otterscale.server.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "otterscale.server.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - ports:
+        - port: {{ .Values.server.ports.http }}
+          protocol: TCP
+        - port: {{ .Values.server.ports.tunnel }}
+          protocol: TCP
+    {{- with .Values.server.networkPolicy.ingress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  egress:
+    # Allow DNS resolution
+    - ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    # Allow traffic to pods in the same namespace (Keycloak, PostgreSQL, Harbor)
+    - to:
+        - namespaceSelector: {}
+          podSelector: {}
+    {{- with .Values.server.networkPolicy.egress }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- end }}

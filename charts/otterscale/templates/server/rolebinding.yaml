@@ -1,0 +1,15 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "otterscale.server.fullname" . }}
+  namespace: {{ include "otterscale.namespace" . }}
+  labels:
+    {{- include "otterscale.server.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "otterscale.server.fullname" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "otterscale.server.serviceAccountName" . }}
+    namespace: {{ include "otterscale.namespace" . }}

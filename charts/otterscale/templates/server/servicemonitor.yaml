@@ -1,0 +1,32 @@
+{{- if .Values.server.serviceMonitor.enabled -}}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "otterscale.server.fullname" . }}
+  namespace: {{ .Values.server.serviceMonitor.namespace | default (include "otterscale.namespace" .) }}
+  labels:
+    {{- include "otterscale.server.labels" . | nindent 4 }}
+    {{- with .Values.server.serviceMonitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "otterscale.server.selectorLabels" . | nindent 6 }}
+  namespaceSelector:
+    matchNames:
+      - {{ include "otterscale.namespace" . }}
+  endpoints:
+    - port: connectrpc
+      path: /metrics
+      interval: {{ .Values.server.serviceMonitor.interval }}
+      scrapeTimeout: {{ .Values.server.serviceMonitor.scrapeTimeout }}
+      {{- with .Values.server.serviceMonitor.metricRelabelings }}
+      metricRelabelings:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.server.serviceMonitor.relabelings }}
+      relabelings:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

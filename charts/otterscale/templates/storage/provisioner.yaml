@@ -1,0 +1,208 @@
+{{- if .Values.storage.localPath.enabled }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "otterscale.fullname" . }}-local-path-sa
+  namespace: {{ include "otterscale.namespace" . }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+    app.kubernetes.io/component: local-path-provisioner
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "otterscale.fullname" . }}-local-path-role
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+    app.kubernetes.io/component: local-path-provisioner
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["get", "list", "watch", "create", "patch", "update", "delete"]
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get", "list", "watch", "update"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["storageclasses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "patch"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "otterscale.fullname" . }}-local-path-bind
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+    app.kubernetes.io/component: local-path-provisioner
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "otterscale.fullname" . }}-local-path-role
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "otterscale.fullname" . }}-local-path-sa
+    namespace: {{ include "otterscale.namespace" . }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "otterscale.fullname" . }}-local-path-ns-role
+  namespace: {{ include "otterscale.namespace" . }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+    app.kubernetes.io/component: local-path-provisioner
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["endpoints"]
+    verbs: ["get", "create", "update"]
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["get", "create", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "otterscale.fullname" . }}-local-path-ns-bind
+  namespace: {{ include "otterscale.namespace" . }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+    app.kubernetes.io/component: local-path-provisioner
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "otterscale.fullname" . }}-local-path-ns-role
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "otterscale.fullname" . }}-local-path-sa
+    namespace: {{ include "otterscale.namespace" . }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "otterscale.fullname" . }}-local-path-config
+  namespace: {{ include "otterscale.namespace" . }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+    app.kubernetes.io/component: local-path-provisioner
+data:
+  config.json: |-
+    {
+      "nodePathMap": [
+        {
+          "node": "DEFAULT_PATH_FOR_NON_LISTED_NODES",
+          "paths": ["{{ .Values.storage.localPath.path }}"]
+        }
+      ]
+    }
+  setup: |-
+    #!/bin/sh
+    set -eu
+    mkdir -m 0777 -p "$VOL_DIR"
+  teardown: |-
+    #!/bin/sh
+    set -eu
+    rm -rf "$VOL_DIR"
+  helperPod.yaml: |-
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: helper-pod
+    spec:
+      serviceAccountName: {{ include "otterscale.fullname" . }}-local-path-sa
+      priorityClassName: system-node-critical
+      tolerations:
+        - key: node.kubernetes.io/disk-pressure
+          operator: Exists
+          effect: NoSchedule
+      containers:
+      - name: helper-pod
+        image: "{{ .Values.storage.localPath.helperPod.image.repository }}:{{ .Values.storage.localPath.helperPod.image.tag }}"
+        imagePullPolicy: {{ .Values.storage.localPath.helperPod.image.pullPolicy }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "otterscale.fullname" . }}-local-path-provisioner
+  namespace: {{ include "otterscale.namespace" . }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+    app.kubernetes.io/component: local-path-provisioner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "otterscale.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: local-path-provisioner
+  template:
+    metadata:
+      labels:
+        {{- include "otterscale.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: local-path-provisioner
+    spec:
+      serviceAccountName: {{ include "otterscale.fullname" . }}-local-path-sa
+      containers:
+        - name: local-path-provisioner
+          image: "{{ .Values.storage.localPath.image.repository }}:{{ .Values.storage.localPath.image.tag }}"
+          imagePullPolicy: {{ .Values.storage.localPath.image.pullPolicy }}
+          command:
+            - local-path-provisioner
+            - start
+            - --config
+            - /etc/config/config.json
+            - --configmap-name
+            - {{ include "otterscale.fullname" . }}-local-path-config
+            - --provisioner-name
+            - {{ include "otterscale.localPath.provisionerName" . }}
+            - --service-account-name
+            - {{ include "otterscale.fullname" . }}-local-path-sa
+            - --helper-image
+            - "{{ .Values.storage.localPath.helperPod.image.repository }}:{{ .Values.storage.localPath.helperPod.image.tag }}"
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/config
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ include "otterscale.fullname" . }}-local-path-config
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ .Values.storage.localPath.storageClassName }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+    app.kubernetes.io/component: local-path-provisioner
+  {{- if .Values.storage.localPath.isDefault }}
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+  {{- end }}
+provisioner: {{ include "otterscale.localPath.provisionerName" . }}
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: {{ .Values.storage.localPath.reclaimPolicy }}
+{{- end }}
