@@ -89,7 +89,7 @@ server:
     # -- Annotations added to the ServiceAccount.
     annotations: {}
     # -- Automount API credentials into pods.
-    automountServiceAccountToken: false
+    automountServiceAccountToken: true
 
   # -- Deployment revision history limit (number of old ReplicaSets to retain).
   revisionHistoryLimit: 3
@@ -419,7 +419,9 @@ ingress:
   # -- IngressClass name (e.g. "nginx", "traefik").
   className: ""
   # -- Annotations added to the Ingress resource.
-  annotations: {}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
   # -- Ingress host rules.
   hosts:
     - host: otterscale.local
