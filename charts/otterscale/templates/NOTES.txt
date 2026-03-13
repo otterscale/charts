@@ -1,0 +1,33 @@
+OtterScale has been deployed successfully!
+
+{{- if .Values.istio.enabled }}
+
+Access via Istio:
+  External URL: {{ include "otterscale.externalURL" . }}
+  Dashboard:    {{ include "otterscale.externalURL" . }}/
+  API:          {{ include "otterscale.externalURL" . }}/api/
+  Keycloak:     {{ include "otterscale.externalURL" . }}{{ .Values.keycloakx.http.relativePath }}
+
+{{- else if .Values.ingress.enabled }}
+
+Access via Ingress:
+  {{- range .Values.ingress.hosts }}
+  Host: {{ .host }}
+  {{- end }}
+
+{{- else }}
+
+Access via NodePort:
+  Server API:   http://<NODE_IP>:{{ .Values.server.service.nodePorts.http | default .Values.server.ports.http }}
+  Dashboard:    kubectl port-forward -n {{ include "otterscale.namespace" . }} svc/{{ include "otterscale.dashboard.fullname" . }} {{ .Values.dashboard.ports.http }}:{{ .Values.dashboard.ports.http }}
+
+{{- end }}
+
+{{- if .Values.keycloakx.enabled }}
+
+Keycloak Admin:
+  Username: {{ .Values.keycloakx.auth.adminUser }}
+  Password: kubectl get secret -n {{ include "otterscale.namespace" . }} {{ .Release.Name }}-keycloakx-admin -o jsonpath="{.data.KC_BOOTSTRAP_ADMIN_PASSWORD}" | base64 -d
+{{- end }}
+
+Run 'helm test {{ .Release.Name }}' to verify the deployment.

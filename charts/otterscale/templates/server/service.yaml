@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "otterscale.server.fullname" . }}
+  namespace: {{ include "otterscale.namespace" . }}
+  labels:
+    {{- include "otterscale.server.labels" . | nindent 4 }}
+    {{- with .Values.server.service.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.server.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.server.service.type }}
+  selector:
+    {{- include "otterscale.server.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: connectrpc
+      port: {{ .Values.server.ports.http }}
+      targetPort: http
+      {{- if and (eq .Values.server.service.type "NodePort") .Values.server.service.nodePorts.http }}
+      nodePort: {{ .Values.server.service.nodePorts.http }}
+      {{- end }}
+      protocol: TCP
+    - name: tunnel
+      port: {{ .Values.server.ports.tunnel }}
+      targetPort: tunnel
+      {{- if and (eq .Values.server.service.type "NodePort") .Values.server.service.nodePorts.tunnel }}
+      nodePort: {{ .Values.server.service.nodePorts.tunnel }}
+      {{- end }}
+      protocol: TCP
