@@ -11,7 +11,7 @@ data:
   PUBLIC_WEB_URL: {{ include "otterscale.externalURL" . | quote }}
   {{- if .Values.keycloakx.enabled }}
   KEYCLOAK_REALM_URL: {{ include "otterscale.keycloakx.realmURL" . | quote }}
-  KEYCLOAK_CLIENT_ID: {{ .Values.keycloakx.client.id | quote }}
+  KEYCLOAK_CLIENT_ID: {{ .Values.keycloakx.clients.dashboard.id | quote }}
   {{- end }}
   {{- if .Values.harbor.enabled }}
   PUBLIC_HARBOR_URL: {{ .Values.harbor.externalURL | quote }}

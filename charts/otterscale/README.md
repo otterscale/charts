@@ -310,15 +310,17 @@ http://192.168.1.100/auth/      -> Keycloak
 
 ### Keycloak
 
-| Parameter                             | Description                                  | Default      |
-| ------------------------------------- | -------------------------------------------- | ------------ |
-| `keycloakx.enabled`                   | Deploy Keycloak                              | `true`       |
-| `keycloakx.realm`                     | Realm name                                   | `otterscale` |
-| `keycloakx.auth.adminUser`            | Admin username                               | `admin`      |
-| `keycloakx.auth.adminPassword`        | Admin password (auto-generated if empty)     | `""`         |
-| `keycloakx.client.id`                 | OIDC client ID                               | `otterscale` |
-| `keycloakx.client.secret`             | OIDC client secret (auto-generated if empty) | `""`         |
-| `keycloakx.database.persistence.size` | PostgreSQL PVC size                          | `5Gi`        |
+| Parameter                             | Description                                       | Default                |
+| ------------------------------------- | ------------------------------------------------- | ---------------------- |
+| `keycloakx.enabled`                   | Deploy Keycloak                                   | `true`                 |
+| `keycloakx.realm`                     | Realm name                                        | `otterscale`           |
+| `keycloakx.auth.adminUser`            | Admin username                                    | `admin`                |
+| `keycloakx.auth.adminPassword`        | Admin password (auto-generated if empty)          | `""`                   |
+| `keycloakx.clients.dashboard.id`      | OIDC client ID for dashboard & server             | `otterscale-dashboard` |
+| `keycloakx.clients.dashboard.secret`  | Dashboard client secret (auto-generated if empty) | `""`                   |
+| `keycloakx.clients.harbor.id`         | OIDC client ID for Harbor                         | `otterscale-harbor`    |
+| `keycloakx.clients.harbor.secret`     | Harbor client secret (auto-generated if empty)    | `""`                   |
+| `keycloakx.database.persistence.size` | PostgreSQL PVC size                               | `5Gi`                  |
 
 ### Valkey
 

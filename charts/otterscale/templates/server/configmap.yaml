@@ -14,7 +14,7 @@ data:
   OTTERSCALE_SERVER_ALLOWED_ORIGINS: {{ include "otterscale.externalURL" . | quote }}
   {{- if .Values.keycloakx.enabled }}
   OTTERSCALE_SERVER_KEYCLOAK_REALM_URL: {{ include "otterscale.keycloakx.realmURL" . | quote }}
-  OTTERSCALE_SERVER_KEYCLOAK_CLIENT_ID: {{ .Values.keycloakx.client.id | quote }}
+  OTTERSCALE_SERVER_KEYCLOAK_CLIENT_ID: {{ .Values.keycloakx.clients.dashboard.id | quote }}
   {{- end }}
   {{- if .Values.harbor.enabled }}
   OTTERSCALE_SERVER_HARBOR_URL: {{ .Values.harbor.externalURL | quote }}

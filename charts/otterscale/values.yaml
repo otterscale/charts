@@ -505,9 +505,16 @@ keycloakx:
     # -- Keycloak bootstrap admin username.
     adminUser: admin
     adminPassword: ""
-  client:
-    id: otterscale
-    secret: ""
+  clients:
+    dashboard:
+      # -- Keycloak client ID for the dashboard (authorization code + PKCE flow).
+      # The server also uses this client ID to validate tokens.
+      id: otterscale-dashboard
+      secret: ""
+    harbor:
+      # -- Keycloak client ID for Harbor OIDC integration.
+      id: otterscale-harbor
+      secret: ""
   http:
     relativePath: /auth/
   # -- Keycloak HTTP service port (as exposed by the codecentric chart).
