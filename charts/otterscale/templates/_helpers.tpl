@@ -136,13 +136,13 @@ Keycloak internal service FQDN.
 {{- printf "%s-keycloakx-http" .Release.Name -}}
 {{- end -}}
 
-{{- define "otterscale.keycloakx.clientSecret" -}}
-{{- if not (index .Values "_cachedClientSecret" | default "") -}}
-  {{- $secretName := printf "%s-keycloakx-client-secret" (include "otterscale.fullname" .) -}}
+{{- define "otterscale.keycloakx.dashboardClientSecret" -}}
+{{- if not (index .Values "_cachedDashboardClientSecret" | default "") -}}
+  {{- $secretName := printf "%s-keycloakx-dashboard-client-secret" (include "otterscale.fullname" .) -}}
   {{- $secretKey := "client-secret" -}}
   {{- $value := "" -}}
-  {{- if .Values.keycloakx.client.secret -}}
-    {{- $value = .Values.keycloakx.client.secret -}}
+  {{- if .Values.keycloakx.clients.dashboard.secret -}}
+    {{- $value = .Values.keycloakx.clients.dashboard.secret -}}
   {{- else -}}
     {{- $existingSecret := (lookup "v1" "Secret" (include "otterscale.namespace" .) $secretName) -}}
     {{- if and $existingSecret (hasKey $existingSecret.data $secretKey) -}}
@@ -151,9 +151,29 @@ Keycloak internal service FQDN.
       {{- $value = randAlphaNum 32 -}}
     {{- end -}}
   {{- end -}}
-  {{- $_ := set .Values "_cachedClientSecret" $value -}}
+  {{- $_ := set .Values "_cachedDashboardClientSecret" $value -}}
 {{- end -}}
-{{- index .Values "_cachedClientSecret" -}}
+{{- index .Values "_cachedDashboardClientSecret" -}}
+{{- end -}}
+
+{{- define "otterscale.keycloakx.harborClientSecret" -}}
+{{- if not (index .Values "_cachedHarborClientSecret" | default "") -}}
+  {{- $secretName := printf "%s-keycloakx-harbor-client-secret" (include "otterscale.fullname" .) -}}
+  {{- $secretKey := "client-secret" -}}
+  {{- $value := "" -}}
+  {{- if .Values.keycloakx.clients.harbor.secret -}}
+    {{- $value = .Values.keycloakx.clients.harbor.secret -}}
+  {{- else -}}
+    {{- $existingSecret := (lookup "v1" "Secret" (include "otterscale.namespace" .) $secretName) -}}
+    {{- if and $existingSecret (hasKey $existingSecret.data $secretKey) -}}
+      {{- $value = index $existingSecret.data $secretKey | b64dec -}}
+    {{- else -}}
+      {{- $value = randAlphaNum 32 -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $_ := set .Values "_cachedHarborClientSecret" $value -}}
+{{- end -}}
+{{- index .Values "_cachedHarborClientSecret" -}}
 {{- end -}}
 
 {{- define "otterscale.valkey.password" -}}
