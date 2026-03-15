@@ -7,6 +7,7 @@ metadata:
     {{- include "otterscale.labels" . | nindent 4 }}
     app.kubernetes.io/component: frontend
 data:
+  ORIGIN: {{ include "otterscale.externalURL" . | quote }}
   API_URL: "http://{{ include "otterscale.server.fullname" . }}.{{ include "otterscale.namespace" . }}.svc.cluster.local:{{ .Values.server.ports.http }}"
   PUBLIC_WEB_URL: {{ include "otterscale.externalURL" . | quote }}
   {{- if .Values.keycloakx.enabled }}
