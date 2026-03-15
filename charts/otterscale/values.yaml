@@ -499,6 +499,7 @@ dashboard-valkey:
 # =============================================================================
 keycloakx:
   enabled: true
+  nameOverride: keycloak
   # -- Keycloak realm name.
   realm: otterscale
   auth:
@@ -526,7 +527,6 @@ keycloakx:
     - -c
     - |
       /opt/keycloak/bin/kc.sh start \
-      --verbose \
       --import-realm \
       --http-port=8080 \
       --http-enabled=true \
@@ -540,9 +540,9 @@ keycloakx:
   # differently in subchart context).
   extraEnvFrom: |
     - configMapRef:
-        name: {{ .Release.Name }}-keycloakx-env
+        name: {{ .Release.Name }}-{{ default "keycloakx" .Values.nameOverride }}-env
     - secretRef:
-        name: {{ .Release.Name }}-keycloakx-admin
+        name: {{ .Release.Name }}-{{ default "keycloakx" .Values.nameOverride }}-admin
 
   dbchecker:
     enabled: true
@@ -553,9 +553,9 @@ keycloakx:
     # -- Name of the Secret and headless Service for PostgreSQL.
     # Must match the resources created by keycloak/postgres-*.yaml templates.
     # These values are NOT tpl-evaluated by the keycloakx subchart.
-    existingSecret: otterscale-keycloakx-postgres
+    existingSecret: otterscale-keycloak-postgres
     existingSecretKey: "postgres-password"
-    hostname: otterscale-keycloakx-postgres
+    hostname: otterscale-keycloak-postgres
     port: 5432
     image:
       repository: postgres
@@ -679,7 +679,7 @@ harbor:
     scope: "openid,profile,email"
     autoOnboard: true
     groupsClaim: "groups"
-    adminGroup: "harbor_admins"
+    adminGroup: "harbor_admin"
     # -- Name of the Secret containing Harbor OIDC config JSON.
     # Must match the name referenced in harbor.core.extraEnvVars.
     configSecretName: "otterscale-harbor-oidc-config"

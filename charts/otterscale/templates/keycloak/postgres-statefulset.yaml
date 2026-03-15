@@ -2,7 +2,7 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "otterscale.fullname" . }}-keycloakx-postgres
+  name: {{ include "otterscale.keycloakx.fullname" . }}-postgres
   namespace: {{ include "otterscale.namespace" . }}
   labels:
     {{- include "otterscale.labels" . | nindent 4 }}
@@ -91,7 +91,7 @@ spec:
         - name: postgres-data
         {{- if .Values.keycloakx.database.persistence.enabled }}
           persistentVolumeClaim:
-            claimName: {{ include "otterscale.fullname" . }}-keycloakx-postgres-data
+            claimName: {{ include "otterscale.keycloakx.fullname" . }}-postgres-data
         {{- else }}
           emptyDir: {}
         {{- end }}

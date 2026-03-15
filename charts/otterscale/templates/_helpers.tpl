@@ -130,15 +130,22 @@ Combines externalURL + relativePath + realms/<realm>.
 {{- end -}}
 
 {{/*
+Keycloak fullname: release-name + nameOverride (or "keycloakx" if unset).
+*/}}
+{{- define "otterscale.keycloakx.fullname" -}}
+{{- printf "%s-%s" .Release.Name (default "keycloakx" .Values.keycloakx.nameOverride) -}}
+{{- end -}}
+
+{{/*
 Keycloak internal service FQDN.
 */}}
 {{- define "otterscale.keycloakx.serviceName" -}}
-{{- printf "%s-keycloakx-http" .Release.Name -}}
+{{- printf "%s-http" (include "otterscale.keycloakx.fullname" .) -}}
 {{- end -}}
 
 {{- define "otterscale.keycloakx.dashboardClientSecret" -}}
 {{- if not (index .Values "_cachedDashboardClientSecret" | default "") -}}
-  {{- $secretName := printf "%s-keycloakx-dashboard-client-secret" (include "otterscale.fullname" .) -}}
+  {{- $secretName := printf "%s-dashboard-client-secret" (include "otterscale.keycloakx.fullname" .) -}}
   {{- $secretKey := "client-secret" -}}
   {{- $value := "" -}}
   {{- if .Values.keycloakx.clients.dashboard.secret -}}
@@ -158,7 +165,7 @@ Keycloak internal service FQDN.
 
 {{- define "otterscale.keycloakx.harborClientSecret" -}}
 {{- if not (index .Values "_cachedHarborClientSecret" | default "") -}}
-  {{- $secretName := printf "%s-keycloakx-harbor-client-secret" (include "otterscale.fullname" .) -}}
+  {{- $secretName := printf "%s-harbor-client-secret" (include "otterscale.keycloakx.fullname" .) -}}
   {{- $secretKey := "client-secret" -}}
   {{- $value := "" -}}
   {{- if .Values.keycloakx.clients.harbor.secret -}}
