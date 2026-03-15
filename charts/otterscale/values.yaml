@@ -526,7 +526,6 @@ keycloakx:
     - -c
     - |
       /opt/keycloak/bin/kc.sh start \
-      --verbose \
       --import-realm \
       --http-port=8080 \
       --http-enabled=true \
@@ -679,7 +678,7 @@ harbor:
     scope: "openid,profile,email"
     autoOnboard: true
     groupsClaim: "groups"
-    adminGroup: "harbor_admins"
+    adminGroup: "harbor_admin"
     # -- Name of the Secret containing Harbor OIDC config JSON.
     # Must match the name referenced in harbor.core.extraEnvVars.
     configSecretName: "otterscale-harbor-oidc-config"
