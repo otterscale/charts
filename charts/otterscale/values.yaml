@@ -478,7 +478,7 @@ istio:
     # -- Selector labels to bind the Gateway to an Istio ingress gateway pod.
     # Must match the labels on the target ingress gateway deployment.
     selector:
-      istio: istiod-ingress
+      istio: ingress
     hosts:
       - "*"
 
