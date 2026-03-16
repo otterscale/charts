@@ -21,6 +21,14 @@ A unified platform for simplified compute, storage, and networking.
 | **Valkey**    | Redis-compatible session cache for Dashboard | Enabled |
 | **Harbor**    | Container registry with image scanning       | Enabled |
 
+## Default Credentials
+
+| Service   | Username | Password   |
+| --------- | -------- | ---------- |
+| Dashboard | `admin`  | `password` |
+
+> **Note:** You will be required to change the password on first login.
+
 ## Quick Start
 
 ### Install with Helm
