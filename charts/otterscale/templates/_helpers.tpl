@@ -72,33 +72,33 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
 
 {{/*
-Base external URL (value of .Values.externalURL with trailing slash stripped).
+Base external URL (value of .Values.dashboard.externalURL with trailing slash stripped).
 */}}
 {{- define "otterscale.externalURL" -}}
-{{- .Values.externalURL | trimSuffix "/" -}}
+{{- .Values.dashboard.externalURL | trimSuffix "/" -}}
 {{- end -}}
 
 {{/*
 Extract scheme from externalURL (e.g. "https://example.com" → "https").
 */}}
 {{- define "otterscale.scheme" -}}
-{{- (splitList "://" .Values.externalURL) | first -}}
+{{- (splitList "://" .Values.dashboard.externalURL) | first -}}
 {{- end -}}
 
 {{/*
 Extract host from externalURL (e.g. "https://example.com" → "example.com").
 */}}
 {{- define "otterscale.host" -}}
-{{- (splitList "://" .Values.externalURL) | last | trimSuffix "/" -}}
+{{- (splitList "://" .Values.dashboard.externalURL) | last | trimSuffix "/" -}}
 {{- end -}}
 
 {{/*
 Server external URL advertised to clients.
-Priority: serverExternalURL > auto-derive from nodePort > externalURL.
+Priority: server.externalURL > auto-derive from nodePort > externalURL.
 */}}
 {{- define "otterscale.server.externalURL" -}}
-{{- if .Values.serverExternalURL -}}
-  {{- .Values.serverExternalURL -}}
+{{- if .Values.server.externalURL -}}
+  {{- .Values.server.externalURL -}}
 {{- else if .Values.server.service.nodePorts.http -}}
   {{- printf "%s://%s:%v" (include "otterscale.scheme" .) (include "otterscale.host" .) .Values.server.service.nodePorts.http -}}
 {{- else -}}
@@ -108,11 +108,11 @@ Priority: serverExternalURL > auto-derive from nodePort > externalURL.
 
 {{/*
 Server external tunnel URL advertised to agents.
-Priority: serverExternalTunnelURL > auto-derive from nodePort > externalURL.
+Priority: server.externalTunnelURL > auto-derive from nodePort > externalURL.
 */}}
 {{- define "otterscale.server.externalTunnelURL" -}}
-{{- if .Values.serverExternalTunnelURL -}}
-  {{- .Values.serverExternalTunnelURL -}}
+{{- if .Values.server.externalTunnelURL -}}
+  {{- .Values.server.externalTunnelURL -}}
 {{- else if .Values.server.service.nodePorts.tunnel -}}
   {{- printf "%s://%s:%v" (include "otterscale.scheme" .) (include "otterscale.host" .) .Values.server.service.nodePorts.tunnel -}}
 {{- else -}}
@@ -201,14 +201,6 @@ Keycloak internal service FQDN.
   {{- $_ := set .Values "_cachedValkeyPassword" $value -}}
 {{- end -}}
 {{- index .Values "_cachedValkeyPassword" -}}
-{{- end -}}
-
-{{- define "otterscale.harbor.externalURL" -}}
-{{- if .Values.harbor.externalURL -}}
-  {{- .Values.harbor.externalURL -}}
-{{- else -}}
-  {{- include "otterscale.externalURL" . -}}
-{{- end -}}
 {{- end -}}
 
 {{- define "otterscale.harbor.serviceName" -}}

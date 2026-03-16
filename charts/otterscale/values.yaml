@@ -20,21 +20,6 @@ nameOverride: ""
 # -- Override the full resource name prefix.
 fullnameOverride: ""
 
-# -- Base external URL used to construct external-facing URLs
-# (Keycloak realm URL, CORS allowed origins, server external URL, etc.).
-# Required regardless of whether Istio or Ingress is enabled.
-# E.g. "http://192.168.1.100", "https://otterscale.example.com"
-externalURL: ""
-
-# -- Override the external URL the server advertises to clients (API endpoint).
-# When empty, auto-derived from externalURL (+ nodePort if configured).
-# E.g. "https://otterscale.example.com", "http://192.168.1.100:30080"
-serverExternalURL: ""
-# -- Override the external tunnel URL the server advertises to agents.
-# When empty, auto-derived from externalURL (+ nodePort if configured).
-# E.g. "https://otterscale.example.com:8300", "https://192.168.1.100:30300"
-serverExternalTunnelURL: ""
-
 # =============================================================================
 # Storage Configuration
 # =============================================================================
@@ -66,6 +51,15 @@ storage:
 # OtterScale Server Configuration
 # =============================================================================
 server:
+  # -- Override the external URL the server advertises to clients (API endpoint).
+  # When empty, auto-derived from externalURL (+ nodePort if configured).
+  # E.g. "https://otterscale.example.com", "http://192.168.1.100:30080"
+  externalURL: ""
+  # -- Override the external tunnel URL the server advertises to agents.
+  # When empty, auto-derived from externalURL (+ nodePort if configured).
+  # E.g. "https://otterscale.example.com:8300", "https://192.168.1.100:30300"
+  externalTunnelURL: ""
+
   # -- Number of replicas. Ignored when autoscaling.enabled is true.
   replicaCount: 1
 
@@ -247,6 +241,12 @@ server:
 # OtterScale Dashboard Configuration
 # =============================================================================
 dashboard:
+  # -- Base external URL used to construct external-facing URLs
+  # (Keycloak realm URL, CORS allowed origins, server external URL, etc.).
+  # Required regardless of whether Istio or Ingress is enabled.
+  # E.g. "http://192.168.1.100", "https://otterscale.example.com"
+  externalURL: ""
+
   # -- Number of replicas. Ignored when autoscaling.enabled is true.
   replicaCount: 1
 
@@ -478,7 +478,7 @@ istio:
     # -- Selector labels to bind the Gateway to an Istio ingress gateway pod.
     # Must match the labels on the target ingress gateway deployment.
     selector:
-      istio: ingressgateway
+      istio: istiod-ingress
     hosts:
       - "*"
 

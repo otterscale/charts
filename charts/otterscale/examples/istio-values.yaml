@@ -1,0 +1,27 @@
+# Example: Istio Gateway + VirtualService
+# All services are accessed through a single IP via path-based routing.
+#
+# Usage:
+#   helm install otterscale ./charts/otterscale -f examples/istio-values.yaml
+
+dashboard:
+  externalURL: "http://192.168.1.100"
+  image:
+    tag: ""
+
+server:
+  externalURL: "http://192.168.1.100/api/"
+  externalTunnelURL: "https://192.168.1.100:30300"
+  image:
+    tag: ""
+  service:
+    type: NodePort
+    nodePorts:
+      http: ""
+      tunnel: "30300"
+
+harbor:
+  externalURL: "http://192.168.1.100:32180"
+
+istio:
+  enabled: true
