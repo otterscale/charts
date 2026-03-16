@@ -1,5 +1,5 @@
 {{- if and .Values.istio.enabled .Values.istio.virtualService.enabled }}
-apiVersion: networking.istio.io/v1beta1
+apiVersion: networking.istio.io/v1
 kind: VirtualService
 metadata:
   name: {{ include "otterscale.fullname" . }}
@@ -13,7 +13,11 @@ spec:
     - {{ include "otterscale.gatewayRef" . }}
   http:
     {{- if .Values.keycloakx.enabled }}
-    - match:
+    - headers:
+        request:
+          set:
+            X-Forwarded-Proto: {{ if .Values.istio.tls.enabled }}"https"{{ else }}"http"{{ end }}
+      match:
       - uri:
           prefix: {{ .Values.keycloakx.http.relativePath }}
       route:
@@ -21,10 +25,19 @@ spec:
           host: {{ include "otterscale.keycloakx.serviceName" . }}.{{ include "otterscale.namespace" . }}.svc.cluster.local
           port:
             number: {{ .Values.keycloakx.service.port }}
-      headers:
-        request:
-          set:
-            X-Forwarded-Proto: {{ if .Values.istio.tls.enabled }}"https"{{ else }}"http"{{ end }}
+    {{- end }}
+    {{- if .Values.harbor.enabled }}
+    # ---- Harbor routes ----
+    - match:
+      - uri:
+          prefix: /harbor
+      rewrite:
+          uri: /
+      route:
+      - destination:
+          host: {{ include "otterscale.harbor.serviceName" $ }}.{{ include "otterscale.namespace" . }}.svc.cluster.local
+          port:
+            number: {{ include "otterscale.harbor.servicePort" $ }}
     {{- end }}
     # ---- OtterScale routes ----
     - match:
@@ -38,27 +51,16 @@ spec:
           port:
             number: {{ .Values.server.ports.http }}
     - match:
-      - uri:
+      - headers:
+          upgrade:
+            exact: websocket
+        uri:
           prefix: /vnc/
       route:
       - destination:
           host: {{ include "otterscale.server.fullname" $ }}.{{ include "otterscale.namespace" . }}.svc.cluster.local
           port:
             number: {{ .Values.server.ports.http }}
-    {{- if .Values.harbor.enabled }}
-    - match:
-      - uri:
-          prefix: /harbor/
-      - uri:
-          exact: /harbor
-      rewrite:
-          uri: /
-      route:
-      - destination:
-          host: {{ include "otterscale.harbor.serviceName" $ }}.{{ include "otterscale.namespace" . }}.svc.cluster.local
-          port:
-            number: {{ include "otterscale.harbor.servicePort" $ }}
-    {{- end }}
     - match:
       - uri:
           prefix: /

@@ -1,0 +1,46 @@
+# Example: Ingress (nginx) with path-based routing
+# All services are accessed through a single IP via path-based routing.
+#
+# Usage:
+#   helm install otterscale ./charts/otterscale -f examples/ingress-values.yaml
+
+dashboard:
+  externalURL: "http://192.168.1.100"
+  image:
+    tag: ""
+
+server:
+  externalURL: "http://192.168.1.100:30299"
+  externalTunnelURL: "https://192.168.1.100:30300"
+  image:
+    tag: ""
+  service:
+    type: NodePort
+    nodePort: "30299"
+  tunnelService:
+    type: NodePort
+    nodePort: "30300"
+
+harbor:
+  externalURL: "http://192.168.1.100:32180"
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: ""
+      paths:
+        - path: /
+          pathType: Prefix
+          service: dashboard
+        - path: /api
+          pathType: Prefix
+          service: server
+          rewrite: true
+        - path: /auth/
+          pathType: Prefix
+          service: keycloak
+        - path: /harbor
+          pathType: Prefix
+          service: harbor
+          rewrite: true

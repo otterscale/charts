@@ -18,7 +18,7 @@ Access via Ingress:
 {{- else }}
 
 Access via NodePort:
-  Server API:   http://<NODE_IP>:{{ .Values.server.service.nodePorts.http | default .Values.server.ports.http }}
+  Server API:   http://<NODE_IP>:{{ .Values.server.service.nodePort | default .Values.server.ports.http }}
   Dashboard:    kubectl port-forward -n {{ include "otterscale.namespace" . }} svc/{{ include "otterscale.dashboard.fullname" . }} {{ .Values.dashboard.ports.http }}:{{ .Values.dashboard.ports.http }}
 
 {{- end }}

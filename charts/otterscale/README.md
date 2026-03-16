@@ -21,6 +21,14 @@ A unified platform for simplified compute, storage, and networking.
 | **Valkey**    | Redis-compatible session cache for Dashboard | Enabled |
 | **Harbor**    | Container registry with image scanning       | Enabled |
 
+## Default Credentials
+
+| Service   | Username | Password   |
+| --------- | -------- | ---------- |
+| Dashboard | `admin`  | `password` |
+
+> **Note:** You will be required to change the password on first login.
+
 ## Quick Start
 
 ### Install with Helm
@@ -30,7 +38,7 @@ helm repo add otterscale https://otterscale.github.io/charts
 helm repo update
 
 helm install otterscale otterscale/otterscale \
-  --set externalURL=http://<YOUR_NODE_IP>
+  --set dashboard.externalURL=http://<YOUR_NODE_IP>
 ```
 
 ### Install from source
@@ -39,7 +47,7 @@ helm install otterscale otterscale/otterscale \
 cd charts/charts/otterscale
 helm dependency build
 helm install otterscale . \
-  --set externalURL=http://<YOUR_NODE_IP>
+  --set dashboard.externalURL=http://<YOUR_NODE_IP>
 ```
 
 ### Install with overrides
@@ -57,7 +65,8 @@ OtterScale supports three mutually exclusive networking modes:
 Simplest setup. Services are exposed directly via NodePort.
 
 ```yaml
-externalURL: "http://192.168.1.100"
+dashboard:
+  externalURL: "http://192.168.1.100"
 
 server:
   service:
@@ -77,7 +86,8 @@ Access:
 Path-based routing through an Ingress Controller (e.g., NGINX).
 
 ```yaml
-externalURL: "http://192.168.1.100"
+dashboard:
+  externalURL: "http://192.168.1.100"
 
 ingress:
   enabled: true
@@ -108,7 +118,8 @@ Access:
 Full service mesh with mTLS, traffic management, and observability.
 
 ```yaml
-externalURL: "https://192.168.1.100"
+dashboard:
+  externalURL: "https://192.168.1.100"
 
 istio:
   enabled: true
@@ -173,14 +184,15 @@ kubectl wait --namespace ingress-nginx \
 
 ```yaml
 # overrides.yaml
-externalURL: "http://192.168.1.100"
-serverExternalURL: "http://192.168.1.100:30299"
-serverExternalTunnelURL: "https://192.168.1.100:30300"
+dashboard:
+  externalURL: "http://192.168.1.100"
 
 harbor:
   externalURL: http://192.168.1.100:32180
 
 server:
+  externalURL: "http://192.168.1.100:30299"
+  externalTunnelURL: "https://192.168.1.100:30300"
   service:
     type: NodePort
     nodePorts:
@@ -226,14 +238,13 @@ http://192.168.1.100/auth/      -> Keycloak
 
 ### Global
 
-| Parameter                 | Description                                               | Default |
-| ------------------------- | --------------------------------------------------------- | ------- |
-| `externalURL`             | Base external URL, e.g. `http://192.168.1.100` (required) | `""`    |
-| `global.imageRegistry`    | Override image registry for all images                    | `""`    |
-| `global.imagePullSecrets` | Global image pull secrets                                 | `[]`    |
-| `global.storageClass`     | Default StorageClass for all PVCs                         | `""`    |
-| `nameOverride`            | Override chart name in resource names                     | `""`    |
-| `fullnameOverride`        | Override full resource name prefix                        | `""`    |
+| Parameter                 | Description                            | Default |
+| ------------------------- | -------------------------------------- | ------- |
+| `global.imageRegistry`    | Override image registry for all images | `""`    |
+| `global.imagePullSecrets` | Global image pull secrets              | `[]`    |
+| `global.storageClass`     | Default StorageClass for all PVCs      | `""`    |
+| `nameOverride`            | Override chart name in resource names  | `""`    |
+| `fullnameOverride`        | Override full resource name prefix     | `""`    |
 
 ### Storage
 
@@ -247,43 +258,46 @@ http://192.168.1.100/auth/      -> Keycloak
 
 ### Server
 
-| Parameter                          | Description                          | Default                         |
-| ---------------------------------- | ------------------------------------ | ------------------------------- |
-| `server.replicaCount`              | Number of replicas                   | `1`                             |
-| `server.image.repository`          | Server image repository              | `ghcr.io/otterscale/otterscale` |
-| `server.image.tag`                 | Image tag (defaults to `appVersion`) | `""`                            |
-| `server.ports.http`                | HTTP API port                        | `8299`                          |
-| `server.ports.tunnel`              | Tunnel port                          | `8300`                          |
-| `server.service.type`              | Service type                         | `ClusterIP`                     |
-| `server.service.nodePorts.http`    | NodePort for HTTP                    | `""`                            |
-| `server.service.nodePorts.tunnel`  | NodePort for tunnel                  | `""`                            |
-| `server.revisionHistoryLimit`      | ReplicaSet revision history limit    | `3`                             |
-| `server.resources.requests.cpu`    | CPU request                          | `500m`                          |
-| `server.resources.requests.memory` | Memory request                       | `512Mi`                         |
-| `server.resources.limits.memory`   | Memory limit                         | `1024Mi`                        |
-| `server.autoscaling.enabled`       | Enable HPA                           | `false`                         |
-| `server.autoscaling.minReplicas`   | Minimum replicas                     | `1`                             |
-| `server.autoscaling.maxReplicas`   | Maximum replicas                     | `5`                             |
-| `server.pdb.create`                | Create PodDisruptionBudget           | `false`                         |
-| `server.networkPolicy.enabled`     | Create NetworkPolicy                 | `false`                         |
-| `server.serviceMonitor.enabled`    | Create Prometheus ServiceMonitor     | `false`                         |
+| Parameter                          | Description                                    | Default                         |
+| ---------------------------------- | ---------------------------------------------- | ------------------------------- |
+| `server.externalURL`               | Override server external URL for clients       | `""`                            |
+| `server.externalTunnelURL`         | Override server external tunnel URL for agents | `""`                            |
+| `server.replicaCount`              | Number of replicas                             | `1`                             |
+| `server.image.repository`          | Server image repository                        | `ghcr.io/otterscale/otterscale` |
+| `server.image.tag`                 | Image tag (defaults to `appVersion`)           | `""`                            |
+| `server.ports.http`                | HTTP API port                                  | `8299`                          |
+| `server.ports.tunnel`              | Tunnel port                                    | `8300`                          |
+| `server.service.type`              | Service type                                   | `ClusterIP`                     |
+| `server.service.nodePorts.http`    | NodePort for HTTP                              | `""`                            |
+| `server.service.nodePorts.tunnel`  | NodePort for tunnel                            | `""`                            |
+| `server.revisionHistoryLimit`      | ReplicaSet revision history limit              | `3`                             |
+| `server.resources.requests.cpu`    | CPU request                                    | `500m`                          |
+| `server.resources.requests.memory` | Memory request                                 | `512Mi`                         |
+| `server.resources.limits.memory`   | Memory limit                                   | `1024Mi`                        |
+| `server.autoscaling.enabled`       | Enable HPA                                     | `false`                         |
+| `server.autoscaling.minReplicas`   | Minimum replicas                               | `1`                             |
+| `server.autoscaling.maxReplicas`   | Maximum replicas                               | `5`                             |
+| `server.pdb.create`                | Create PodDisruptionBudget                     | `false`                         |
+| `server.networkPolicy.enabled`     | Create NetworkPolicy                           | `false`                         |
+| `server.serviceMonitor.enabled`    | Create Prometheus ServiceMonitor               | `false`                         |
 
 ### Dashboard
 
-| Parameter                             | Description                          | Default                        |
-| ------------------------------------- | ------------------------------------ | ------------------------------ |
-| `dashboard.replicaCount`              | Number of replicas                   | `1`                            |
-| `dashboard.image.repository`          | Dashboard image repository           | `ghcr.io/otterscale/dashboard` |
-| `dashboard.image.tag`                 | Image tag (defaults to `appVersion`) | `""`                           |
-| `dashboard.ports.http`                | HTTP port                            | `3000`                         |
-| `dashboard.service.type`              | Service type                         | `ClusterIP`                    |
-| `dashboard.resources.requests.cpu`    | CPU request                          | `100m`                         |
-| `dashboard.resources.requests.memory` | Memory request                       | `128Mi`                        |
-| `dashboard.resources.limits.memory`   | Memory limit                         | `256Mi`                        |
-| `dashboard.autoscaling.enabled`       | Enable HPA                           | `false`                        |
-| `dashboard.pdb.create`                | Create PodDisruptionBudget           | `false`                        |
-| `dashboard.networkPolicy.enabled`     | Create NetworkPolicy                 | `false`                        |
-| `dashboard.serviceMonitor.enabled`    | Create Prometheus ServiceMonitor     | `false`                        |
+| Parameter                             | Description                                               | Default                        |
+| ------------------------------------- | --------------------------------------------------------- | ------------------------------ |
+| `dashboard.externalURL`               | Base external URL, e.g. `http://192.168.1.100` (required) | `""`                           |
+| `dashboard.replicaCount`              | Number of replicas                                        | `1`                            |
+| `dashboard.image.repository`          | Dashboard image repository                                | `ghcr.io/otterscale/dashboard` |
+| `dashboard.image.tag`                 | Image tag (defaults to `appVersion`)                      | `""`                           |
+| `dashboard.ports.http`                | HTTP port                                                 | `3000`                         |
+| `dashboard.service.type`              | Service type                                              | `ClusterIP`                    |
+| `dashboard.resources.requests.cpu`    | CPU request                                               | `100m`                         |
+| `dashboard.resources.requests.memory` | Memory request                                            | `128Mi`                        |
+| `dashboard.resources.limits.memory`   | Memory limit                                              | `256Mi`                        |
+| `dashboard.autoscaling.enabled`       | Enable HPA                                                | `false`                        |
+| `dashboard.pdb.create`                | Create PodDisruptionBudget                                | `false`                        |
+| `dashboard.networkPolicy.enabled`     | Create NetworkPolicy                                      | `false`                        |
+| `dashboard.serviceMonitor.enabled`    | Create Prometheus ServiceMonitor                          | `false`                        |
 
 ### Ingress
 
@@ -332,14 +346,14 @@ http://192.168.1.100/auth/      -> Keycloak
 
 ### Harbor
 
-| Parameter                                                | Description                              | Default                  |
-| -------------------------------------------------------- | ---------------------------------------- | ------------------------ |
-| `harbor.enabled`                                         | Deploy Harbor registry                   | `true`                   |
-| `harbor.externalURL`                                     | External URL for Harbor                  | `http://127.0.0.1:32180` |
-| `harbor.harborAdminPassword`                             | Admin password (auto-generated if empty) | `""`                     |
-| `harbor.expose.nodePort.ports.http.nodePort`             | Harbor NodePort                          | `32180`                  |
-| `harbor.persistence.persistentVolumeClaim.registry.size` | Registry storage                         | `50Gi`                   |
-| `harbor.oidc.enabled`                                    | Enable OIDC with Keycloak                | `true`                   |
+| Parameter                                                | Description                                                                             | Default                  |
+| -------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------------------------ |
+| `harbor.enabled`                                         | Deploy Harbor registry                                                                  | `true`                   |
+| `harbor.externalURL`                                     | Harbor external URL                                                                     | `http://127.0.0.1:32180` |
+| `harbor.harborAdminPassword`                             | Admin password (auto-generated if empty)                                                | `""`                     |
+| `harbor.expose.*`                                        | Harbor expose config ([see Harbor chart docs](https://github.com/goharbor/harbor-helm)) | `ingress`                |
+| `harbor.persistence.persistentVolumeClaim.registry.size` | Registry storage                                                                        | `50Gi`                   |
+| `harbor.oidc.enabled`                                    | Enable OIDC with Keycloak                                                               | `true`                   |
 
 ## Security
 
