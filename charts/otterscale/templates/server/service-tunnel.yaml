@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "otterscale.server.fullname" . }}-tunnel
+  namespace: {{ include "otterscale.namespace" . }}
+  labels:
+    {{- include "otterscale.server.labels" . | nindent 4 }}
+    {{- with .Values.server.tunnelService.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.server.tunnelService.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.server.tunnelService.type }}
+  selector:
+    {{- include "otterscale.server.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: tunnel
+      port: {{ .Values.server.ports.tunnel }}
+      targetPort: tunnel
+      {{- if and (eq .Values.server.tunnelService.type "NodePort") .Values.server.tunnelService.nodePort }}
+      nodePort: {{ .Values.server.tunnelService.nodePort }}
+      {{- end }}
+      protocol: TCP

@@ -14,14 +14,25 @@ server:
   externalTunnelURL: "https://192.168.1.100:30300"
   image:
     tag: ""
-  service:
+  tunnelService:
     type: NodePort
-    nodePorts:
-      http: ""
-      tunnel: "30300"
+    nodePort: "30300"
 
 harbor:
   externalURL: "http://192.168.1.100:32180"
 
 istio:
   enabled: true
+  gateway:
+    selector:
+      istio: istiod-ingress
+
+# Inject Istio sidecar into subchart pods for mTLS.
+# Required when PeerAuthentication is set to STRICT.
+keycloakx:
+  podLabels:
+    sidecar.istio.io/inject: "true"
+
+dashboard-valkey:
+  podLabels:
+    sidecar.istio.io/inject: "true"

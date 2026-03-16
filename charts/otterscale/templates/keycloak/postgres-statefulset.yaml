@@ -19,6 +19,9 @@ spec:
       labels:
         {{- include "otterscale.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: database
+        {{- if and .Values.istio.enabled .Values.istio.sidecarInjection.enabled }}
+        sidecar.istio.io/inject: "true"
+        {{- end }}
       annotations:
         checksum/secret: {{ include (print $.Template.BasePath "/keycloak/postgres-secret.yaml") . | sha256sum }}
     spec:

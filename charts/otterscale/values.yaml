@@ -95,14 +95,23 @@ server:
       maxSurge: 25%
       maxUnavailable: 25%
 
-  # -- Service configuration.
+  # -- HTTP service configuration.
   service:
     # -- Kubernetes Service type: ClusterIP, NodePort, or LoadBalancer.
     type: ClusterIP
-    # -- NodePort values (only used when type is NodePort).
-    nodePorts:
-      http: ""
-      tunnel: ""
+    # -- NodePort value (only used when type is NodePort).
+    nodePort: ""
+    # -- Annotations added to the Service.
+    annotations: {}
+    # -- Extra labels added to the Service.
+    labels: {}
+
+  # -- Tunnel service configuration.
+  tunnelService:
+    # -- Kubernetes Service type: ClusterIP, NodePort, or LoadBalancer.
+    type: ClusterIP
+    # -- NodePort value (only used when type is NodePort).
+    nodePort: ""
     # -- Annotations added to the Service.
     annotations: {}
     # -- Extra labels added to the Service.
@@ -489,6 +498,10 @@ dashboard-valkey:
   enabled: true
   # -- Valkey service port.
   port: 6379
+  # -- Pod labels for the Valkey deployment.
+  # When using Istio with sidecar injection, add:
+  #   sidecar.istio.io/inject: "true"
+  podLabels: {}
   aclUsers:
     default:
       permissions: "~* &* +@all"
@@ -500,6 +513,10 @@ dashboard-valkey:
 keycloakx:
   enabled: true
   nameOverride: keycloak
+  # -- Pod labels for the Keycloak StatefulSet.
+  # When using Istio with sidecar injection, add:
+  #   sidecar.istio.io/inject: "true"
+  podLabels: {}
   # -- Keycloak realm name.
   realm: otterscale
   auth:

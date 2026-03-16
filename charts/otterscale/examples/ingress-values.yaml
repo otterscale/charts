@@ -16,9 +16,10 @@ server:
     tag: ""
   service:
     type: NodePort
-    nodePorts:
-      http: "30299"
-      tunnel: "30300"
+    nodePort: "30299"
+  tunnelService:
+    type: NodePort
+    nodePort: "30300"
 
 harbor:
   externalURL: "http://192.168.1.100:32180"

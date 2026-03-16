@@ -99,8 +99,8 @@ Priority: server.externalURL > auto-derive from nodePort > externalURL.
 {{- define "otterscale.server.externalURL" -}}
 {{- if .Values.server.externalURL -}}
   {{- .Values.server.externalURL -}}
-{{- else if .Values.server.service.nodePorts.http -}}
-  {{- printf "%s://%s:%v" (include "otterscale.scheme" .) (include "otterscale.host" .) .Values.server.service.nodePorts.http -}}
+{{- else if .Values.server.service.nodePort -}}
+  {{- printf "%s://%s:%v" (include "otterscale.scheme" .) (include "otterscale.host" .) .Values.server.service.nodePort -}}
 {{- else -}}
   {{- include "otterscale.externalURL" . -}}
 {{- end -}}
@@ -113,8 +113,8 @@ Priority: server.externalTunnelURL > auto-derive from nodePort > externalURL.
 {{- define "otterscale.server.externalTunnelURL" -}}
 {{- if .Values.server.externalTunnelURL -}}
   {{- .Values.server.externalTunnelURL -}}
-{{- else if .Values.server.service.nodePorts.tunnel -}}
-  {{- printf "%s://%s:%v" (include "otterscale.scheme" .) (include "otterscale.host" .) .Values.server.service.nodePorts.tunnel -}}
+{{- else if .Values.server.tunnelService.nodePort -}}
+  {{- printf "%s://%s:%v" (include "otterscale.scheme" .) (include "otterscale.host" .) .Values.server.tunnelService.nodePort -}}
 {{- else -}}
   {{- include "otterscale.externalURL" . -}}
 {{- end -}}
