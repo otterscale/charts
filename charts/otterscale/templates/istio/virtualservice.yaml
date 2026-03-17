@@ -26,19 +26,6 @@ spec:
           port:
             number: {{ .Values.keycloakx.service.port }}
     {{- end }}
-    {{- if .Values.harbor.enabled }}
-    # ---- Harbor routes ----
-    - match:
-      - uri:
-          prefix: /harbor
-      rewrite:
-          uri: /
-      route:
-      - destination:
-          host: {{ include "otterscale.harbor.serviceName" $ }}.{{ include "otterscale.namespace" . }}.svc.cluster.local
-          port:
-            number: {{ include "otterscale.harbor.servicePort" $ }}
-    {{- end }}
     # ---- OtterScale routes ----
     - match:
       - uri:

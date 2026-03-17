@@ -215,10 +215,6 @@ ingress:
         - path: /auth/
           pathType: Prefix
           service: keycloak
-        - path: /harbor
-          pathType: Prefix
-          service: harbor
-          rewrite: true
 ```
 
 ```bash
