@@ -438,10 +438,9 @@ ingress:
         - path: /
           pathType: Prefix
           service: dashboard
-        - path: /api
+        - path: /api/
           pathType: Prefix
           service: server
-          # -- Strip /api prefix before forwarding (matches Istio VirtualService behavior).
           rewrite: true
         - path: /auth/
           pathType: Prefix
@@ -456,36 +455,32 @@ ingress:
 # Service Mesh Configuration (Istio)
 # =============================================================================
 istio:
-  # -- Enable Istio integration.
+  # -- Enable Istio integration (Gateway API).
   enabled: false
   sidecarInjection:
     # -- Inject Istio sidecar into pods.
     enabled: true
-  virtualService:
-    # -- Create an Istio VirtualService.
+  httpRoute:
+    # -- Create a Gateway API HTTPRoute.
     enabled: true
+    # -- Hostnames for the HTTPRoute. Must be a subset of the Gateway listener hostnames.
+    # Leave empty to match all hostnames.
+    hostnames: []
 
-  # TLS configuration for Istio Gateway.
+  # TLS configuration for Gateway.
   tls:
-    # -- Enable TLS termination at the Istio Gateway.
+    # -- Enable TLS termination at the Gateway.
     enabled: false
     # -- Name of an existing Secret containing tls.crt and tls.key.
     # Required when istio.tls.enabled is true.
     existingSecret: ""
 
-  # Gateway configuration for external traffic.
+  # Reference to an existing Gateway API Gateway resource.
   gateway:
-    # -- Create an Istio Gateway resource.
-    enabled: true
-    # -- If set, use this existing Gateway instead of creating a new one.
-    # Supports "<name>" (same namespace) or "<namespace>/<name>" format.
-    existingGateway: ""
-    # -- Selector labels to bind the Gateway to an Istio ingress gateway pod.
-    # Must match the labels on the target ingress gateway deployment.
-    selector:
-      istio: ingress
-    hosts:
-      - "*"
+    # -- Name of the Gateway resource that HTTPRoute should attach to.
+    name: "gateway"
+    # -- Namespace of the Gateway resource.
+    namespace: "istio-ingress"
 
 # =============================================================================
 # Valkey Configuration (Dashboard session cache)

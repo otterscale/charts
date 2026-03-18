@@ -1,0 +1,67 @@
+{{- if and .Values.istio.enabled .Values.istio.httpRoute.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "otterscale.fullname" . }}
+  namespace: {{ include "otterscale.namespace" . }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+spec:
+  parentRefs:
+  - name: {{ include "otterscale.gatewayRef" . }}
+  {{- if .Values.istio.gateway.namespace }}
+    namespace: {{ .Values.istio.gateway.namespace }}
+  {{- end }}
+  {{- with .Values.istio.httpRoute.hostnames }}
+  hostnames:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+  {{- if .Values.keycloakx.enabled }}
+  # ---- Keycloak route ----
+  - matches:
+    - path:
+        type: PathPrefix
+        value: {{ .Values.keycloakx.http.relativePath }}
+    filters:
+    - type: RequestHeaderModifier
+      requestHeaderModifier:
+        set:
+        - name: X-Forwarded-Proto
+          value: {{ if .Values.istio.tls.enabled }}"https"{{ else }}"http"{{ end }}
+    backendRefs:
+    - name: {{ include "otterscale.keycloakx.serviceName" . }}
+      port: {{ .Values.keycloakx.service.port }}
+  {{- end }}
+  # ---- OtterScale routes ----
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /api/
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          replacePrefixMatch: /
+    backendRefs:
+    - name: {{ include "otterscale.server.fullname" $ }}
+      port: {{ .Values.server.ports.http }}
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /vnc/
+      headers:
+      - name: Upgrade
+        value: websocket
+    backendRefs:
+    - name: {{ include "otterscale.server.fullname" $ }}
+      port: {{ .Values.server.ports.http }}
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: {{ include "otterscale.dashboard.fullname" $ }}
+      port: {{ .Values.dashboard.ports.http }}
+{{- end }}

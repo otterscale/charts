@@ -1,4 +1,4 @@
-# Example: Istio Gateway + VirtualService
+# Example: Gateway API HTTPRoute with Istio
 # All services are accessed through a single IP via path-based routing.
 #
 # Usage:
@@ -28,8 +28,8 @@ storage:
 istio:
   enabled: true
   gateway:
-    selector:
-      istio: istiod-ingress
+    name: gateway
+    namespace: istio-ingress
 
 # Inject Istio sidecar into subchart pods for mTLS.
 # Required when PeerAuthentication is set to STRICT.

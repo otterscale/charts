@@ -33,7 +33,7 @@ ingress:
         - path: /
           pathType: Prefix
           service: dashboard
-        - path: /api
+        - path: /api/
           pathType: Prefix
           service: server
           rewrite: true
