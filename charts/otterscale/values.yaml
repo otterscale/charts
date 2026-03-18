@@ -472,14 +472,12 @@ istio:
     # Required when istio.tls.enabled is true.
     existingSecret: ""
 
-  # Gateway API configuration for external traffic.
+  # Reference to an existing Gateway API Gateway resource.
   gateway:
-    # -- Create a Gateway API Gateway resource.
-    enabled: true
-    # -- Hostname for the Gateway listeners.
-    # When set, listeners only accept traffic for this hostname.
-    # Leave empty or set to "*" to accept all hostnames.
-    hostname: ""
+    # -- Name of the Gateway resource that HTTPRoute should attach to.
+    name: "gateway"
+    # -- Namespace of the Gateway resource. Defaults to release namespace.
+    namespace: "istio-ingress"
 
 # =============================================================================
 # Valkey Configuration (Dashboard session cache)

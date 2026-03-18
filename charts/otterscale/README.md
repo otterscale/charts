@@ -126,8 +126,8 @@ istio:
   tls:
     existingSecret: "otterscale-tls"
   gateway:
-    enabled: true
-    hostname: "otterscale.example.com"
+    name: "my-gateway"
+    namespace: "istio-ingress"
 ```
 
 ## Local Development with KIND
@@ -320,8 +320,8 @@ http://192.168.1.100/auth/      -> Keycloak
 | `istio.sidecarInjection.enabled` | Inject Istio sidecar                   | `true`  |
 | `istio.httpRoute.enabled`        | Create Gateway API HTTPRoute           | `true`  |
 | `istio.tls.existingSecret`       | TLS Secret for Gateway                 | `""`    |
-| `istio.gateway.enabled`          | Create Gateway API Gateway resource    | `true`  |
-| `istio.gateway.hostname`         | Hostname for Gateway listeners         | `""`    |
+| `istio.gateway.name`             | Name of existing Gateway resource      | `""`    |
+| `istio.gateway.namespace`        | Namespace of existing Gateway          | `""`    |
 
 ### Keycloak
 

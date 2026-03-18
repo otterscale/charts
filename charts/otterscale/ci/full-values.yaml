@@ -10,6 +10,9 @@ externalURL: "https://10.0.0.1"
 
 istio:
   enabled: true
+  gateway:
+    name: gateway
+    namespace: istio-ingress
   tls:
     enabled: true
     existingSecret: otterscale-tls

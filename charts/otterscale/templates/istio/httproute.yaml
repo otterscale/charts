@@ -9,6 +9,9 @@ metadata:
 spec:
   parentRefs:
   - name: {{ include "otterscale.gatewayRef" . }}
+  {{- if .Values.istio.gateway.namespace }}
+    namespace: {{ .Values.istio.gateway.namespace }}
+  {{- end }}
   rules:
   {{- if .Values.keycloakx.enabled }}
   # ---- Keycloak route ----
