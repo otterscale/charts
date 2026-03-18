@@ -99,16 +99,17 @@ spec:
             {{- if eq .Values.outputImage.type "crane" }}
             echo "Packaging output model as OCI image (crane)..."
             mkdir -p "$OUTPUT_DIR"
-            tar -cf "$OUTPUT_DIR/model-layer.tar" -C "$OUTPUT_DIR" .
+            MODEL_TAR=$(mktemp)
+            tar -cf "$MODEL_TAR" -C "$OUTPUT_DIR" .
             {{ include "aidaptivcache-finetune.craneBin" . }} append \
               --base "$CRANE_BASE_IMAGE" \
-              -f "$OUTPUT_DIR/model-layer.tar" \
+              -f "$MODEL_TAR" \
               {{- if .Values.outputImage.insecure }}
               --insecure \
               {{- end }}
               -t "$OUTPUT_IMAGE_REPO:$OUTPUT_IMAGE_TAG"
             PUSH_EXIT_CODE=$?
-            rm -f "$OUTPUT_DIR/model-layer.tar"
+            rm -f "$MODEL_TAR"
             {{- else if eq .Values.outputImage.type "kitops" }}
             echo "Packaging output model as ModelKit (kitops)..."
             mkdir -p "$OUTPUT_DIR"
