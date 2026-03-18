@@ -12,6 +12,10 @@ spec:
   {{- if .Values.istio.gateway.namespace }}
     namespace: {{ .Values.istio.gateway.namespace }}
   {{- end }}
+  {{- with .Values.istio.httpRoute.hostnames }}
+  hostnames:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   rules:
   {{- if .Values.keycloakx.enabled }}
   # ---- Keycloak route ----

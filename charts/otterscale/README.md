@@ -314,14 +314,16 @@ http://192.168.1.100/auth/      -> Keycloak
 > kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.5.1/standard-install.yaml
 > ```
 
-| Parameter                        | Description                            | Default |
-| -------------------------------- | -------------------------------------- | ------- |
-| `istio.enabled`                  | Enable Istio integration (Gateway API) | `false` |
-| `istio.sidecarInjection.enabled` | Inject Istio sidecar                   | `true`  |
-| `istio.httpRoute.enabled`        | Create Gateway API HTTPRoute           | `true`  |
-| `istio.tls.existingSecret`       | TLS Secret for Gateway                 | `""`    |
-| `istio.gateway.name`             | Name of existing Gateway resource      | `""`    |
-| `istio.gateway.namespace`        | Namespace of existing Gateway          | `""`    |
+| Parameter                        | Description                                 | Default           |
+| -------------------------------- | ------------------------------------------- | ----------------- |
+| `istio.enabled`                  | Enable Istio integration (Gateway API)      | `false`           |
+| `istio.sidecarInjection.enabled` | Inject Istio sidecar                        | `true`            |
+| `istio.httpRoute.enabled`        | Create Gateway API HTTPRoute                | `true`            |
+| `istio.httpRoute.hostnames`      | Hostnames for HTTPRoute (subset of Gateway) | `[]`              |
+| `istio.tls.enabled`              | Enable TLS termination at the Gateway       | `false`           |
+| `istio.tls.existingSecret`       | TLS Secret for Gateway                      | `""`              |
+| `istio.gateway.name`             | Name of existing Gateway resource           | `"gateway"`       |
+| `istio.gateway.namespace`        | Namespace of existing Gateway               | `"istio-ingress"` |
 
 ### Keycloak
 

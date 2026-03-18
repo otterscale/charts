@@ -463,6 +463,9 @@ istio:
   httpRoute:
     # -- Create a Gateway API HTTPRoute.
     enabled: true
+    # -- Hostnames for the HTTPRoute. Must be a subset of the Gateway listener hostnames.
+    # Leave empty to match all hostnames.
+    hostnames: []
 
   # TLS configuration for Gateway.
   tls:
