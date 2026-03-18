@@ -98,7 +98,7 @@ ingress:
         - path: /
           pathType: Prefix
           service: dashboard
-        - path: /api
+        - path: /api/
           pathType: Prefix
           service: server
           rewrite: true
@@ -127,8 +127,7 @@ istio:
     existingSecret: "otterscale-tls"
   gateway:
     enabled: true
-    hosts:
-      - "otterscale.example.com"
+    hostname: "otterscale.example.com"
 ```
 
 ## Local Development with KIND
@@ -208,7 +207,7 @@ ingress:
         - path: /
           pathType: Prefix
           service: dashboard
-        - path: /api
+        - path: /api/
           pathType: Prefix
           service: server
           rewrite: true
@@ -306,17 +305,23 @@ http://192.168.1.100/auth/      -> Keycloak
 | `ingress.hosts[].paths[].rewrite` | Strip path prefix before forwarding | `false`                        |
 | `ingress.tls`                     | TLS configuration                   | `[]`                           |
 
-### Istio
+### Istio (Gateway API)
 
-| Parameter                        | Description              | Default |
-| -------------------------------- | ------------------------ | ------- |
-| `istio.enabled`                  | Enable Istio integration | `false` |
-| `istio.sidecarInjection.enabled` | Inject Istio sidecar     | `true`  |
-| `istio.virtualService.enabled`   | Create VirtualService    | `true`  |
-| `istio.tls.existingSecret`       | TLS Secret for Gateway   | `""`    |
-| `istio.gateway.enabled`          | Create Gateway resource  | `true`  |
-| `istio.gateway.existingGateway`  | Use existing Gateway     | `""`    |
-| `istio.gateway.hosts`            | Gateway host match       | `["*"]` |
+> **Prerequisites:** Istio uses the [Kubernetes Gateway API](https://gateway-api.sigs.k8s.io/).
+> Install the Gateway API CRDs before enabling Istio integration:
+>
+> ```bash
+> kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.5.1/standard-install.yaml
+> ```
+
+| Parameter                        | Description                            | Default |
+| -------------------------------- | -------------------------------------- | ------- |
+| `istio.enabled`                  | Enable Istio integration (Gateway API) | `false` |
+| `istio.sidecarInjection.enabled` | Inject Istio sidecar                   | `true`  |
+| `istio.httpRoute.enabled`        | Create Gateway API HTTPRoute           | `true`  |
+| `istio.tls.existingSecret`       | TLS Secret for Gateway                 | `""`    |
+| `istio.gateway.enabled`          | Create Gateway API Gateway resource    | `true`  |
+| `istio.gateway.hostname`         | Hostname for Gateway listeners         | `""`    |
 
 ### Keycloak
 

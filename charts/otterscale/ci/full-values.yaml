@@ -13,9 +13,6 @@ istio:
   tls:
     enabled: true
     existingSecret: otterscale-tls
-  gateway:
-    selector:
-      istio: ingressgateway
 
 ingress:
   enabled: true

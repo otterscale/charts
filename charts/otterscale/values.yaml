@@ -438,10 +438,9 @@ ingress:
         - path: /
           pathType: Prefix
           service: dashboard
-        - path: /api
+        - path: /api/
           pathType: Prefix
           service: server
-          # -- Strip /api prefix before forwarding (matches Istio VirtualService behavior).
           rewrite: true
         - path: /auth/
           pathType: Prefix
@@ -456,36 +455,31 @@ ingress:
 # Service Mesh Configuration (Istio)
 # =============================================================================
 istio:
-  # -- Enable Istio integration.
+  # -- Enable Istio integration (Gateway API).
   enabled: false
   sidecarInjection:
     # -- Inject Istio sidecar into pods.
     enabled: true
-  virtualService:
-    # -- Create an Istio VirtualService.
+  httpRoute:
+    # -- Create a Gateway API HTTPRoute.
     enabled: true
 
-  # TLS configuration for Istio Gateway.
+  # TLS configuration for Gateway.
   tls:
-    # -- Enable TLS termination at the Istio Gateway.
+    # -- Enable TLS termination at the Gateway.
     enabled: false
     # -- Name of an existing Secret containing tls.crt and tls.key.
     # Required when istio.tls.enabled is true.
     existingSecret: ""
 
-  # Gateway configuration for external traffic.
+  # Gateway API configuration for external traffic.
   gateway:
-    # -- Create an Istio Gateway resource.
+    # -- Create a Gateway API Gateway resource.
     enabled: true
-    # -- If set, use this existing Gateway instead of creating a new one.
-    # Supports "<name>" (same namespace) or "<namespace>/<name>" format.
-    existingGateway: ""
-    # -- Selector labels to bind the Gateway to an Istio ingress gateway pod.
-    # Must match the labels on the target ingress gateway deployment.
-    selector:
-      istio: ingress
-    hosts:
-      - "*"
+    # -- Hostname for the Gateway listeners.
+    # When set, listeners only accept traffic for this hostname.
+    # Leave empty or set to "*" to accept all hostnames.
+    hostname: ""
 
 # =============================================================================
 # Valkey Configuration (Dashboard session cache)

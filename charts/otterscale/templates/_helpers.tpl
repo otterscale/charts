@@ -64,11 +64,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}
 
 {{- define "otterscale.gatewayRef" -}}
-{{- if .Values.istio.gateway.existingGateway -}}
-  {{- .Values.istio.gateway.existingGateway -}}
-{{- else -}}
-  {{- printf "%s-gateway" (include "otterscale.fullname" .) -}}
-{{- end -}}
+{{- printf "%s-gateway" (include "otterscale.fullname" .) -}}
 {{- end -}}
 
 {{/*

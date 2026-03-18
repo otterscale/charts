@@ -1,32 +1,30 @@
-{{- if and .Values.istio.enabled .Values.istio.gateway.enabled (not .Values.istio.gateway.existingGateway) }}
-apiVersion: networking.istio.io/v1
+{{- if and .Values.istio.enabled .Values.istio.gateway.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: {{ include "otterscale.fullname" . }}-gateway
-  namespace: istio-system
+  namespace: {{ include "otterscale.namespace" . }}
   labels:
     {{- include "otterscale.labels" . | nindent 4 }}
 spec:
-  selector:
-    {{- toYaml .Values.istio.gateway.selector | nindent 4 }}
-  servers:
-  - port:
-      number: 80
-      name: http
-      protocol: HTTP
-    hosts:
-      {{- toYaml .Values.istio.gateway.hosts | nindent 6 }}
-    {{- if .Values.istio.tls.enabled }}
+  gatewayClassName: istio
+  listeners:
+  - name: http
+    port: 80
+    protocol: HTTP
+  {{- if and .Values.istio.gateway.hostname (ne .Values.istio.gateway.hostname "*") }}
+    hostname: {{ .Values.istio.gateway.hostname | quote }}
+  {{- end }}
+  {{- if .Values.istio.tls.enabled }}
+  - name: https
+    port: 443
+    protocol: HTTPS
+  {{- if and .Values.istio.gateway.hostname (ne .Values.istio.gateway.hostname "*") }}
+    hostname: {{ .Values.istio.gateway.hostname | quote }}
+  {{- end }}
     tls:
-      httpsRedirect: true
-  - port:
-      number: 443
-      name: https
-      protocol: HTTPS
-    hosts:
-      {{- toYaml .Values.istio.gateway.hosts | nindent 6 }}
-    tls:
-      mode: SIMPLE
-      credentialName: {{ include "otterscale.tls.secretName" . }}
-    {{- end }}
+      mode: Terminate
+      certificateRefs:
+      - name: {{ include "otterscale.tls.secretName" . }}
+  {{- end }}
 {{- end }}
