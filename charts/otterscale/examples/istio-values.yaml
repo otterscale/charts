@@ -27,6 +27,9 @@ storage:
 
 istio:
   enabled: true
+  gateway:
+    name: gateway
+    namespace: istio-ingress
 
 # Inject Istio sidecar into subchart pods for mTLS.
 # Required when PeerAuthentication is set to STRICT.

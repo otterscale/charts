@@ -479,7 +479,7 @@ istio:
   gateway:
     # -- Name of the Gateway resource that HTTPRoute should attach to.
     name: "gateway"
-    # -- Namespace of the Gateway resource. Defaults to release namespace.
+    # -- Namespace of the Gateway resource.
     namespace: "istio-ingress"
 
 # =============================================================================

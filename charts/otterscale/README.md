@@ -309,10 +309,6 @@ http://192.168.1.100/auth/      -> Keycloak
 
 > **Prerequisites:** Istio uses the [Kubernetes Gateway API](https://gateway-api.sigs.k8s.io/).
 > Install the Gateway API CRDs before enabling Istio integration:
->
-> ```bash
-> kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.5.1/standard-install.yaml
-> ```
 
 | Parameter                        | Description                                 | Default           |
 | -------------------------------- | ------------------------------------------- | ----------------- |
