@@ -21,7 +21,7 @@ keywords:
 type: application
 kubeVersion: ">=1.32.0-0"
 annotations:
-  module.otterscale.io/depends-on: "otterscale-envoy-gateway,otterscale-envoy-ai-gateway,otterscale-leader-worker-set,otterscale-gateway-api-inference-extension"
+  module.otterscale.io/depends-on: "otterscale-leader-worker-set,otterscale-envoy-gateway,otterscale-envoy-ai-gateway"
   module.otterscale.io/namespace: "kserve"
   artifacthub.io/license: Apache-2.0
 dependencies:

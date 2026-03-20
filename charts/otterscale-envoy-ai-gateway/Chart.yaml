@@ -21,7 +21,7 @@ keywords:
 type: application
 kubeVersion: ">=1.25.0-0"
 annotations:
-  module.otterscale.io/depends-on: "otterscale-envoy-gateway"
+  module.otterscale.io/depends-on: "otterscale-gateway-api-inference-extension,otterscale-envoy-gateway"
   module.otterscale.io/namespace: "envoy-ai-gateway-system"
   artifacthub.io/license: Apache-2.0
 dependencies:

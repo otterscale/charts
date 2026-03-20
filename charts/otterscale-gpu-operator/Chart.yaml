@@ -20,6 +20,7 @@ keywords:
 type: application
 kubeVersion: ">=1.25.0-0"
 annotations:
+  module.otterscale.io/depends-on: "otterscale-prometheus"
   module.otterscale.io/namespace: "gpu-operator"
   artifacthub.io/license: Apache-2.0
 dependencies:
