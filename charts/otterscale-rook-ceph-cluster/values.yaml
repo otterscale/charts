@@ -1,0 +1,63 @@
+rook-ceph-cluster:
+  operatorNamespace: rook-ceph
+
+  # -- CephCluster configuration
+  # See: https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/
+  cephClusterSpec:
+    cephVersion:
+      # TODO: update to match your desired Ceph version
+      allowUnsupported: false
+    mon:
+      count: 3
+      allowMultiplePerNode: false
+    mgr:
+      count: 2
+      allowMultiplePerNode: false
+    dashboard:
+      enabled: true
+      ssl: true
+    storage:
+      useAllNodes: true
+      useAllDevices: true
+
+  # -- CephBlockPool and StorageClass for RBD (block storage)
+  cephBlockPools:
+    - name: ceph-blockpool
+      spec:
+        failureDomain: host
+        replicated:
+          size: 3
+      storageClass:
+        enabled: true
+        name: ceph-block
+        isDefault: true
+        reclaimPolicy: Delete
+        allowVolumeExpansion: true
+        parameters:
+          imageFormat: "2"
+          imageFeatures: layering
+
+  # -- CephFilesystem and StorageClass for CephFS (shared filesystem)
+  cephFileSystems:
+    - name: ceph-filesystem
+      spec:
+        metadataPool:
+          replicated:
+            size: 3
+        dataPools:
+          - failureDomain: host
+            replicated:
+              size: 3
+            name: data0
+        metadataServer:
+          activeCount: 1
+          activeStandby: true
+      storageClass:
+        enabled: true
+        name: ceph-filesystem
+        reclaimPolicy: Delete
+        allowVolumeExpansion: true
+        pool: data0
+
+  # -- CephObjectStore (S3-compatible object storage) — disabled by default
+  cephObjectStores: []

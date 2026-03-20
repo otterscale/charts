@@ -1,0 +1,28 @@
+apiVersion: v2
+name: otterscale-prometheus
+version: 0.1.0
+# renovate: helm=kube-prometheus-stack registry=https://prometheus-community.github.io/helm-charts
+appVersion: "82.10.5"
+description: >-
+  kube-prometheus-stack — Prometheus, Alertmanager, Node Exporter.
+  Grafana disabled; persistent storage with remote-write receiver.
+home: https://github.com/prometheus-community/helm-charts
+icon: https://github.com/prometheus.png
+sources:
+  - https://github.com/otterscale/charts
+maintainers:
+  - name: Chung-Hsuan Tsai
+    email: paul_tsai@phison.com
+keywords:
+  - prometheus
+  - monitoring
+  - alertmanager
+type: application
+kubeVersion: ">=1.25.0-0"
+annotations:
+  module.otterscale.io/namespace: "monitoring"
+  artifacthub.io/license: Apache-2.0
+dependencies:
+  - name: kube-prometheus-stack
+    version: 82.10.5
+    repository: https://prometheus-community.github.io/helm-charts

@@ -1,0 +1,12 @@
+OtterScale Istiod has been installed.
+
+  Namespace: {{ .Release.Namespace }}
+
+  Prerequisites:
+  - otterscale-istio-base must be installed first
+
+  Features:
+  - Gateway API Inference Extension: ENABLED
+
+  Verify:
+  - kubectl get pods -n {{ .Release.Namespace }} -l app=istiod

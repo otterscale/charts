@@ -1,0 +1,13 @@
+OtterScale GPU Operator has been installed.
+
+  Namespace: {{ .Release.Namespace }}
+
+  Components:
+  - NVIDIA Driver
+  - DCGM + DCGM Exporter
+  - Node Status Exporter
+  - Device Plugin: DISABLED (use otterscale-hami for GPU sharing)
+
+  Next steps:
+  - Install otterscale-hami for GPU sharing / vGPU support
+  - Verify GPU nodes: kubectl get nodes -l nvidia.com/gpu.present=true

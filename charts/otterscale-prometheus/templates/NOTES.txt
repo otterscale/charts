@@ -1,0 +1,16 @@
+OtterScale Prometheus Stack has been installed.
+
+  Namespace: {{ .Release.Namespace }}
+
+  Components:
+  - Prometheus (retention: 365d / 40GiB, remote-write receiver enabled)
+  - Alertmanager
+  - Node Exporter
+  - Grafana: DISABLED
+
+  Storage:
+  - PVC: 40Gi (ensure a valid StorageClass is configured)
+
+  Verify:
+  - kubectl get pods -n {{ .Release.Namespace }}
+  - kubectl get svc -n {{ .Release.Namespace }}

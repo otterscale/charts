@@ -1,0 +1,28 @@
+apiVersion: v2
+name: otterscale-gpu-operator
+version: 0.1.0
+# renovate: helm=gpu-operator registry=https://nvidia.github.io/gpu-operator
+appVersion: "25.10.1"
+description: >-
+  NVIDIA GPU Operator — drivers, DCGM, DCGM Exporter, Node Status Exporter.
+  Device plugin disabled for use with HAMI vGPU.
+home: https://github.com/NVIDIA/gpu-operator
+icon: https://github.com/NVIDIA.png
+sources:
+  - https://github.com/otterscale/charts
+maintainers:
+  - name: Chung-Hsuan Tsai
+    email: paul_tsai@phison.com
+keywords:
+  - gpu
+  - nvidia
+  - operator
+type: application
+kubeVersion: ">=1.25.0-0"
+annotations:
+  module.otterscale.io/namespace: "gpu-operator"
+  artifacthub.io/license: Apache-2.0
+dependencies:
+  - name: gpu-operator
+    version: 25.10.1
+    repository: https://nvidia.github.io/gpu-operator

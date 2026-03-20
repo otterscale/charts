@@ -1,0 +1,30 @@
+apiVersion: v2
+name: otterscale-rook-ceph-cluster
+version: 0.1.0
+# renovate: helm=rook-ceph-cluster registry=https://charts.rook.io/release
+appVersion: "1.19.2"
+description: >-
+  Rook-Ceph Cluster — Phase 2: CephCluster, CephBlockPool, CephFilesystem,
+  StorageClass provisioning. Requires otterscale-rook-ceph operator first.
+home: https://rook.io
+icon: https://github.com/rook.png
+sources:
+  - https://github.com/otterscale/charts
+maintainers:
+  - name: Chung-Hsuan Tsai
+    email: paul_tsai@phison.com
+keywords:
+  - rook
+  - ceph
+  - storage
+  - cluster
+type: application
+kubeVersion: ">=1.25.0-0"
+annotations:
+  module.otterscale.io/depends-on: "otterscale-rook-ceph"
+  module.otterscale.io/namespace: "rook-ceph"
+  artifacthub.io/license: Apache-2.0
+dependencies:
+  - name: rook-ceph-cluster
+    version: 1.19.2
+    repository: https://charts.rook.io/release

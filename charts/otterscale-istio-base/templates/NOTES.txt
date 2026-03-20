@@ -1,0 +1,6 @@
+OtterScale Istio Base (CRDs) has been installed.
+
+  Namespace: {{ .Release.Namespace }}
+
+  Next steps:
+  - Install otterscale-istiod for Istio control plane

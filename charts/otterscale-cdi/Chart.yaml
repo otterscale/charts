@@ -1,0 +1,25 @@
+apiVersion: v2
+name: otterscale-cdi
+version: 0.1.0
+# renovate: github=kubevirt/containerized-data-importer
+appVersion: "1.64.0"
+description: >-
+  Containerized Data Importer — PVC data import for KubeVirt VM disk images.
+  Deploys CRDs, operator, and CDI custom resource.
+home: https://github.com/kubevirt/containerized-data-importer
+icon: https://github.com/kubevirt.png
+sources:
+  - https://github.com/otterscale/charts
+maintainers:
+  - name: Chung-Hsuan Tsai
+    email: paul_tsai@phison.com
+keywords:
+  - cdi
+  - kubevirt
+  - storage
+  - pvc
+type: application
+kubeVersion: ">=1.25.0-0"
+annotations:
+  module.otterscale.io/namespace: "cdi"
+  artifacthub.io/license: Apache-2.0

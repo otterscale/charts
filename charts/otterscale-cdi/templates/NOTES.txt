@@ -1,0 +1,14 @@
+OtterScale CDI (Containerized Data Importer) has been installed.
+
+  Namespace: {{ .Release.Namespace }}
+
+  Components:
+  - CDI CRDs
+  - CDI Operator
+  - CDI custom resource
+
+  Note: Resources are managed as templates and will be removed on helm uninstall.
+
+  Verify:
+  - kubectl get pods -n {{ .Release.Namespace }}
+  - kubectl get cdi
