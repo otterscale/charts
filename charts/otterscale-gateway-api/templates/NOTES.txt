@@ -1,0 +1,15 @@
+OtterScale Gateway API CRDs have been installed.
+
+  Namespace: {{ .Release.Namespace }}
+
+  Installed CRDs:
+  - GatewayClass
+  - Gateway
+  - HTTPRoute
+  - GRPCRoute
+  - ReferenceGrant
+
+  Note: CRDs are managed as templates and will be removed on helm uninstall.
+
+  Verify:
+  - kubectl get crds | grep gateway
