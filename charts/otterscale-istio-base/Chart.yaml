@@ -19,6 +19,7 @@ keywords:
 type: application
 kubeVersion: ">=1.25.0-0"
 annotations:
+  module.otterscale.io/depends-on: "otterscale-gateway-api"
   module.otterscale.io/namespace: "istio-system"
   artifacthub.io/license: Apache-2.0
 dependencies:
