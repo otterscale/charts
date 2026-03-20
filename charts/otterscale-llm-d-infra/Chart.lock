@@ -2,5 +2,5 @@ dependencies:
 - name: llm-d-infra
   repository: https://llm-d-incubation.github.io/llm-d-infra/
   version: v1.3.10
-digest: sha256:8d237096b1f5669645a110ff90c45cff248fb385584119bf31942a6e0ecf7a96
-generated: "2026-03-20T16:47:38.053227+08:00"
+digest: sha256:84ae89ec744c3f28de2e5ce8099de0f46b09b7d22ccbc5ec04d1bb31c18db8c8
+generated: "2026-03-20T18:42:34.383372+08:00"

@@ -7,9 +7,9 @@ dependencies:
   version: 0.9.3
 - name: harbor
   repository: https://helm.goharbor.io
-  version: 1.18.2
+  version: 1.18.3
 - name: common
   repository: oci://registry-1.docker.io/bitnamicharts
   version: 2.36.0
-digest: sha256:d2a158b552cc4aa4e4dd756d3d185edf7c2600f89fc670b5b8f7b322029b14f7
-generated: "2026-03-13T15:41:02.47889568+08:00"
+digest: sha256:4c742b6aea8defe7c74db382fc9753b9059767931e5cbe75ee96176462827071
+generated: "2026-03-20T18:42:43.710268+08:00"

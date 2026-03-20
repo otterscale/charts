@@ -2,5 +2,5 @@ dependencies:
 - name: gpu-operator
   repository: https://nvidia.github.io/gpu-operator
   version: v25.10.1
-digest: sha256:f6e0dacf646c983deaac2b2c15f38a5b702a618eb78e33f3b5ba743effb76166
-generated: "2026-03-20T16:47:30.836397+08:00"
+digest: sha256:f7b3cc5d907a999d17c6afdac0220b43fc3be01e520977a638e3a0965d4c9f31
+generated: "2026-03-20T18:42:27.065719+08:00"
