@@ -39,12 +39,12 @@ storage:
     reclaimPolicy: Retain
     image:
       repository: rancher/local-path-provisioner
-      tag: v0.0.28
+      tag: v0.0.35
       pullPolicy: IfNotPresent
     helperPod:
       image:
         repository: busybox
-        tag: "1.32"
+        tag: "1.37"
         pullPolicy: IfNotPresent
 
 # =============================================================================
