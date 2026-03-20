@@ -1,4 +1,4 @@
-VERSION := 0.8.0
+VERSION := 0.7.0
 UPSTREAM := https://github.com/kubernetes-sigs/lws/releases/download/v$(VERSION)
 
 .PHONY: vendor
