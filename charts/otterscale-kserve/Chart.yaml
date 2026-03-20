@@ -1,0 +1,33 @@
+apiVersion: v2
+name: otterscale-kserve
+version: 0.1.0
+# renovate: helm=kserve registry=oci://ghcr.io/kserve/charts
+appVersion: "0.17.0"
+description: >-
+  KServe LLMInferenceService — CRDs and controller
+  for Kubernetes-native distributed LLM inference with llm-d.
+home: https://kserve.github.io/website
+icon: https://github.com/kserve.png
+sources:
+  - https://github.com/otterscale/charts
+maintainers:
+  - name: Chung-Hsuan Tsai
+    email: paul_tsai@phison.com
+keywords:
+  - kserve
+  - llm
+  - inference
+  - llminferenceservice
+type: application
+kubeVersion: ">=1.32.0-0"
+annotations:
+  module.otterscale.io/depends-on: "otterscale-envoy-gateway,otterscale-envoy-ai-gateway,otterscale-leader-worker-set,otterscale-gateway-api-inference-extension"
+  module.otterscale.io/namespace: "kserve"
+  artifacthub.io/license: Apache-2.0
+dependencies:
+  - name: kserve-llmisvc-crd
+    version: 0.17.0
+    repository: oci://ghcr.io/kserve/charts
+  - name: kserve-llmisvc-resources
+    version: 0.17.0
+    repository: oci://ghcr.io/kserve/charts
