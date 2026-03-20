@@ -22,7 +22,7 @@ type: application
 kubeVersion: ">=1.25.0-0"
 annotations:
   module.otterscale.io/depends-on: "otterscale-gpu-operator"
-  module.tterscale.io/namespace: "kube-system"
+  module.otterscale.io/namespace: "kube-system"
   artifacthub.io/license: Apache-2.0
 dependencies:
   - name: hami
