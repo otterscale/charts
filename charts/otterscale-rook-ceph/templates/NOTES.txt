@@ -1,0 +1,14 @@
+OtterScale Rook-Ceph Operator has been installed.
+
+  Namespace: {{ .Release.Namespace }}
+
+  Components:
+  - Rook-Ceph CRDs
+  - Rook-Ceph Operator
+
+  Next steps:
+  - Install otterscale-rook-ceph-cluster to provision CephCluster, StorageClass, etc.
+
+  Verify:
+  - kubectl get pods -n {{ .Release.Namespace }}
+  - kubectl get crd | grep ceph

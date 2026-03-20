@@ -1,0 +1,15 @@
+OtterScale Rook-Ceph Cluster has been installed.
+
+  Namespace: {{ .Release.Namespace }}
+
+  Prerequisites:
+  - otterscale-rook-ceph must be installed first
+
+  Components:
+  - CephCluster
+  - CephBlockPool + StorageClass (ceph-block, default)
+  - CephFilesystem + StorageClass (ceph-filesystem)
+
+  Verify:
+  - kubectl get pods -n {{ .Release.Namespace }}
+  - kubectl get cephcluster

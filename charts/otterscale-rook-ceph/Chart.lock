@@ -1,0 +1,6 @@
+dependencies:
+- name: rook-ceph
+  repository: https://charts.rook.io/release
+  version: v1.19.2
+digest: sha256:2a8d1c2a2fd3d26e9cd1fa551985617461e6f066e1fd1b1bdd746fff00a6af88
+generated: "2026-03-20T16:47:43.028972+08:00"

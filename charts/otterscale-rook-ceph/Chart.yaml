@@ -1,0 +1,28 @@
+apiVersion: v2
+name: otterscale-rook-ceph
+version: 0.1.0
+# renovate: helm=rook-ceph registry=https://charts.rook.io/release
+appVersion: "1.19.2"
+description: >-
+  Rook-Ceph Operator — Phase 1: CRDs + Operator deployment.
+  Create CephCluster separately.
+home: https://rook.io
+icon: https://rook.io/images/rook-logo.svg
+sources:
+  - https://github.com/otterscale/charts
+maintainers:
+  - name: Chung-Hsuan Tsai
+    email: paul_tsai@phison.com
+keywords:
+  - rook
+  - ceph
+  - storage
+type: application
+kubeVersion: ">=1.25.0-0"
+annotations:
+  module.otterscale.io/namespace: "rook-ceph"
+  artifacthub.io/license: Apache-2.0
+dependencies:
+  - name: rook-ceph
+    version: 1.19.2
+    repository: https://charts.rook.io/release
