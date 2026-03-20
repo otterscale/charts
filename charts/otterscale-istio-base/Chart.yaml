@@ -1,0 +1,27 @@
+apiVersion: v2
+name: otterscale-istio-base
+version: 0.1.0
+# renovate: helm=base registry=https://istio-release.storage.googleapis.com/charts
+appVersion: "1.29.1"
+description: >-
+  Istio base — CRDs for Istio service mesh. Must be installed before otterscale-istiod.
+home: https://istio.io
+icon: https://github.com/istio.png
+sources:
+  - https://github.com/otterscale/charts
+maintainers:
+  - name: Chung-Hsuan Tsai
+    email: paul_tsai@phison.com
+keywords:
+  - istio
+  - service-mesh
+  - crds
+type: application
+kubeVersion: ">=1.25.0-0"
+annotations:
+  module.otterscale.io/namespace: "istio-system"
+  artifacthub.io/license: Apache-2.0
+dependencies:
+  - name: base
+    version: 1.29.1
+    repository: https://istio-release.storage.googleapis.com/charts
