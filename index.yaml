@@ -2399,6 +2399,372 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/otterscale-0.1.5/otterscale-0.1.5.tgz
     version: 0.1.5
+  otterscale-cdi:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: cdi
+    apiVersion: v2
+    appVersion: 1.64.0
+    created: "2026-03-20T10:44:33.908039716Z"
+    description: Containerized Data Importer — PVC data import for KubeVirt VM disk
+      images. Deploys CRDs, operator, and CDI custom resource.
+    digest: 2beb9a179f1059a4a186d57e87d07f653a6d0d8deae383e8a7d99d98d0645a03
+    home: https://github.com/kubevirt/containerized-data-importer
+    icon: https://github.com/kubevirt.png
+    keywords:
+    - cdi
+    - kubevirt
+    - storage
+    - pvc
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-cdi
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-cdi-0.1.0/otterscale-cdi-0.1.0.tgz
+    version: 0.1.0
+  otterscale-gateway-api:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: default
+    apiVersion: v2
+    appVersion: 1.4.1
+    created: "2026-03-20T10:44:34.283113777Z"
+    description: Kubernetes Gateway API — Standard channel CRDs (GatewayClass, Gateway,
+      HTTPRoute, GRPCRoute, ReferenceGrant).
+    digest: 974a3e797a8b08319a98828356c1652434569596434a99da0acac93d4e400138
+    home: https://gateway-api.sigs.k8s.io
+    icon: https://gateway-api.sigs.k8s.io/images/logo/logo.svg
+    keywords:
+    - gateway-api
+    - crds
+    - networking
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-gateway-api
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-gateway-api-0.1.0/otterscale-gateway-api-0.1.0.tgz
+    version: 0.1.0
+  otterscale-gateway-api-inference-extension:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-gateway-api
+      module.otterscale.io/namespace: default
+    apiVersion: v2
+    appVersion: 1.3.1
+    created: "2026-03-20T10:44:34.498922406Z"
+    description: Gateway API Inference Extension — CRDs and controllers for AI/ML
+      inference routing via Gateway API.
+    digest: 6bb5534252174c4ecef58251902466bd1b4e2f690ab2a910e6682268ee421ee0
+    home: https://github.com/kubernetes-sigs/gateway-api-inference-extension
+    icon: https://github.com/kubernetes-sigs.png
+    keywords:
+    - gateway-api
+    - inference
+    - ai
+    - ml
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-gateway-api-inference-extension
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-gateway-api-inference-extension-0.1.0/otterscale-gateway-api-inference-extension-0.1.0.tgz
+    version: 0.1.0
+  otterscale-gpu-operator:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: gpu-operator
+    apiVersion: v2
+    appVersion: 25.10.1
+    created: "2026-03-20T10:44:34.696948134Z"
+    dependencies:
+    - name: gpu-operator
+      repository: https://nvidia.github.io/gpu-operator
+      version: 25.10.1
+    description: NVIDIA GPU Operator — drivers, DCGM, DCGM Exporter, Node Status Exporter.
+      Device plugin disabled for use with HAMI vGPU.
+    digest: 34397cd7f50fb84cfbb71d539b7bbd93bd5ae2ab47445c3192498ec5e005ad87
+    home: https://github.com/NVIDIA/gpu-operator
+    icon: https://github.com/NVIDIA.png
+    keywords:
+    - gpu
+    - nvidia
+    - operator
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-gpu-operator
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-gpu-operator-0.1.0/otterscale-gpu-operator-0.1.0.tgz
+    version: 0.1.0
+  otterscale-hami:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-gpu-operator
+      module.otterscale.io/namespace: kube-system
+    apiVersion: v2
+    appVersion: 2.8.0
+    created: "2026-03-20T10:44:34.934227202Z"
+    dependencies:
+    - name: hami
+      repository: https://project-hami.github.io/HAMi/
+      version: 2.8.0
+    description: HAMI — GPU sharing (vGPU) with device split, memory/core scaling.
+      Integrates with NVIDIA GPU Operator.
+    digest: 008de16ab41a68e36bfc14c8979b24a3d148693420ee4e8077ccd35050ef3c3a
+    home: https://github.com/Project-HAMi/HAMi
+    icon: https://github.com/Project-HAMi.png
+    keywords:
+    - gpu
+    - vgpu
+    - hami
+    - sharing
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-hami
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-hami-0.1.0/otterscale-hami-0.1.0.tgz
+    version: 0.1.0
+  otterscale-istio-base:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: istio-system
+    apiVersion: v2
+    appVersion: 1.29.1
+    created: "2026-03-20T10:44:35.157276858Z"
+    dependencies:
+    - name: base
+      repository: https://istio-release.storage.googleapis.com/charts
+      version: 1.29.1
+    description: Istio base — CRDs for Istio service mesh. Must be installed before
+      otterscale-istiod.
+    digest: 9cb5304614a17db0719ee17fe8fe3aa65d73be854b54653a5f286cd7079af831
+    home: https://istio.io
+    icon: https://github.com/istio.png
+    keywords:
+    - istio
+    - service-mesh
+    - crds
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-istio-base
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-istio-base-0.1.0/otterscale-istio-base-0.1.0.tgz
+    version: 0.1.0
+  otterscale-istiod:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-istio-base
+      module.otterscale.io/namespace: istio-system
+    apiVersion: v2
+    appVersion: 1.29.1
+    created: "2026-03-20T10:44:35.385631227Z"
+    dependencies:
+    - name: istiod
+      repository: https://istio-release.storage.googleapis.com/charts
+      version: 1.29.1
+    description: Istiod — Istio control plane / discovery server. Requires otterscale-istio-base
+      to be installed first.
+    digest: a228f4d95c8b3463b5ba228d22a762dd702c69eaafa07b1f186e4475d6476b5b
+    home: https://istio.io
+    icon: https://github.com/istio.png
+    keywords:
+    - istio
+    - istiod
+    - service-mesh
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-istiod
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-istiod-0.1.0/otterscale-istiod-0.1.0.tgz
+    version: 0.1.0
+  otterscale-kubevirt:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-cdi
+      module.otterscale.io/namespace: kubevirt
+    apiVersion: v2
+    appVersion: 1.7.2
+    created: "2026-03-20T10:44:35.609553586Z"
+    description: KubeVirt — enables Kubernetes to manage VMs natively. Deploys CRDs,
+      operator, and KubeVirt custom resource.
+    digest: 0ecbb759e8751da13be9192e6f6ed2af765a499f0584ad68030f148226a356d0
+    home: https://kubevirt.io
+    icon: https://github.com/kubevirt.png
+    keywords:
+    - kubevirt
+    - virtualization
+    - vm
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-kubevirt
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kubevirt-0.1.0/otterscale-kubevirt-0.1.0.tgz
+    version: 0.1.0
+  otterscale-llm-d-infra:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-gpu-operator,otterscale-istiod
+      module.otterscale.io/namespace: llm-d
+    apiVersion: v2
+    appVersion: 1.3.10
+    created: "2026-03-20T10:44:35.8087284Z"
+    dependencies:
+    - name: llm-d-infra
+      repository: https://llm-d-incubation.github.io/llm-d-infra/
+      version: 1.3.10
+    description: llm-d infrastructure — Gateway API configs and operational tooling
+      for Kubernetes-native distributed LLM inference.
+    digest: 17d42c42eb065cc6ddcf54d0d974a9cfb66c29cc2ce22a725c02ec372e449c54
+    home: https://github.com/llm-d-incubation/llm-d-infra
+    icon: https://github.com/llm-d.png
+    keywords:
+    - llm
+    - inference
+    - gpu
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-llm-d-infra
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-llm-d-infra-0.1.0/otterscale-llm-d-infra-0.1.0.tgz
+    version: 0.1.0
+  otterscale-prometheus:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: monitoring
+    apiVersion: v2
+    appVersion: 82.10.5
+    created: "2026-03-20T10:44:36.06940067Z"
+    dependencies:
+    - name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 82.10.5
+    description: kube-prometheus-stack — Prometheus, Alertmanager, Node Exporter.
+      Grafana disabled; persistent storage with remote-write receiver.
+    digest: 7f212bb03b12f762d5d306cee034a7d00a2b48a9f57abc51f41ea2d59718f376
+    home: https://github.com/prometheus-community/helm-charts
+    icon: https://github.com/prometheus.png
+    keywords:
+    - prometheus
+    - monitoring
+    - alertmanager
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-prometheus
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-prometheus-0.1.0/otterscale-prometheus-0.1.0.tgz
+    version: 0.1.0
+  otterscale-rook-ceph:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: rook-ceph
+    apiVersion: v2
+    appVersion: 1.19.2
+    created: "2026-03-20T10:44:36.309243793Z"
+    dependencies:
+    - name: rook-ceph
+      repository: https://charts.rook.io/release
+      version: 1.19.2
+    description: 'Rook-Ceph Operator — Phase 1: CRDs + Operator deployment. Create
+      CephCluster separately.'
+    digest: a56c327930f61a4eea1e78ba8da444f16d1106455a48d7e2be06583cc80a9fa1
+    home: https://rook.io
+    icon: https://github.com/rook.png
+    keywords:
+    - rook
+    - ceph
+    - storage
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-rook-ceph
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-rook-ceph-0.1.0/otterscale-rook-ceph-0.1.0.tgz
+    version: 0.1.0
+  otterscale-rook-ceph-cluster:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-rook-ceph
+      module.otterscale.io/namespace: rook-ceph
+    apiVersion: v2
+    appVersion: 1.19.2
+    created: "2026-03-20T10:44:36.524025735Z"
+    dependencies:
+    - name: rook-ceph-cluster
+      repository: https://charts.rook.io/release
+      version: 1.19.2
+    description: 'Rook-Ceph Cluster — Phase 2: CephCluster, CephBlockPool, CephFilesystem,
+      StorageClass provisioning. Requires otterscale-rook-ceph operator first.'
+    digest: b0f9ff4adafe6c786a5e8f12f2aa52f0face290db4a88d157dbfe9dcb7d7152a
+    home: https://rook.io
+    icon: https://github.com/rook.png
+    keywords:
+    - rook
+    - ceph
+    - storage
+    - cluster
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-rook-ceph-cluster
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-rook-ceph-cluster-0.1.0/otterscale-rook-ceph-cluster-0.1.0.tgz
+    version: 0.1.0
   registry:
   - apiVersion: v2
     appVersion: 1.16.0
@@ -2532,4 +2898,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-03-18T11:50:52.578874743Z"
+generated: "2026-03-20T10:44:36.52424706Z"
