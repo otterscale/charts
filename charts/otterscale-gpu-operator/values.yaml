@@ -1,0 +1,30 @@
+gpu-operator:
+  cdi:
+    enabled: false
+
+  driver:
+    enabled: true
+    version: "580.105.08"
+    upgradePolicy:
+      autoUpgrade: false
+
+  devicePlugin:
+    enabled: false
+
+  operator:
+    cleanupCRD: true
+    upgradeCRD: false
+
+  dcgm:
+    enabled: true
+
+  dcgmExporter:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+
+  nodeStatusExporter:
+    enabled: true
+
+  vgpuDeviceManager:
+    enabled: false
