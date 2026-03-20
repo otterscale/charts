@@ -1,0 +1,22 @@
+kube-prometheus-stack:
+  prometheus:
+    prometheusSpec:
+      enableRemoteWriteReceiver: true
+      retention: "365d"
+      retentionSize: "40GiB"
+      serviceMonitorSelectorNilUsesHelmValues: false
+      storageSpec:
+        volumeClaimTemplate:
+          spec:
+            # TODO: replace with your cluster's StorageClass (e.g. standard, gp2, longhorn)
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: "40Gi"
+
+  nodeExporter:
+    enabled: true
+
+  grafana:
+    enabled: false
