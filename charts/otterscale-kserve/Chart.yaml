@@ -2,7 +2,7 @@ apiVersion: v2
 name: otterscale-kserve
 version: 0.1.0
 # renovate: helm=kserve registry=oci://ghcr.io/kserve/charts
-appVersion: "0.17.0"
+appVersion: "v0.17.0"
 description: >-
   KServe LLMInferenceService — CRDs and controller
   for Kubernetes-native distributed LLM inference with llm-d.
@@ -26,8 +26,8 @@ annotations:
   artifacthub.io/license: Apache-2.0
 dependencies:
   - name: kserve-llmisvc-crd
-    version: 0.17.0
+    version: v0.17.0
     repository: oci://ghcr.io/kserve/charts
   - name: kserve-llmisvc-resources
-    version: 0.17.0
+    version: v0.17.0
     repository: oci://ghcr.io/kserve/charts
