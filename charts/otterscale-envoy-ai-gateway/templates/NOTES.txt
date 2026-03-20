@@ -1,0 +1,13 @@
+OtterScale Envoy AI Gateway has been installed.
+
+  Namespace: {{ .Release.Namespace }}
+
+  Prerequisites:
+  - otterscale-envoy-gateway must be installed first
+
+  Components:
+  - Envoy AI Gateway controller
+  - AI Gateway CRDs
+
+  Verify:
+  - kubectl get pods -n {{ .Release.Namespace }}

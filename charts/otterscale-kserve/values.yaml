@@ -1,0 +1,5 @@
+kserve-llmisvc-resources:
+  kserve:
+    controller:
+      llmisvc:
+        enabled: true

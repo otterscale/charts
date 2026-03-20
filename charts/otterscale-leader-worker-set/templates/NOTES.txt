@@ -1,0 +1,13 @@
+OtterScale LeaderWorkerSet has been installed.
+
+  Namespace: {{ .Release.Namespace }}
+
+  Components:
+  - LeaderWorkerSet controller
+  - LeaderWorkerSet CRDs
+
+  Note: Resources are managed as templates and will be removed on helm uninstall.
+
+  Verify:
+  - kubectl get pods -n {{ .Release.Namespace }}
+  - kubectl get crds | grep leaderworkersets
