@@ -7,7 +7,7 @@ description: >-
   Rook-Ceph Operator — Phase 1: CRDs + Operator deployment.
   Create CephCluster separately.
 home: https://rook.io
-icon: https://rook.io/images/rook-logo.svg
+icon: https://github.com/rook.png
 sources:
   - https://github.com/otterscale/charts
 maintainers:

@@ -7,7 +7,7 @@ description: >-
   Kubernetes Gateway API — Standard channel CRDs
   (GatewayClass, Gateway, HTTPRoute, GRPCRoute, ReferenceGrant).
 home: https://gateway-api.sigs.k8s.io
-icon: https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/refs/heads/main/site-src/images/logo/logo.svg
+icon: https://gateway-api.sigs.k8s.io/images/logo/logo.svg
 sources:
   - https://github.com/otterscale/charts
 maintainers:

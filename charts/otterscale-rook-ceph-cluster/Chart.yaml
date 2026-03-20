@@ -7,7 +7,7 @@ description: >-
   Rook-Ceph Cluster — Phase 2: CephCluster, CephBlockPool, CephFilesystem,
   StorageClass provisioning. Requires otterscale-rook-ceph operator first.
 home: https://rook.io
-icon: https://rook.io/images/rook-logo.svg
+icon: https://github.com/rook.png
 sources:
   - https://github.com/otterscale/charts
 maintainers:
