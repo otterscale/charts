@@ -1,0 +1,18 @@
+OtterScale Envoy Gateway has been installed.
+
+  Namespace: {{ .Release.Namespace }}
+
+  Prerequisites:
+  - otterscale-gateway-api must be installed first
+
+  Components:
+  - Envoy Gateway controller
+  - GatewayClass: envoy-gateway
+
+  Next steps:
+  - Create a Gateway resource referencing the GatewayClass
+  - Install otterscale-envoy-ai-gateway for AI/ML inference routing
+
+  Verify:
+  - kubectl get pods -n {{ .Release.Namespace }}
+  - kubectl get gatewayclass
