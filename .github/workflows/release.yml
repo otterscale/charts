@@ -29,13 +29,15 @@ jobs:
 
       - name: Add dependency chart repos
         run: |
-          helm repo add bitnami https://charts.bitnami.com/bitnami
-          helm repo add grafana https://grafana.github.io/helm-charts
-          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
           helm repo add codecentric https://codecentric.github.io/helm-charts
-          helm repo add valkey https://valkey.io/valkey-helm/
-          helm repo add keycloakx https://codecentric.github.io/helm-charts
+          helm repo add hami https://project-hami.github.io/HAMi/
           helm repo add harbor https://helm.goharbor.io
+          helm repo add istio https://istio-release.storage.googleapis.com/charts
+          helm repo add llm-d-infra https://llm-d-incubation.github.io/llm-d-infra/
+          helm repo add nvidia https://nvidia.github.io/gpu-operator
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add rook-ceph https://charts.rook.io/release
+          helm repo add valkey https://valkey.io/valkey-helm/
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.7.0
