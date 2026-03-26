@@ -163,7 +163,7 @@ emit_raw_value "disk-count" "$DISK_COUNT"
 # Avoid `| while` (subshell); POSIX `for` keeps functions in the same shell.
 for disk in $(list_disk_bases); do
   [ -n "$disk" ] || continue
-  safe=$(sanitize_label_name "disk-${disk}")
+  safe=$(sanitize_label_name "disk.${disk}")
 
   emit_raw_value "$safe" "present"
 
