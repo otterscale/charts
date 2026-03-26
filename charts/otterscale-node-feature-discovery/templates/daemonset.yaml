@@ -1,0 +1,104 @@
+{{- if .Values.featureWriter.enabled }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "otterscale-nfd.fullname" . }}-feature-writer
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "otterscale-nfd.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "otterscale-nfd.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "otterscale-nfd.selectorLabels" . | nindent 8 }}
+        {{- range $k, $v := .Values.featureWriter.podLabels }}
+        {{ $k }}: {{ quote $v }}
+        {{- end }}
+      {{- with .Values.featureWriter.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "otterscale-nfd.fullname" . }}-feature-writer
+      {{- with .Values.featureWriter.priorityClassName }}
+      priorityClassName: {{ . }}
+      {{- end }}
+      {{- with .Values.featureWriter.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.featureWriter.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.featureWriter.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: feature-writer
+          image: "{{ .Values.featureWriter.image.repository }}:{{ .Values.featureWriter.image.tag }}"
+          imagePullPolicy: {{ .Values.featureWriter.imagePullPolicy }}
+          securityContext:
+            {{- toYaml .Values.featureWriter.securityContext | nindent 12 }}
+          resources:
+            {{- toYaml .Values.featureWriter.resources | nindent 12 }}
+          env:
+            - name: SYS_ROOT
+              value: /host/sys
+            - name: DEV_ROOT
+              value: /host/dev
+            - name: DATA_DISK_INCLUDE_NBD
+              value: {{ if .Values.featureWriter.dataDiskIncludeNbd }}"1"{{ else }}"0"{{ end }}
+          command:
+            - /bin/sh
+            - -c
+          args:
+            - |
+              set -eu
+              OUT_DIR="/etc/kubernetes/node-feature-discovery/features.d"
+              TMP="${OUT_DIR}/.{{ .Values.featureWriter.featureFileName }}.tmp"
+              FINAL="${OUT_DIR}/{{ .Values.featureWriter.featureFileName }}"
+              INTERVAL={{ .Values.featureWriter.intervalSeconds | int }}
+              mkdir -p "${OUT_DIR}"
+              while true; do
+                if /bin/sh /scripts/disk-features.sh > "${TMP}"; then
+                  mv -f "${TMP}" "${FINAL}"
+                else
+                  rm -f "${TMP}"
+                fi
+                sleep "${INTERVAL}"
+              done
+          volumeMounts:
+            - name: host-features-d
+              mountPath: /etc/kubernetes/node-feature-discovery/features.d
+            - name: host-sys
+              mountPath: /host/sys
+              readOnly: true
+            - name: host-dev
+              mountPath: /host/dev
+              readOnly: true
+            - name: disk-script
+              mountPath: /scripts
+              readOnly: true
+      volumes:
+        - name: host-features-d
+          hostPath:
+            path: /etc/kubernetes/node-feature-discovery/features.d
+            type: DirectoryOrCreate
+        - name: host-sys
+          hostPath:
+            path: /sys
+            type: Directory
+        - name: host-dev
+          hostPath:
+            path: /dev
+            type: Directory
+        - name: disk-script
+          configMap:
+            name: {{ include "otterscale-nfd.fullname" . }}-disk-script
+            defaultMode: 0444
+{{- end }}
