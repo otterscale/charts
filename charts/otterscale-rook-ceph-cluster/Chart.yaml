@@ -21,7 +21,7 @@ keywords:
 type: application
 kubeVersion: ">=1.25.0-0"
 annotations:
-  module.otterscale.io/depends-on: "otterscale-rook-ceph"
+  module.otterscale.io/depends-on: "otterscale-rook-ceph,otterscale-node-feature-discovery"
   module.otterscale.io/namespace: "rook-ceph"
   artifacthub.io/license: Apache-2.0
 dependencies:
