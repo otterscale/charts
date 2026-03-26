@@ -1,0 +1,12 @@
+{{- if .Values.featureWriter.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "otterscale-nfd.fullname" . }}-disk-script
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "otterscale-nfd.labels" . | nindent 4 }}
+data:
+  disk-features.sh: |
+{{ .Files.Get "files/disk-features.sh" | nindent 4 }}
+{{- end }}

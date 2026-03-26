@@ -1,0 +1,41 @@
+# Upstream: https://github.com/kubernetes-sigs/node-feature-discovery/tree/master/deployment/helm/node-feature-discovery
+node-feature-discovery:
+  master:
+    extraLabelNs:
+      - otterscale.io
+    # Avoid literal `null` in nfd-master.conf (upstream default `master.config` parses as null in YAML).
+    config: {}
+  worker:
+    config:
+      core:
+        sleepInterval: 60s
+
+# DaemonSet: runs disk-features.sh on each node and atomically refreshes a file under
+# /etc/kubernetes/node-feature-discovery/features.d/ for the NFD local source.
+featureWriter:
+  enabled: true
+  # Official slim image: /bin/sh (dash), coreutils, util-linux (blockdev fallback).
+  image:
+    repository: debian
+    tag: bookworm-slim
+  imagePullPolicy: IfNotPresent
+  intervalSeconds: 60
+  featureFileName: otterscale-disk-features
+  # Script only publishes "data disk" candidates: excludes loop, ram, zram, dm-*, fd*, and nbd* by default.
+  dataDiskIncludeNbd: false
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      memory: 128Mi
+  tolerations: []
+  nodeSelector: {}
+  affinity: {}
+  priorityClassName: ""
+  podAnnotations: {}
+  podLabels: {}
+  securityContext:
+    runAsUser: 0
+    runAsGroup: 0
+    runAsNonRoot: false
