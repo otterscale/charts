@@ -90,6 +90,6 @@ objectstoreService:
   clusterName: rook-ceph
   nodePort: null
 
-# -- RBAC: allow all authenticated users to read the object store and secrets
+# -- RBAC: allow all authenticated users to create Ceph object store users and access their secrets
 objectstoreRbac:
   enabled: true

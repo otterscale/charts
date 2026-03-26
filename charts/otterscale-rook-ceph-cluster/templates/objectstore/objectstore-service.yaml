@@ -1,7 +1,7 @@
 {{- if .Values.objectstoreService.enabled -}}
 {{- $namespace := include "rook-ceph-cluster.namespace" . -}}
-{{- $storeName := .Values.objectstoreService.storeName -}}
-{{- $clusterName := .Values.objectstoreService.clusterName -}}
+{{- $storeName := .Values.objectstoreService.storeName | required "A value for objectstoreService.storeName is required." -}}
+{{- $clusterName := .Values.objectstoreService.clusterName | required "A value for objectstoreService.clusterName is required." -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -9,8 +9,8 @@ metadata:
   namespace: {{ $namespace }}
   labels:
     app: rook-ceph-rgw
-    rook_object_store: {{ $storeName }}
-    rook_cluster: {{ $clusterName }}
+    rook_object_store: {{ $storeName | quote }}
+    rook_cluster: {{ $clusterName | quote }}
 spec:
   ports:
     - name: rgw
@@ -22,8 +22,8 @@ spec:
       {{- end }}
   selector:
     app: rook-ceph-rgw
-    rook_object_store: {{ $storeName }}
-    rook_cluster: {{ $clusterName }}
+    rook_object_store: {{ $storeName | quote }}
+    rook_cluster: {{ $clusterName | quote }}
   sessionAffinity: None
   type: NodePort
 {{- end }}
