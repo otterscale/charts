@@ -1,0 +1,29 @@
+{{- if .Values.objectstoreService.enabled -}}
+{{- $namespace := include "rook-ceph-cluster.namespace" . -}}
+{{- $storeName := .Values.objectstoreService.storeName -}}
+{{- $clusterName := .Values.objectstoreService.clusterName -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: rook-ceph-rgw-{{ $storeName }}-external
+  namespace: {{ $namespace }}
+  labels:
+    app: rook-ceph-rgw
+    rook_object_store: {{ $storeName }}
+    rook_cluster: {{ $clusterName }}
+spec:
+  ports:
+    - name: rgw
+      port: 80
+      protocol: TCP
+      targetPort: 8080
+      {{- if .Values.objectstoreService.nodePort }}
+      nodePort: {{ .Values.objectstoreService.nodePort }}
+      {{- end }}
+  selector:
+    app: rook-ceph-rgw
+    rook_object_store: {{ $storeName }}
+    rook_cluster: {{ $clusterName }}
+  sessionAffinity: None
+  type: NodePort
+{{- end }}
