@@ -4,6 +4,7 @@ kube-prometheus-stack:
       enableRemoteWriteReceiver: true
       retention: "365d"
       retentionSize: "40GiB"
+      podMonitorSelectorNilUsesHelmValues: false
       serviceMonitorSelectorNilUsesHelmValues: false
       storageSpec:
         volumeClaimTemplate:
