@@ -83,6 +83,10 @@ rook-ceph-cluster:
         reclaimPolicy: Delete
         volumeBindingMode: Immediate
 
+  # -- Enable monitoring with Prometheus and Grafana
+  monitoring:
+    enabled: true
+
 # -- NodePort Service for ObjectStore RGW
 objectstoreService:
   enabled: true
