@@ -82,6 +82,10 @@ rook-ceph-cluster:
         name: ceph-bucket
         reclaimPolicy: Delete
         volumeBindingMode: Immediate
+  
+  # -- Enable monitoring with Prometheus and Grafana
+  monitoring:
+    enabled: true
 
 # -- NodePort Service for ObjectStore RGW
 objectstoreService:

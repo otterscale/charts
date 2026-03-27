@@ -1,1 +1,4 @@
-rook-ceph: {}
+rook-ceph:
+  # -- Enable monitoring with Prometheus and Grafana
+  monitoring:
+    enabled: true
