@@ -1,8 +1,8 @@
 apiVersion: v2
 name: otterscale-leader-worker-set
-version: 0.1.0
+version: 0.2.0
 # renovate: github=kubernetes-sigs/lws
-appVersion: "0.7.0"
+appVersion: "0.8.0"
 description: >-
   LeaderWorkerSet — multi-node pod group orchestration
   for distributed LLM inference (tensor/pipeline parallelism).
