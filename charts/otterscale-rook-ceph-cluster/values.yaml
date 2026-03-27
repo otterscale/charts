@@ -5,21 +5,28 @@ rook-ceph-cluster:
   # See: https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/
   cephClusterSpec:
     cephVersion:
-      # TODO: update to match your desired Ceph version
       allowUnsupported: false
     mon:
-      count: 3
-      allowMultiplePerNode: true
+      count: 1
+      allowMultiplePerNode: false
     mgr:
-      count: 2
-      allowMultiplePerNode: true
+      count: 1
+      allowMultiplePerNode: false
     dashboard:
       enabled: false
     network:
       provider: host
     storage:
-      useAllNodes: true
-      useAllDevices: true
+      useAllNodes: false
+      nodes:
+        - name: kubeadm-site4
+          devices:
+            - name: /dev/sdb
+            - name: /dev/sdc
+            - name: /dev/sdd
+      useAllDevices: false
+    disruptionManagement:
+      managePodBudgets: false
 
   # -- CephBlockPool and StorageClass for RBD (block storage)
   cephBlockPools:
@@ -27,7 +34,8 @@ rook-ceph-cluster:
       spec:
         failureDomain: osd
         replicated:
-          size: 3
+          size: 2
+          requireSafeReplicaSize: false
       storageClass:
         enabled: true
         name: ceph-block
@@ -44,15 +52,17 @@ rook-ceph-cluster:
       spec:
         metadataPool:
           replicated:
-            size: 3
+            size: 2
+            requireSafeReplicaSize: false
         dataPools:
           - failureDomain: osd
             replicated:
-              size: 3
+              size: 2
+              requireSafeReplicaSize: false
             name: data0
         metadataServer:
           activeCount: 1
-          activeStandby: true
+          activeStandby: false
       storageClass:
         enabled: true
         name: ceph-filesystem
@@ -68,11 +78,12 @@ rook-ceph-cluster:
           failureDomain: osd
           replicated:
             size: 3
+            requireSafeReplicaSize: false
         dataPool:
           failureDomain: osd
-          erasureCoded:
-            dataChunks: 2
-            codingChunks: 1
+          replicated:
+            size: 3
+            requireSafeReplicaSize: false
         gateway:
           port: 8301
           instances: 1
