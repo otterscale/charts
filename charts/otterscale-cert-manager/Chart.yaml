@@ -2,7 +2,7 @@ apiVersion: v2
 name: otterscale-cert-manager
 version: 0.1.0
 # renovate: helm=cert-manager registry=https://charts.jetstack.io
-appVersion: "v1.20.0"
+appVersion: "v1.20.1"
 description: >-
   cert-manager — Kubernetes certificate management controller.
   Wrapper chart for Jetstack cert-manager.
@@ -23,7 +23,7 @@ type: application
 kubeVersion: ">=1.25.0-0"
 dependencies:
   - name: cert-manager
-    version: v1.20.0
+    version: v1.20.1
     repository: https://charts.jetstack.io
 annotations:
   module.otterscale.io/namespace: "cert-manager"

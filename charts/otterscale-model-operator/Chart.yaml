@@ -1,0 +1,25 @@
+apiVersion: v2
+name: otterscale-model-operator
+version: 0.1.0
+# renovate: github=otterscale/model-operator
+appVersion: "v0.9.2"
+description: >-
+  Model Operator — manages AI/ML model lifecycle on Kubernetes.
+  Deploys the Model Operator controller manager.
+home: https://github.com/otterscale/model-operator
+icon: https://github.com/otterscale.png
+sources:
+  - https://github.com/otterscale/charts
+maintainers:
+  - name: Chung-Hsuan Tsai
+    email: paul_tsai@phison.com
+keywords:
+  - model
+  - operator
+  - ai
+  - ml
+type: application
+kubeVersion: ">=1.25.0-0"
+annotations:
+  module.otterscale.io/namespace: "otterscale-system"
+  artifacthub.io/license: Apache-2.0

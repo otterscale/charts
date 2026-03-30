@@ -2,7 +2,7 @@ apiVersion: v2
 name: otterscale-kubevirt
 version: 0.1.1
 # renovate: github=kubevirt/kubevirt
-appVersion: "1.7.2"
+appVersion: "1.8.1"
 description: >-
   KubeVirt Operator — enables Kubernetes to manage VMs natively.
   Deploys KubeVirt operator and KubeVirt custom resource.
@@ -20,6 +20,6 @@ keywords:
 type: application
 kubeVersion: ">=1.25.0-0"
 annotations:
-  module.otterscale.io/depends-on: "otterscale-cdi,otterscale-kubevirt-crd"
+  module.otterscale.io/depends-on: "otterscale-kubevirt-base"
   module.otterscale.io/namespace: "kubevirt"
   artifacthub.io/license: Apache-2.0

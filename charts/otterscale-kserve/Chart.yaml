@@ -26,6 +26,6 @@ dependencies:
     version: v0.17.0
     repository: oci://ghcr.io/kserve/charts
 annotations:
-  module.otterscale.io/depends-on: "otterscale-leader-worker-set,otterscale-envoy-gateway,otterscale-envoy-ai-gateway,otterscale-kserve-crd"
+  module.otterscale.io/depends-on: "otterscale-leader-worker-set,otterscale-envoy-gateway,otterscale-envoy-ai-gateway,otterscale-kserve-base"
   module.otterscale.io/namespace: "kserve"
   artifacthub.io/license: Apache-2.0

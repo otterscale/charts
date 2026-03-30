@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    {{- include "otterscale-model-operator.labels" . | nindent 4 }}
+  name: model-operator-controller-manager
+  namespace: {{ .Values.namespace.name }}
+spec:
+  replicas: {{ .Values.controllerManager.replicas }}
+  selector:
+    matchLabels:
+      {{- include "otterscale-model-operator.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: manager
+      labels:
+        {{- include "otterscale-model-operator.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - args:
+        {{- range .Values.controllerManager.args }}
+        - {{ . }}
+        {{- end }}
+        command:
+        - /manager
+        image: {{ .Values.controllerManager.image.repository }}:{{ .Values.controllerManager.image.tag }}
+        imagePullPolicy: {{ .Values.controllerManager.image.pullPolicy }}
+        livenessProbe:
+          {{- toYaml .Values.controllerManager.livenessProbe | nindent 10 }}
+        name: manager
+        ports: []
+        readinessProbe:
+          {{- toYaml .Values.controllerManager.readinessProbe | nindent 10 }}
+        resources:
+          {{- toYaml .Values.controllerManager.resources | nindent 10 }}
+        securityContext:
+          {{- toYaml .Values.controllerManager.securityContext | nindent 10 }}
+        volumeMounts: []
+      securityContext:
+        {{- toYaml .Values.controllerManager.podSecurityContext | nindent 8 }}
+      serviceAccountName: {{ include "otterscale-model-operator.serviceAccountName" . }}
+      terminationGracePeriodSeconds: 10
+      volumes: []
