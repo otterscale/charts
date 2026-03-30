@@ -17,14 +17,8 @@ rook-ceph-cluster:
     network:
       provider: host
     storage:
-      useAllNodes: false
-      nodes:
-        - name: kubeadm-site4
-          devices:
-            - name: /dev/sdb
-            - name: /dev/sdc
-            - name: /dev/sdd
-      useAllDevices: false
+      useAllNodes: true
+      useAllDevices: true
     disruptionManagement:
       managePodBudgets: false
 
