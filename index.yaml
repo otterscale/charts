@@ -2554,6 +2554,37 @@ entries:
   otterscale-gpu-operator:
   - annotations:
       artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-prometheus
+      module.otterscale.io/namespace: gpu-operator
+    apiVersion: v2
+    appVersion: 26.3.0
+    created: "2026-03-30T06:53:46.998521086Z"
+    dependencies:
+    - name: gpu-operator
+      repository: https://nvidia.github.io/gpu-operator
+      version: 26.3.0
+    description: NVIDIA GPU Operator — drivers, DCGM, DCGM Exporter, Node Status Exporter.
+      Device plugin disabled for use with HAMI vGPU.
+    digest: b6a60bd574175e9b5f4bca1987b44dfc594a328ef82c8bff06208176c48a362d
+    home: https://github.com/NVIDIA/gpu-operator
+    icon: https://github.com/NVIDIA.png
+    keywords:
+    - gpu
+    - nvidia
+    - operator
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-gpu-operator
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-gpu-operator-0.1.1/otterscale-gpu-operator-0.1.1.tgz
+    version: 0.1.1
+  - annotations:
+      artifacthub.io/license: Apache-2.0
       module.otterscale.io/namespace: gpu-operator
     apiVersion: v2
     appVersion: 25.10.1
@@ -3185,4 +3216,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-03-27T10:44:50.9792178Z"
+generated: "2026-03-30T06:53:46.998720206Z"
