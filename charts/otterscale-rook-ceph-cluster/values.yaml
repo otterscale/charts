@@ -4,8 +4,6 @@ rook-ceph-cluster:
   # -- CephCluster configuration
   # See: https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/
   cephClusterSpec:
-    cephVersion:
-      allowUnsupported: false
     mon:
       count: 1
       allowMultiplePerNode: false
