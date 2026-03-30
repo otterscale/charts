@@ -4,7 +4,7 @@ gpu-operator:
 
   driver:
     enabled: true
-    version: "580.105.08"
+    version: "580.126.20"
     upgradePolicy:
       autoUpgrade: false
 
