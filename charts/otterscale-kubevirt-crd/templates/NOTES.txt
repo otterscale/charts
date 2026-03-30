@@ -1,4 +1,4 @@
-OtterScale KubeVirt has been installed.
+OtterScale KubeVirt CRD has been installed.
 
   Namespace: {{ .Release.Namespace }}
 
@@ -6,11 +6,9 @@ OtterScale KubeVirt has been installed.
   - otterscale-cdi must be installed first
 
   Components:
-  - KubeVirt Operator
-  - KubeVirt custom resource
+  - KubeVirt CRDs
 
   Note: Resources are managed as templates and will be removed on helm uninstall.
 
   Verify:
-  - kubectl get pods -n {{ .Release.Namespace }}
-  - kubectl get kubevirt
+  - kubectl get crd kubevirts.kubevirt.io
