@@ -1,11 +1,11 @@
 apiVersion: v2
-name: otterscale-kubevirt
-version: 0.1.1
+name: otterscale-kubevirt-base
+version: 0.1.0
 # renovate: github=kubevirt/kubevirt
 appVersion: "1.8.1"
 description: >-
-  KubeVirt Operator — enables Kubernetes to manage VMs natively.
-  Deploys KubeVirt operator and KubeVirt custom resource.
+  KubeVirt CRDs — Custom Resource Definitions for KubeVirt.
+  Deploys namespace and CRDs only.
 home: https://kubevirt.io
 icon: https://github.com/kubevirt.png
 sources:
@@ -20,6 +20,6 @@ keywords:
 type: application
 kubeVersion: ">=1.25.0-0"
 annotations:
-  module.otterscale.io/depends-on: "otterscale-kubevirt-base"
-  module.otterscale.io/namespace: "kubevirt"
+  meta.helm.sh/release-name: "kubevirt-crd"
   artifacthub.io/license: Apache-2.0
+  helm.sh/resource-policy: keep

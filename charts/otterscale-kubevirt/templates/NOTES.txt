@@ -6,7 +6,6 @@ OtterScale KubeVirt has been installed.
   - otterscale-cdi must be installed first
 
   Components:
-  - KubeVirt CRDs
   - KubeVirt Operator
   - KubeVirt custom resource
 

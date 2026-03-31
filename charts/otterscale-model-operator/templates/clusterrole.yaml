@@ -1,0 +1,401 @@
+---
+kind: ClusterRole
+metadata:
+  name: model-operator-manager-role
+rules:
+- nonResourceURLs:
+  - /metrics
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - secrets
+  - serviceaccounts
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  - events.k8s.io
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+- apiGroups:
+  - batch
+  resources:
+  - jobs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - watch
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - gateway.networking.k8s.io
+  resources:
+  - httproutes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - inference.networking.k8s.io
+  resources:
+  - inferencepools
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - inference.networking.x-k8s.io
+  resources:
+  - inferencemodelrewrites
+  - inferenceobjectives
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - model.otterscale.io
+  resources:
+  - modelartifacts
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - model.otterscale.io
+  resources:
+  - modelartifacts/status
+  - modelservices/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - model.otterscale.io
+  resources:
+  - modelservices
+  verbs:
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - model.otterscale.io
+  resources:
+  - modelservices/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - monitoring.coreos.com
+  resources:
+  - podmonitors
+  - servicemonitors
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - networking.istio.io
+  resources:
+  - destinationrules
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - clusterrolebindings
+  - clusterroles
+  - rolebindings
+  - roles
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+  - watch
+apiVersion: rbac.authorization.k8s.io/v1
+---
+kind: ClusterRole
+metadata:
+  name: model-operator-metrics-auth-role
+rules:
+- apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+apiVersion: rbac.authorization.k8s.io/v1
+---
+kind: ClusterRole
+metadata:
+  name: model-operator-metrics-reader
+rules:
+- nonResourceURLs:
+  - /metrics
+  verbs:
+  - get
+apiVersion: rbac.authorization.k8s.io/v1
+---
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: model-operator
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+  name: model-operator-modelartifact-admin-role
+rules:
+- apiGroups:
+  - model.otterscale.io
+  resources:
+  - modelartifacts
+  verbs:
+  - '*'
+- apiGroups:
+  - model.otterscale.io
+  resources:
+  - modelartifacts/status
+  verbs:
+  - get
+apiVersion: rbac.authorization.k8s.io/v1
+---
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: model-operator
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+  name: model-operator-modelartifact-editor-role
+rules:
+- apiGroups:
+  - model.otterscale.io
+  resources:
+  - modelartifacts
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - model.otterscale.io
+  resources:
+  - modelartifacts/status
+  verbs:
+  - get
+apiVersion: rbac.authorization.k8s.io/v1
+---
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: model-operator
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+  name: model-operator-modelartifact-viewer-role
+rules:
+- apiGroups:
+  - model.otterscale.io
+  resources:
+  - modelartifacts
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - model.otterscale.io
+  resources:
+  - modelartifacts/status
+  verbs:
+  - get
+apiVersion: rbac.authorization.k8s.io/v1
+---
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: model-operator
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+  name: model-operator-modelservice-admin-role
+rules:
+- apiGroups:
+  - model.otterscale.io
+  resources:
+  - modelservices
+  verbs:
+  - '*'
+- apiGroups:
+  - model.otterscale.io
+  resources:
+  - modelservices/status
+  verbs:
+  - get
+apiVersion: rbac.authorization.k8s.io/v1
+---
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: model-operator
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+  name: model-operator-modelservice-editor-role
+rules:
+- apiGroups:
+  - model.otterscale.io
+  resources:
+  - modelservices
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - model.otterscale.io
+  resources:
+  - modelservices/status
+  verbs:
+  - get
+apiVersion: rbac.authorization.k8s.io/v1
+---
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: model-operator
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+  name: model-operator-modelservice-viewer-role
+rules:
+- apiGroups:
+  - model.otterscale.io
+  resources:
+  - modelservices
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - model.otterscale.io
+  resources:
+  - modelservices/status
+  verbs:
+  - get
+apiVersion: rbac.authorization.k8s.io/v1
+---
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: model-operator
+  name: model-operator-manager-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: model-operator-manager-role
+subjects:
+- kind: ServiceAccount
+  name: {{ include "otterscale-model-operator.serviceAccountName" . }}
+  namespace: {{ .Values.namespace.name }}
+apiVersion: rbac.authorization.k8s.io/v1
+---
+kind: ClusterRoleBinding
+metadata:
+  name: model-operator-metrics-auth-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: model-operator-metrics-auth-role
+subjects:
+- kind: ServiceAccount
+  name: {{ include "otterscale-model-operator.serviceAccountName" . }}
+  namespace: {{ .Values.namespace.name }}
+apiVersion: v1

@@ -1,1 +1,2 @@
-# No configurable values. Upstream manifests are installed as-is.
+pod-monitor:
+  enabled: true

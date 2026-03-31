@@ -1,0 +1,17 @@
+Workload Operator has been installed successfully!
+
+Release name: {{ .Release.Name }}
+Namespace: {{ .Values.namespace.name }}
+
+The Workload Operator manages workload resources on Kubernetes.
+
+To verify the installation:
+
+  kubectl get deployment -n {{ .Values.namespace.name }} workload-operator-controller-manager
+
+To view the operator logs:
+
+  kubectl logs -n {{ .Values.namespace.name }} -l control-plane=controller-manager -f
+
+For more information, visit:
+  https://github.com/otterscale/workload-operator

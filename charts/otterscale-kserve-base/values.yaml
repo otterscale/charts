@@ -1,0 +1,2 @@
+# KServe CRD Chart - No configurable values
+# This chart only installs CRDs from upstream kserve-llmisvc-crd

@@ -1,0 +1,25 @@
+{{- if index .Values "pod-monitor" "enabled" }}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: kubevirt
+  namespace: kubevirt
+spec:
+  namespaceSelector:
+    matchNames:
+    - kubevirt
+  podMetricsEndpoints:
+  - honorLabels: false
+    honorTimestamps: false
+    interval: 15s
+    path: /metrics
+    port: metrics
+    scheme: https
+    scrapeTimeout: 15s
+    tlsConfig:
+      insecureSkipVerify: true
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: kubevirt
+      prometheus.kubevirt.io: "true"
+{{- end }}

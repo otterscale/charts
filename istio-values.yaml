@@ -1,0 +1,42 @@
+# Example: Gateway API HTTPRoute with Istio
+# All services are accessed through a single IP via path-based routing.
+#
+# Usage:
+#   helm install otterscale ./charts/otterscale -f examples/istio-values.yaml
+
+dashboard:
+  externalURL: "http://192.168.42.19"
+  image:
+    tag: ""
+
+server:
+  externalURL: "http://192.168.42.19/api/"
+  externalTunnelURL: "https://192.168.42.19:30300"
+  image:
+    tag: ""
+  tunnelService:
+    type: NodePort
+    nodePort: "30300"
+
+harbor:
+  externalURL: "http://192.168.42.19:32180"
+
+storage:
+  localPath:
+    enabled: true
+
+istio:
+  enabled: true
+  gateway:
+    name: gateway
+    namespace: istio-ingress
+
+# Inject Istio sidecar into subchart pods for mTLS.
+# Required when PeerAuthentication is set to STRICT.
+keycloakx:
+  podLabels:
+    sidecar.istio.io/inject: "true"
+
+dashboard-valkey:
+  podLabels:
+    sidecar.istio.io/inject: "true"

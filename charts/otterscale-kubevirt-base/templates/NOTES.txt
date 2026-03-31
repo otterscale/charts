@@ -1,0 +1,14 @@
+OtterScale KubeVirt CRD has been installed.
+
+  Namespace: {{ .Release.Namespace }}
+
+  Prerequisites:
+  - otterscale-containerized-data-importer must be installed first
+
+  Components:
+  - KubeVirt CRDs
+
+  Note: Resources are managed as templates and will be removed on helm uninstall.
+
+  Verify:
+  - kubectl get crd kubevirts.kubevirt.io
