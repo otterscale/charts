@@ -1,6 +1,6 @@
 {{- if .Values.objectstoreService.enabled -}}
-{{- $namespace := .Release.Namespace -}}
-{{- $clusterName := (index .Values "rook-ceph-cluster").clusterName -}}
+{{- $namespace := include "rook-ceph-cluster.namespace" . -}}
+{{- $clusterName := (index .Values "rook-ceph-cluster").clusterName | required "rook-ceph-cluster.clusterName is required" -}}
 {{- range (index .Values "rook-ceph-cluster").cephObjectStores }}
 apiVersion: v1
 kind: Service
@@ -16,10 +16,7 @@ spec:
     - name: rgw
       port: 80
       protocol: TCP
-      targetPort: {{ .spec.gateway.port }}
-      {{- if $.Values.objectstoreService.nodePort }}
-      nodePort: {{ $.Values.objectstoreService.nodePort }}
-      {{- end }}
+      targetPort: {{ .spec.gateway.port | default 8080 }}
   selector:
     app: rook-ceph-rgw
     rook_object_store: {{ .name | quote }}
