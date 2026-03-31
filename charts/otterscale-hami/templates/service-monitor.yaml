@@ -1,0 +1,30 @@
+{{- if .Values.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Release.Name | quote }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+spec:
+  endpoints:
+  - honorLabels: false
+    honorTimestamps: false
+    interval: {{ .Values.serviceMonitor.interval | default "15s" | quote }}
+    path: {{ .Values.serviceMonitor.path | default "/metrics" | quote }}
+    port: monitorport
+    scrapeTimeout: {{ .Values.serviceMonitor.scrapeTimeout | default "15s" | quote }}
+  - honorLabels: false
+    honorTimestamps: false
+    interval: {{ .Values.serviceMonitor.interval | default "15s" | quote }}
+    path: {{ .Values.serviceMonitor.path | default "/metrics" | quote }}
+    port: monitor
+    scrapeTimeout: {{ .Values.serviceMonitor.scrapeTimeout | default "15s" | quote }}
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace | quote }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}

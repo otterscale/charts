@@ -4,7 +4,6 @@ OtterScale llm-d Infrastructure has been installed.
 
   Prerequisites:
   - otterscale-gpu-operator must be installed first
-  - otterscale-istiod must be installed first
 
   Components:
   - Gateway API configuration for LLM inference

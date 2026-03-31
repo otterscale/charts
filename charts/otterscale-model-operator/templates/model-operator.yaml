@@ -1,4 +1,55 @@
 ---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: model-operator
+  name: model-operator-controller-manager
+  namespace: otterscale-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: model-operator
+  name: model-operator-leader-election-role
+  namespace: otterscale-system
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: model-operator-manager-role
@@ -193,8 +244,8 @@ rules:
   - list
   - update
   - watch
-apiVersion: rbac.authorization.k8s.io/v1
 ---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: model-operator-metrics-auth-role
@@ -211,8 +262,8 @@ rules:
   - subjectaccessreviews
   verbs:
   - create
-apiVersion: rbac.authorization.k8s.io/v1
 ---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: model-operator-metrics-reader
@@ -221,8 +272,8 @@ rules:
   - /metrics
   verbs:
   - get
-apiVersion: rbac.authorization.k8s.io/v1
 ---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
@@ -243,8 +294,8 @@ rules:
   - modelartifacts/status
   verbs:
   - get
-apiVersion: rbac.authorization.k8s.io/v1
 ---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
@@ -271,8 +322,8 @@ rules:
   - modelartifacts/status
   verbs:
   - get
-apiVersion: rbac.authorization.k8s.io/v1
 ---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
@@ -295,8 +346,8 @@ rules:
   - modelartifacts/status
   verbs:
   - get
-apiVersion: rbac.authorization.k8s.io/v1
 ---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
@@ -317,8 +368,8 @@ rules:
   - modelservices/status
   verbs:
   - get
-apiVersion: rbac.authorization.k8s.io/v1
 ---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
@@ -345,8 +396,8 @@ rules:
   - modelservices/status
   verbs:
   - get
-apiVersion: rbac.authorization.k8s.io/v1
 ---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
@@ -369,8 +420,25 @@ rules:
   - modelservices/status
   verbs:
   - get
-apiVersion: rbac.authorization.k8s.io/v1
 ---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: model-operator
+  name: model-operator-leader-election-rolebinding
+  namespace: otterscale-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: model-operator-leader-election-role
+subjects:
+- kind: ServiceAccount
+  name: model-operator-controller-manager
+  namespace: otterscale-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   labels:
@@ -383,10 +451,10 @@ roleRef:
   name: model-operator-manager-role
 subjects:
 - kind: ServiceAccount
-  name: {{ include "otterscale-model-operator.serviceAccountName" . }}
-  namespace: {{ .Values.namespace.name }}
-apiVersion: rbac.authorization.k8s.io/v1
+  name: model-operator-controller-manager
+  namespace: otterscale-system
 ---
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: model-operator-metrics-auth-rolebinding
@@ -396,6 +464,91 @@ roleRef:
   name: model-operator-metrics-auth-role
 subjects:
 - kind: ServiceAccount
-  name: {{ include "otterscale-model-operator.serviceAccountName" . }}
-  namespace: {{ .Values.namespace.name }}
+  name: model-operator-controller-manager
+  namespace: otterscale-system
+---
 apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: model-operator
+    control-plane: controller-manager
+  name: model-operator-controller-manager-metrics-service
+  namespace: otterscale-system
+spec:
+  ports:
+  - name: https
+    port: 8443
+    protocol: TCP
+    targetPort: 8443
+  selector:
+    app.kubernetes.io/name: model-operator
+    control-plane: controller-manager
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: model-operator
+    control-plane: controller-manager
+  name: model-operator-controller-manager
+  namespace: otterscale-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: model-operator
+      control-plane: controller-manager
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: manager
+      labels:
+        app.kubernetes.io/name: model-operator
+        control-plane: controller-manager
+    spec:
+      containers:
+      - args:
+        - --metrics-bind-address=:8443
+        - --leader-elect
+        - --health-probe-bind-address=:8081
+        command:
+        - /manager
+        image: ghcr.io/otterscale/model-operator:v0.9.2
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        name: manager
+        ports: []
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          limits:
+            cpu: 500m
+            memory: 128Mi
+          requests:
+            cpu: 10m
+            memory: 64Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+        volumeMounts: []
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccountName: model-operator-controller-manager
+      terminationGracePeriodSeconds: 10
+      volumes: []

@@ -22,3 +22,10 @@ hami:
     nvidiaNodeSelector:
       gpu: null
       nvidia.com/gpu.workload.config: "vgpu"
+
+# ServiceMonitor configuration for Prometheus
+serviceMonitor:
+  enabled: true
+  interval: 15s
+  scrapeTimeout: 15s
+  path: /metrics
