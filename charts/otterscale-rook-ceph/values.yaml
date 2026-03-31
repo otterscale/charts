@@ -1,4 +1,6 @@
 rook-ceph:
+  # -- Many OBC additional config fields may be risky for administrators to allow users control over.
+  obcAllowAdditionalConfigFields: "maxObjects,maxSize,bucketMaxObjects,bucketMaxSize,bucketPolicy,bucketLifecycle,bucketOwner"
   # -- Enable monitoring with Prometheus and Grafana
   monitoring:
     enabled: true
