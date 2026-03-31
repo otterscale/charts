@@ -29,7 +29,13 @@ spec:
         livenessProbe:
           {{- toYaml .Values.controllerManager.livenessProbe | nindent 10 }}
         name: manager
-        ports: []
+        ports:
+        - name: metrics
+          containerPort: {{ .Values.service.metricsPort }}
+          protocol: TCP
+        - name: health
+          containerPort: {{ .Values.service.healthPort }}
+          protocol: TCP
         readinessProbe:
           {{- toYaml .Values.controllerManager.readinessProbe | nindent 10 }}
         resources:

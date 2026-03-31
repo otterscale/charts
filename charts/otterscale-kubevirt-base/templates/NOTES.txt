@@ -3,7 +3,7 @@ OtterScale KubeVirt CRD has been installed.
   Namespace: {{ .Release.Namespace }}
 
   Prerequisites:
-  - otterscale-cdi must be installed first
+  - otterscale-containerized-data-importer must be installed first
 
   Components:
   - KubeVirt CRDs
