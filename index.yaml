@@ -3137,6 +3137,36 @@ entries:
       module.otterscale.io/namespace: node-feature-discovery
     apiVersion: v2
     appVersion: v0.18.3
+    created: "2026-03-31T14:13:23.312191675Z"
+    dependencies:
+    - name: node-feature-discovery
+      repository: oci://registry.k8s.io/nfd/charts
+      version: 0.18.3
+    description: Wraps upstream node-feature-discovery (Helm dependency) plus a DaemonSet
+      that runs a host script to refresh NFD local feature files under features.d.
+    digest: 2c8ae9e89dde60be4cf0610f73431e0287505f5b8e45df558e1303df390cb81b
+    home: https://github.com/kubernetes-sigs/node-feature-discovery
+    icon: https://kubernetes-sigs.github.io/node-feature-discovery/v0.18/assets/images/nfd/favicon.svg
+    keywords:
+    - node-feature-discovery
+    - nfd
+    - labels
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-node-feature-discovery
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-node-feature-discovery-0.1.3/otterscale-node-feature-discovery-0.1.3.tgz
+    version: 0.1.3
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: node-feature-discovery
+    apiVersion: v2
+    appVersion: v0.18.3
     created: "2026-03-26T10:35:35.312217763Z"
     dependencies:
     - name: node-feature-discovery
@@ -3695,4 +3725,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-03-31T14:03:42.244372889Z"
+generated: "2026-03-31T14:13:23.312359505Z"
