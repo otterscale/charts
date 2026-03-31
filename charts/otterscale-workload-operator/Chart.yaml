@@ -1,8 +1,8 @@
 apiVersion: v2
 name: otterscale-workload-operator
-version: 0.1.1
+version: 0.1.2
 # renovate: github=otterscale/workload-operator
-appVersion: "v0.9.1"
+appVersion: "v1.0.0"
 description: >-
   Workload Operator — manages workload resources on Kubernetes.
   Deploys the Workload Operator controller manager.
