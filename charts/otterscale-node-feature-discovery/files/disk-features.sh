@@ -7,7 +7,7 @@ set -eu
 DOMAIN_PREFIX="otterscale.io"
 SYS_ROOT="${SYS_ROOT:-/sys}"
 DEV_ROOT="${DEV_ROOT:-/dev}"
-# If set (e.g. /host), read ${PROC_ROOT}/proc/mounts for FS types without opening block devices (pod-friendly).
+# If set (e.g. /host), read ${PROC_ROOT}/proc/1/mountinfo (preferred) for FS types without opening block devices.
 PROC_ROOT="${PROC_ROOT:-}"
 # If set (e.g. /host/run), read ${RUN_ROOT}/udev/data/bM:m for ID_FS_TYPE (host udev probe; works unmounted, no blkid open).
 RUN_ROOT="${RUN_ROOT:-}"
@@ -182,36 +182,6 @@ disk_fw() {
   return 1
 }
 
-# Host mount table (no block device open — works under Kubernetes device cgroup when host /proc is mounted).
-disk_fstypes_append_proc_mounts() {
-  _disk="$1"
-  [ -n "${PROC_ROOT}" ] || return 1
-  [ -r "${PROC_ROOT}/proc/mounts" ] || return 1
-  if command -v findmnt >/dev/null 2>&1; then
-    findmnt -n -r -o SOURCE,FSTYPE --tab-file "${PROC_ROOT}/proc/mounts" 2>/dev/null |
-      awk -v d="$_disk" '
-        function is_nvme_ns(x) { return (x ~ /^nvme[0-9]+n[0-9]+$/) }
-        function ok(dev, disk) {
-          if (dev == "/dev/" disk) return 1
-          if (is_nvme_ns(disk)) return (dev ~ "^/dev/" disk "p")
-          return (dev ~ "^/dev/" disk "p" || dev ~ "^/dev/" disk "[0-9]")
-        }
-        BEGIN { FS = "\t" }
-        NF >= 2 && ok($1, d) { print $2 }
-      '
-  else
-    awk -v d="$_disk" '
-    function is_nvme_ns(x) { return (x ~ /^nvme[0-9]+n[0-9]+$/) }
-    function ok(dev, disk) {
-      if (dev == "/dev/" disk) return 1
-      if (is_nvme_ns(disk)) return (dev ~ "^/dev/" disk "p")
-      return (dev ~ "^/dev/" disk "p" || dev ~ "^/dev/" disk "[0-9]")
-    }
-    NF >= 3 && ok($1, d) { print $3 }
-  ' "${PROC_ROOT}/proc/mounts" 2>/dev/null
-  fi
-}
-
 # sysfs block name is this disk or one of its partitions (nvme0n11 must not match disk nvme0n1).
 block_belongs_to_disk() {
   _b="$1"
@@ -229,6 +199,112 @@ block_belongs_to_disk() {
     "${_disk}p"*|"${_disk}"[0-9]*) return 0 ;;
   esac
   return 1
+}
+
+# sysfs maj:min for this disk and its partitions. Mountinfo SOURCE is often /dev/disk/by-uuid/…;
+# matching only /dev/sd* misses those — use kernel mountinfo field 3 + sysfs dev.
+disk_majmin_list_for_disk() {
+  _disk="$1"
+  for _d in "${SYS_ROOT}/block"/*/; do
+    [ -d "$_d" ] || continue
+    _b=$(basename "$_d")
+    block_belongs_to_disk "$_b" "$_disk" || continue
+    [ -f "${_d}dev" ] || continue
+    _mm=$(read_sysfs_trim "${_d}dev" || true)
+    _mm=$(printf '%s' "$_mm" | tr -d '[:space:]')
+    [ -n "$_mm" ] && printf '%s\n' "$_mm"
+  done | sort -u
+}
+
+# Host mount table (no block device open — works under Kubernetes device cgroup when host /proc is mounted).
+# Prefer /proc/1/mountinfo: /proc/mounts resolves to the reader's namespace (pod). PID 1 on host procfs
+# matches real host mounts.
+#
+# Important: if findmnt(1) exists, do NOT use it for mountinfo with SOURCE-only matching — mounts
+# often show SOURCE=/dev/disk/by-uuid/… which fails ok(/dev/sd*). Parse mountinfo lines instead and
+# match sysfs maj:min (field 3) to this disk and its partitions.
+disk_fstypes_append_proc_mounts() {
+  _disk="$1"
+  [ -n "${PROC_ROOT}" ] || return 1
+  _tab=""
+  if [ -r "${PROC_ROOT}/proc/1/mountinfo" ]; then
+    _tab="${PROC_ROOT}/proc/1/mountinfo"
+  elif [ -r "${PROC_ROOT}/proc/mounts" ]; then
+    _tab="${PROC_ROOT}/proc/mounts"
+  else
+    return 1
+  fi
+  _mountinfo=0
+  case "$_tab" in
+    */proc/1/mountinfo) _mountinfo=1 ;;
+  esac
+
+  _mmallow=$(disk_majmin_list_for_disk "$_disk" | tr '\n' ' ')
+
+  if [ "$_mountinfo" -eq 1 ]; then
+    awk -v d="$_disk" -v mmallow="$_mmallow" '
+    function is_nvme_ns(x) { return (x ~ /^nvme[0-9]+n[0-9]+$/) }
+    function ok(dev, disk) {
+      if (dev == "" || dev == "none" || dev ~ /^\[[^]]*\]$/) return 0
+      if (dev == "/dev/" disk) return 1
+      if (is_nvme_ns(disk)) return (dev ~ "^/dev/" disk "p")
+      return (dev ~ "^/dev/" disk "p" || dev ~ "^/dev/" disk "[0-9]")
+    }
+    function unesc(s) {
+      gsub(/\\040/, " ", s)
+      gsub(/\\011/, "\t", s)
+      return s
+    }
+    function mm_from_line(line,   rest) {
+      if (match(line, /^[0-9]+[[:space:]]+[0-9]+[[:space:]]+/)) {
+        rest = substr(line, RLENGTH + 1)
+        if (match(rest, /^[0-9]+:[0-9]+/))
+          return substr(rest, RSTART, RLENGTH)
+      }
+      return ""
+    }
+    BEGIN {
+      n = split(mmallow, _a, /[[:space:]]+/)
+      for (i = 1; i <= n; i++)
+        if (_a[i] != "") allow[_a[i]] = 1
+    }
+    {
+      mm = mm_from_line($0)
+      if (index($0, " - ") == 0) next
+      rest = $0
+      sub(/^.* - /, "", rest)
+      n = split(rest, a, /[[:space:]]+/)
+      if (n < 2) next
+      fstype = a[1]
+      source = unesc(a[2])
+      if (mm != "" && (mm in allow)) { print fstype; next }
+      if (ok(source, d)) print fstype
+    }
+  ' "$_tab" 2>/dev/null
+  elif command -v findmnt >/dev/null 2>&1; then
+    findmnt -n -r -o SOURCE,FSTYPE --tab-file "$_tab" 2>/dev/null |
+      awk -v d="$_disk" '
+        function is_nvme_ns(x) { return (x ~ /^nvme[0-9]+n[0-9]+$/) }
+        function ok(dev, disk) {
+          if (dev == "" || dev == "none" || dev ~ /^\[[^]]*\]$/) return 0
+          if (dev == "/dev/" disk) return 1
+          if (is_nvme_ns(disk)) return (dev ~ "^/dev/" disk "p")
+          return (dev ~ "^/dev/" disk "p" || dev ~ "^/dev/" disk "[0-9]")
+        }
+        BEGIN { FS = "\t" }
+        NF >= 2 && ok($1, d) { print $2 }
+      '
+  else
+    awk -v d="$_disk" '
+    function is_nvme_ns(x) { return (x ~ /^nvme[0-9]+n[0-9]+$/) }
+    function ok(dev, disk) {
+      if (dev == "/dev/" disk) return 1
+      if (is_nvme_ns(disk)) return (dev ~ "^/dev/" disk "p")
+      return (dev ~ "^/dev/" disk "p" || dev ~ "^/dev/" disk "[0-9]")
+    }
+    NF >= 3 && ok($1, d) { print $3 }
+  ' "$_tab" 2>/dev/null
+  fi
 }
 
 # Host udev database (ID_FS_TYPE) — no mount required if udev probed the device; no block device open.
@@ -259,7 +335,7 @@ disk_fstypes_append_udev() {
 }
 
 # Unique non-empty FSTYPE values for this disk and its partitions (hyphen-joined).
-# 1) Host /proc/mounts — mounted filesystems only.
+# 1) Host /proc/1/mountinfo (preferred) or /proc/mounts — mounted filesystems only.
 # 2) Host udev — ID_FS_TYPE (often includes unmounted partitions already probed on the host).
 # 3) lsblk / blkid — opens devices (often needs privileged in Kubernetes).
 disk_fstypes() {
@@ -267,7 +343,9 @@ disk_fstypes() {
   _devpath="${DEV_ROOT}/${_disk}"
   _raw=""
 
-  if [ -n "${PROC_ROOT}" ] && [ -r "${PROC_ROOT}/proc/mounts" ]; then
+  if [ -n "${PROC_ROOT}" ] && {
+    [ -r "${PROC_ROOT}/proc/1/mountinfo" ] || [ -r "${PROC_ROOT}/proc/mounts" ]
+  }; then
     _raw=$(disk_fstypes_append_proc_mounts "$_disk")
   fi
 
