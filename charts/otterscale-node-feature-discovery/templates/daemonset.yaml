@@ -51,6 +51,12 @@ spec:
               value: /host/sys
             - name: DEV_ROOT
               value: /host/dev
+            # Host /proc/mounts: mounted FS only (see disk-features.sh).
+            - name: PROC_ROOT
+              value: /host
+            # Host /run/udev/data: ID_FS_TYPE for probed volumes (unmounted OK; no block device read).
+            - name: RUN_ROOT
+              value: /host/run
             - name: DATA_DISK_INCLUDE_NBD
               value: {{ if .Values.featureWriter.dataDiskIncludeNbd }}"1"{{ else }}"0"{{ end }}
           command:
@@ -81,6 +87,12 @@ spec:
             - name: host-dev
               mountPath: /host/dev
               readOnly: true
+            - name: host-proc
+              mountPath: /host/proc
+              readOnly: true
+            - name: host-run
+              mountPath: /host/run
+              readOnly: true
             - name: disk-script
               mountPath: /scripts
               readOnly: true
@@ -96,6 +108,14 @@ spec:
         - name: host-dev
           hostPath:
             path: /dev
+            type: Directory
+        - name: host-proc
+          hostPath:
+            path: /proc
+            type: Directory
+        - name: host-run
+          hostPath:
+            path: /run
             type: Directory
         - name: disk-script
           configMap:
