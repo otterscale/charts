@@ -19,9 +19,6 @@ hami:
     service:
       type: ClusterIP
     runtimeClassName: "nvidia"
-    nvidiaNodeSelector:
-      gpu: null
-      nvidia.com/gpu.workload.config: "vgpu"
 
 # ServiceMonitor configuration for Prometheus
 serviceMonitor:
