@@ -1,4 +1,5 @@
 rook-ceph-cluster:
+  clusterName: rook-ceph
   operatorNamespace: rook-ceph
 
   # -- CephCluster configuration
@@ -93,9 +94,6 @@ rook-ceph-cluster:
 # -- NodePort Service for ObjectStore RGW
 objectstoreService:
   enabled: true
-  storeName: ceph-objectstore
-  clusterName: rook-ceph
-  nodePort: null
 
 # -- RBAC: allow all authenticated users to create Ceph object store users and access their secrets
 objectstoreRbac:

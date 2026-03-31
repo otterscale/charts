@@ -1,6 +1,6 @@
 apiVersion: v2
 name: otterscale-rook-ceph-cluster
-version: 0.1.4
+version: 0.1.5
 # renovate: helm=rook-ceph-cluster registry=https://charts.rook.io/release
 appVersion: "1.19.2"
 description: >-
