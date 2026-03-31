@@ -1,6 +1,6 @@
 apiVersion: v2
 name: otterscale-hami
-version: 0.1.1
+version: 0.1.2
 # renovate: helm=hami registry=https://project-hami.github.io/HAMi/
 appVersion: "2.8.0"
 description: >-
