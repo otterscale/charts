@@ -3147,6 +3147,38 @@ entries:
       module.otterscale.io/namespace: kube-system
     apiVersion: v2
     appVersion: 2.8.0
+    created: "2026-04-01T14:45:15.119660282Z"
+    dependencies:
+    - name: hami
+      repository: https://project-hami.github.io/HAMi/
+      version: 2.8.0
+    description: HAMI — GPU sharing (vGPU) with device split, memory/core scaling.
+      Integrates with NVIDIA GPU Operator.
+    digest: c46839e05b22b44de0a5dead543b7f6f5c5d7664431026ce2582f636f5bda564
+    home: https://github.com/Project-HAMi/HAMi
+    icon: https://github.com/Project-HAMi.png
+    keywords:
+    - gpu
+    - vgpu
+    - hami
+    - sharing
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-hami
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-hami-1.0.1/otterscale-hami-1.0.1.tgz
+    version: 1.0.1
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-gpu-operator
+      module.otterscale.io/namespace: kube-system
+    apiVersion: v2
+    appVersion: 2.8.0
     created: "2026-04-01T08:26:02.553022145Z"
     dependencies:
     - name: hami
@@ -4918,4 +4950,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-01T14:16:34.345171819Z"
+generated: "2026-04-01T14:45:15.119946011Z"
