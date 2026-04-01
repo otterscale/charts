@@ -1,6 +1,0 @@
-.git/
-.gitignore
-.DS_Store
-*.sw?
-*.md
-# Note: Do NOT exclude charts/ directory - it contains dependencies!
