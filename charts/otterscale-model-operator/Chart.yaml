@@ -1,6 +1,6 @@
 apiVersion: v2
 name: otterscale-model-operator
-version: 0.1.3
+version: 1.0.0
 # renovate: github=otterscale/model-operator
 appVersion: "v1.0.0"
 description: >-

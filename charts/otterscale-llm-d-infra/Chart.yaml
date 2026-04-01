@@ -1,8 +1,8 @@
 apiVersion: v2
 name: otterscale-llm-d-infra
-version: 0.1.1
+version: 1.0.0
 # renovate: helm=llm-d-infra registry=https://llm-d-incubation.github.io/llm-d-infra/
-appVersion: "1.3.10"
+appVersion: "1.4.0"
 description: >-
   llm-d infrastructure — Gateway API configs and operational tooling
   for Kubernetes-native distributed LLM inference.
@@ -25,5 +25,5 @@ annotations:
   artifacthub.io/license: Apache-2.0
 dependencies:
   - name: llm-d-infra
-    version: 1.3.10
+    version: 1.4.0
     repository: https://llm-d-incubation.github.io/llm-d-infra/

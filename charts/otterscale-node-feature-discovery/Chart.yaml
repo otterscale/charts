@@ -1,8 +1,8 @@
 apiVersion: v2
 name: otterscale-node-feature-discovery
-version: 0.1.3
+version: 1.0.0
 # renovate: helm=node-feature-discovery registry=oci://registry.k8s.io/nfd/charts
-appVersion: "v0.18.3"
+appVersion: "0.18.3"
 description: >-
   Wraps upstream node-feature-discovery (Helm dependency) plus a DaemonSet that
   runs a host script to refresh NFD local feature files under features.d.

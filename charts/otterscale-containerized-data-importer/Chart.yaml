@@ -1,6 +1,6 @@
 apiVersion: v2
 name: otterscale-containerized-data-importer
-version: 0.1.2
+version: 1.0.0
 # renovate: github=kubevirt/containerized-data-importer
 appVersion: "1.65.0"
 description: >-
