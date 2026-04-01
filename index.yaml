@@ -625,6 +625,67 @@ entries:
           description: Full parameterization of resources, probes, security contexts, and service types
       artifacthub.io/license: Apache-2.0
     apiVersion: v2
+    appVersion: v1.0.0-beta.3
+    created: "2026-04-01T07:38:59.452620313Z"
+    dependencies:
+    - condition: keycloakx.enabled
+      name: keycloakx
+      repository: https://codecentric.github.io/helm-charts
+      version: 7.1.x
+    - alias: dashboard-valkey
+      condition: dashboard-valkey.enabled
+      name: valkey
+      repository: https://valkey.io/valkey-helm/
+      version: 0.9.x
+    - condition: harbor.enabled
+      name: harbor
+      repository: https://helm.goharbor.io
+      version: 1.18.x
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: OtterScale - A unified platform for simplified compute, storage,
+      and networking
+    digest: 3353e7a4494d78bb7989a05ac908ff63925aa165a2868f7674973b6af84a894d
+    home: https://otterscale.github.io
+    icon: https://github.com/otterscale.png
+    keywords:
+    - otterscale
+    - kubernetes
+    - helm
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: terry_wu@phison.com
+      name: Yi-Lin Wu
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale
+    sources:
+    - https://github.com/otterscale/otterscale
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-0.10.2/otterscale-0.10.2.tgz
+    version: 0.10.2
+  - annotations:
+      artifacthub.io/changes: |
+        - kind: added
+          description: ServiceAccount, HPA, PDB, NetworkPolicy, ServiceMonitor templates
+        - kind: added
+          description: Standard Kubernetes Ingress support
+        - kind: added
+          description: values.schema.json for input validation
+        - kind: added
+          description: NOTES.txt post-install instructions
+        - kind: added
+          description: Helm test templates for connectivity verification
+        - kind: changed
+          description: Template directory reorganization by component
+        - kind: changed
+          description: Full parameterization of resources, probes, security contexts, and service types
+      artifacthub.io/license: Apache-2.0
+    apiVersion: v2
     appVersion: v0.9.0
     created: "2026-03-18T11:50:52.578480197Z"
     dependencies:
@@ -1619,7 +1680,7 @@ entries:
     version: 0.3.0-alpha.4
   - apiVersion: v2
     appVersion: v0.7.0-alpha.3
-    created: "2026-02-02T09:43:08.248368771Z"
+    created: "2026-02-08T14:08:57.897192015Z"
     dependencies:
     - condition: keycloakx.enabled
       name: keycloakx
@@ -1636,7 +1697,7 @@ entries:
       version: 2.x.x
     description: OtterScale - A unified platform for simplified compute, storage,
       and networking
-    digest: abbae00897ed90ceb09c32d3eb97a1c8d16c4b68ee983d5714ebbaa814a44251
+    digest: b585ca6f07ab253426df293502078178b7ebe837f8fcf44aa8d6b4040ce5bf6d
     home: https://otterscale.github.io
     icon: https://github.com/otterscale.png
     keywords:
@@ -1691,7 +1752,7 @@ entries:
     version: 0.3.0-alpha.3
   - apiVersion: v2
     appVersion: v0.7.0-alpha.3
-    created: "2026-02-08T14:08:57.897192015Z"
+    created: "2026-02-02T09:43:08.248368771Z"
     dependencies:
     - condition: keycloakx.enabled
       name: keycloakx
@@ -1708,7 +1769,7 @@ entries:
       version: 2.x.x
     description: OtterScale - A unified platform for simplified compute, storage,
       and networking
-    digest: b585ca6f07ab253426df293502078178b7ebe837f8fcf44aa8d6b4040ce5bf6d
+    digest: abbae00897ed90ceb09c32d3eb97a1c8d16c4b68ee983d5714ebbaa814a44251
     home: https://otterscale.github.io
     icon: https://github.com/otterscale.png
     keywords:
@@ -3844,4 +3905,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-01T02:55:02.906541819Z"
+generated: "2026-04-01T07:38:59.453070322Z"
