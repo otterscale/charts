@@ -282,7 +282,7 @@ Usage: {{ include "otterscale.image" (dict "imageRoot" .Values.server.image "glo
   {{- $registry = .global.imageRegistry -}}
 {{- end -}}
 {{- $repository := .imageRoot.repository -}}
-{{- $tag := .imageRoot.tag | default .chart.AppVersion -}}
+{{- $tag := required "image.tag is required" .imageRoot.tag -}}
 {{- if $registry -}}
   {{- printf "%s/%s:%s" $registry $repository $tag -}}
 {{- else -}}
