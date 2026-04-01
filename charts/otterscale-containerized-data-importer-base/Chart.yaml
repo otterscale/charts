@@ -1,8 +1,8 @@
 apiVersion: v2
 name: otterscale-containerized-data-importer-base
-version: 0.1.0
+version: 0.1.1
 # renovate: github=kubevirt/containerized-data-importer
-appVersion: "1.64.0"
+appVersion: "1.65.0"
 description: >-
   CDI CRDs — Custom Resource Definitions for Containerized Data Importer.
   Deploys namespace and CRDs only.

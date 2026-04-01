@@ -1,6 +1,6 @@
 apiVersion: v2
 name: otterscale-kubevirt
-version: 0.1.1
+version: 0.1.2
 # renovate: github=kubevirt/kubevirt
 appVersion: "1.8.1"
 description: >-
