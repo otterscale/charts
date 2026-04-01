@@ -21,7 +21,7 @@ hami:
     runtimeClassName: "nvidia"
     nvidiaNodeSelector:
       gpu: null
-      otterscale.io/gpu: "on"
+      otterscale.io/gpu: "true"
 
 # ServiceMonitor configuration for Prometheus
 serviceMonitor:
