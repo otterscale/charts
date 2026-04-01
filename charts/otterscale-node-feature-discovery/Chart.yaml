@@ -1,6 +1,6 @@
 apiVersion: v2
 name: otterscale-node-feature-discovery
-version: 1.0.0
+version: 1.0.1
 # renovate: helm=node-feature-discovery registry=oci://registry.k8s.io/nfd/charts
 appVersion: "0.18.3"
 description: >-
