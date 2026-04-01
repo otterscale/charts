@@ -66,7 +66,7 @@ server:
   image:
     repository: ghcr.io/otterscale/otterscale
     # -- Defaults to Chart.AppVersion if empty.
-    tag: "v1.0.0-beta.3"
+    tag: ""
     pullPolicy: IfNotPresent
 
   # -- Container ports.
