@@ -1,6 +1,6 @@
 apiVersion: v2
 name: otterscale-gpu-operator
-version: 0.1.1
+version: 1.0.0
 # renovate: helm=gpu-operator registry=https://nvidia.github.io/gpu-operator
 appVersion: "26.3.0"
 description: >-
