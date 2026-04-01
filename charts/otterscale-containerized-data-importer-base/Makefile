@@ -3,5 +3,5 @@ UPSTREAM := https://github.com/kubevirt/containerized-data-importer/releases/dow
 
 .PHONY: vendor
 vendor:
-	curl -sSL -o templates/cdi-cr.yaml $(UPSTREAM)/cdi-cr.yaml
+	curl -sSL -o templates/cdi-operator.yaml $(UPSTREAM)/cdi-operator.yaml
 	@echo "Vendored CDI v$(VERSION)"
