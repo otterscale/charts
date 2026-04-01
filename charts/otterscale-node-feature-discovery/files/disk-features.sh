@@ -399,6 +399,17 @@ disk_fstypes() {
   return 0
 }
 
+has_nvidia_gpu() {
+  # Check ${SYS_ROOT}/bus/pci/devices for NVIDIA GPUs (vendor ID 0x10de)
+  for dev_path in "${SYS_ROOT}"/bus/pci/devices/*/; do
+    [ -f "$dev_path/vendor" ] || continue
+    vendor=$(cat "$dev_path/vendor" 2>/dev/null || true)
+    # NVIDIA vendor ID is 0x10de
+    [ "$vendor" = "0x10de" ] && return 0
+  done
+  return 1
+}
+
 DISK_COUNT=$(list_disk_bases | wc -l | tr -d ' \t')
 emit_raw_value "disk-count" "$DISK_COUNT"
 
@@ -447,3 +458,8 @@ for disk in $(list_disk_bases); do
       ;;
   esac
 done
+
+# Check for NVIDIA GPU and emit label
+if has_nvidia_gpu; then
+  emit_pair "gpu" "on"
+fi
