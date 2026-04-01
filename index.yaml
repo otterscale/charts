@@ -3833,6 +3833,33 @@ entries:
       module.otterscale.io/namespace: otterscale-system
     apiVersion: v2
     appVersion: v1.0.0
+    created: "2026-04-01T08:01:00.21749501Z"
+    description: Workload Operator — manages workload resources on Kubernetes. Deploys
+      the Workload Operator controller manager.
+    digest: 3b0acebf4abb849c026a7cf787b0765cfb2bfd5a278d1db9afd9ab3a9b49e174
+    home: https://github.com/otterscale/workload-operator
+    icon: https://github.com/otterscale.png
+    keywords:
+    - workload
+    - operator
+    - ai
+    - ml
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-workload-operator
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-workload-operator-1.0.0/otterscale-workload-operator-1.0.0.tgz
+    version: 1.0.0
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: otterscale-system
+    apiVersion: v2
+    appVersion: v1.0.0
     created: "2026-04-01T07:56:47.380852715Z"
     description: Workload Operator — manages workload resources on Kubernetes. Deploys
       the Workload Operator controller manager.
@@ -4069,4 +4096,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-01T07:56:47.381112193Z"
+generated: "2026-04-01T08:01:00.217743933Z"
