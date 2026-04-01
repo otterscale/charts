@@ -1,8 +1,8 @@
 apiVersion: v2
 name: otterscale-model-operator
-version: 1.0.0
+version: 1.0.1
 # renovate: github=otterscale/model-operator
-appVersion: "v1.0.0"
+appVersion: "v1.0.1"
 description: >-
   Model Operator — manages AI/ML model lifecycle on Kubernetes.
   Deploys the Model Operator controller manager.
