@@ -1,4 +1,4 @@
-VERSION := 1.0.0
+VERSION := 1.0.1
 UPSTREAM := https://github.com/otterscale/model-operator/releases/download/v$(VERSION)
 
 .PHONY: vendor
