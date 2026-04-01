@@ -461,5 +461,5 @@ done
 
 # Check for NVIDIA GPU and emit label
 if has_nvidia_gpu; then
-  emit_pair "gpu" "on"
+  emit_pair "gpu" "true"
 fi
