@@ -307,7 +307,7 @@ dashboard:
     limits:
       # -- CPU limit omitted by default to avoid throttling.
       # cpu: "500m"
-      memory: "256Mi"
+      memory: "1024Mi"
 
   # -- Liveness probe configuration.
   livenessProbe:
