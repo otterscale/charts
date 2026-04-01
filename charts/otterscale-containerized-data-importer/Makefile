@@ -1,4 +1,4 @@
-VERSION := 1.65.0
+VERSION := 1.64.0
 UPSTREAM := https://github.com/kubevirt/containerized-data-importer/releases/download/v$(VERSION)
 
 .PHONY: vendor
