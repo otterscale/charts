@@ -1,6 +1,6 @@
 apiVersion: v2
 name: otterscale-gateway-api
-version: 0.1.0
+version: 1.0.0
 # renovate: github=kubernetes-sigs/gateway-api
 appVersion: "1.4.1"
 description: >-
