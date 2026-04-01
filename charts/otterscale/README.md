@@ -259,7 +259,7 @@ http://192.168.1.100/auth/      -> Keycloak
 | `server.externalTunnelURL`         | Override server external tunnel URL for agents | `""`                            |
 | `server.replicaCount`              | Number of replicas                             | `1`                             |
 | `server.image.repository`          | Server image repository                        | `ghcr.io/otterscale/otterscale` |
-| `server.image.tag`                 | Image tag (defaults to `appVersion`)           | `""`                            |
+| `server.image.tag`                 | Image tag                                      | `""`                            |
 | `server.ports.http`                | HTTP API port                                  | `8299`                          |
 | `server.ports.tunnel`              | Tunnel port                                    | `8300`                          |
 | `server.service.type`              | Service type                                   | `ClusterIP`                     |
@@ -283,7 +283,7 @@ http://192.168.1.100/auth/      -> Keycloak
 | `dashboard.externalURL`               | Base external URL, e.g. `http://192.168.1.100` (required) | `""`                           |
 | `dashboard.replicaCount`              | Number of replicas                                        | `1`                            |
 | `dashboard.image.repository`          | Dashboard image repository                                | `ghcr.io/otterscale/dashboard` |
-| `dashboard.image.tag`                 | Image tag (defaults to `appVersion`)                      | `""`                           |
+| `dashboard.image.tag`                 | Image tag                                                 | `""`                           |
 | `dashboard.ports.http`                | HTTP port                                                 | `3000`                         |
 | `dashboard.service.type`              | Service type                                              | `ClusterIP`                    |
 | `dashboard.resources.requests.cpu`    | CPU request                                               | `100m`                         |
