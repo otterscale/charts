@@ -1,6 +1,6 @@
 apiVersion: v2
 name: otterscale-istiod
-version: 0.1.0
+version: 1.0.0
 # renovate: helm=istiod registry=https://istio-release.storage.googleapis.com/charts
 appVersion: "1.29.1"
 description: >-
