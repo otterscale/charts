@@ -50,16 +50,6 @@ spec:
   - matches:
     - path:
         type: PathPrefix
-        value: /vnc/
-      headers:
-      - name: Upgrade
-        value: websocket
-    backendRefs:
-    - name: {{ include "otterscale.server.fullname" $ }}
-      port: {{ .Values.server.ports.http }}
-  - matches:
-    - path:
-        type: PathPrefix
         value: /
     backendRefs:
     - name: {{ include "otterscale.dashboard.fullname" $ }}
