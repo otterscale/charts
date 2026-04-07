@@ -1,0 +1,4 @@
+kserve-runtime-configs:
+  kserve:
+    llmisvcConfigs:
+      enabled: true
