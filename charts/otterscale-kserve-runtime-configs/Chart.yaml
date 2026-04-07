@@ -1,0 +1,31 @@
+apiVersion: v2
+name: otterscale-kserve-runtime-configs
+version: 0.1.0
+# renovate: helm=kserve registry=oci://ghcr.io/kserve/charts
+appVersion: "v0.17.0"
+description: >-
+  KServe LLMInferenceService — Controller and resources
+  for Kubernetes-native distributed LLM inference with llm-d.
+home: https://kserve.github.io/website
+icon: https://github.com/kserve.png
+sources:
+  - https://github.com/otterscale/charts
+maintainers:
+  - name: Chung-Hsuan Tsai
+    email: paul_tsai@phison.com
+keywords:
+  - kserve
+  - llm
+  - inference
+  - llminferenceservice
+type: application
+kubeVersion: ">=1.32.0-0"
+# Note: CRD chart should be installed separately before this chart
+dependencies:
+  - name: kserve-runtime-configs
+    version: v0.17.0
+    repository: oci://ghcr.io/kserve/charts
+annotations:
+  module.otterscale.io/depends-on: "otterscale-kserve-llmisvc-resource"
+  module.otterscale.io/namespace: "kserve"
+  artifacthub.io/license: Apache-2.0
