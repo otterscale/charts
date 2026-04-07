@@ -2893,6 +2893,34 @@ entries:
       module.otterscale.io/depends-on: otterscale-containerized-data-importer-base
       module.otterscale.io/namespace: cdi
     apiVersion: v2
+    appVersion: 1.65.0
+    created: "2026-04-07T12:38:38.443351915Z"
+    description: Containerized Data Importer Operator — PVC data import for KubeVirt
+      VM disk images. Deploys CDI operator and CDI custom resource.
+    digest: 256dc23b93118e9c7d8ccb93f22d359e1824aa33207fb013adac68c2d2326bc4
+    home: https://github.com/kubevirt/containerized-data-importer
+    icon: https://github.com/kubevirt.png
+    keywords:
+    - cdi
+    - kubevirt
+    - storage
+    - pvc
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-containerized-data-importer
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-containerized-data-importer-1.0.2/otterscale-containerized-data-importer-1.0.2.tgz
+    version: 1.0.2
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-containerized-data-importer-base
+      module.otterscale.io/namespace: cdi
+    apiVersion: v2
     appVersion: 1.64.0
     created: "2026-04-01T11:44:50.448517031Z"
     description: Containerized Data Importer Operator — PVC data import for KubeVirt
@@ -3001,6 +3029,34 @@ entries:
     - https://github.com/otterscale/charts/releases/download/otterscale-containerized-data-importer-0.1.1/otterscale-containerized-data-importer-0.1.1.tgz
     version: 0.1.1
   otterscale-containerized-data-importer-base:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      helm.sh/resource-policy: keep
+      module.otterscale.io/namespace: cdi
+    apiVersion: v2
+    appVersion: 1.65.0
+    created: "2026-04-07T12:38:38.617609238Z"
+    description: CDI CRDs — Custom Resource Definitions for Containerized Data Importer.
+      Deploys namespace and CRDs only.
+    digest: 82e35ce7dd675e5f65633746050c3c3a6605f0387f613441e84fff8d3d7a2593
+    home: https://github.com/kubevirt/containerized-data-importer
+    icon: https://github.com/kubevirt.png
+    keywords:
+    - cdi
+    - kubevirt
+    - storage
+    - pvc
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-containerized-data-importer-base
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-containerized-data-importer-base-1.0.2/otterscale-containerized-data-importer-base-1.0.2.tgz
+    version: 1.0.2
   - annotations:
       artifacthub.io/license: Apache-2.0
       helm.sh/resource-policy: keep
@@ -3835,6 +3891,72 @@ entries:
     type: application
     urls:
     - https://github.com/otterscale/charts/releases/download/otterscale-kserve-base-0.1.0/otterscale-kserve-base-0.1.0.tgz
+    version: 0.1.0
+  otterscale-kserve-llmisvc-resource:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-leader-worker-set,otterscale-envoy-gateway,otterscale-envoy-ai-gateway,otterscale-kserve-base
+      module.otterscale.io/namespace: kserve
+    apiVersion: v2
+    appVersion: v0.17.0
+    created: "2026-04-07T12:38:38.808284837Z"
+    dependencies:
+    - name: kserve-llmisvc-resources
+      repository: oci://ghcr.io/kserve/charts
+      version: v0.17.0
+    description: KServe LLMInferenceService — Controller and resources for Kubernetes-native
+      distributed LLM inference with llm-d.
+    digest: dadf82f849d8908442dc82f8db14349f4945dd07d0194a258aeac3aa93a20f8e
+    home: https://kserve.github.io/website
+    icon: https://github.com/kserve.png
+    keywords:
+    - kserve
+    - llm
+    - inference
+    - llminferenceservice
+    kubeVersion: '>=1.32.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-kserve-llmisvc-resource
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kserve-llmisvc-resource-0.1.0/otterscale-kserve-llmisvc-resource-0.1.0.tgz
+    version: 0.1.0
+  otterscale-kserve-runtime-configs:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-kserve-llmisvc-resource
+      module.otterscale.io/namespace: kserve
+    apiVersion: v2
+    appVersion: v0.17.0
+    created: "2026-04-07T12:38:38.986205285Z"
+    dependencies:
+    - name: kserve-runtime-configs
+      repository: oci://ghcr.io/kserve/charts
+      version: v0.17.0
+    description: KServe LLMInferenceService — Controller and resources for Kubernetes-native
+      distributed LLM inference with llm-d.
+    digest: 8a1bd305ccb507abe4c3439b29d55885fcf54a61be28ab985185665e021f8f64
+    home: https://kserve.github.io/website
+    icon: https://github.com/kserve.png
+    keywords:
+    - kserve
+    - llm
+    - inference
+    - llminferenceservice
+    kubeVersion: '>=1.32.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-kserve-runtime-configs
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kserve-runtime-configs-0.1.0/otterscale-kserve-runtime-configs-0.1.0.tgz
     version: 0.1.0
   otterscale-kubevirt:
   - annotations:
@@ -5288,4 +5410,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-01T16:41:28.527336923Z"
+generated: "2026-04-07T12:38:38.986437219Z"
