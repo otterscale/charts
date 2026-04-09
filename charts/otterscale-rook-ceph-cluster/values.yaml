@@ -100,7 +100,3 @@ rook-ceph-cluster:
 # -- NodePort Service for ObjectStore RGW
 objectstoreService:
   enabled: true
-
-# -- RBAC: allow all authenticated users to create Ceph object store users and access their secrets
-objectstoreRbac:
-  enabled: true
