@@ -17,10 +17,11 @@ spec:
         {{- range $k, $v := .Values.featureWriter.podLabels }}
         {{ $k }}: {{ quote $v }}
         {{- end }}
-      {{- with .Values.featureWriter.podAnnotations }}
       annotations:
+        checksum/configuration: {{ pick (include (print $.Template.BasePath "/configmap.yaml") . | fromYaml) "data" | toYaml | sha256sum }}
+        {{- with .Values.featureWriter.podAnnotations }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
     spec:
       serviceAccountName: {{ include "otterscale-nfd.fullname" . }}-feature-writer
       {{- with .Values.featureWriter.priorityClassName }}
@@ -54,7 +55,7 @@ spec:
             # Host /proc/mounts: mounted FS only (see disk-features.sh).
             - name: PROC_ROOT
               value: /host
-            # Host /run/udev/data: ID_FS_TYPE for probed volumes (unmounted OK; no block device read).
+            # Host /run/udev/data: ID_FS_TYPE, ID_PART_TABLE_TYPE (PTTYPE) for probed disks (no block read).
             - name: RUN_ROOT
               value: /host/run
             - name: DATA_DISK_INCLUDE_NBD

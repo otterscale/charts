@@ -334,6 +334,155 @@ disk_fstypes_append_udev() {
   done
 }
 
+# Partition table type (blkid PTTYPE: gpt, dos, …) from host udev — ID_PART_TABLE_TYPE on the
+# whole-disk maj:min. No block device open (same pattern as ID_FS_TYPE).
+disk_pttype_from_udev() {
+  _disk="$1"
+  [ -n "${RUN_ROOT}" ] || return 1
+  _udev="${RUN_ROOT}/udev/data"
+  [ -d "$_udev" ] || return 1
+  [ -f "${SYS_ROOT}/block/${_disk}/dev" ] || return 1
+  read -r _mm < "${SYS_ROOT}/block/${_disk}/dev" || return 1
+  _mm=$(printf '%s' "$_mm" | tr -d '[:space:]')
+  [ -n "$_mm" ] || return 1
+  _uf="${_udev}/b${_mm}"
+  if [ ! -r "$_uf" ]; then
+    _uf="${_udev}/+block:b${_mm}"
+  fi
+  [ -r "$_uf" ] || return 1
+  _t=$(awk '/^E:ID_PART_TABLE_TYPE=/ { sub(/^E:ID_PART_TABLE_TYPE=/, ""); print; exit }' "$_uf" 2>/dev/null)
+  [ -z "$_t" ] && _t=$(awk '/^ID_PART_TABLE_TYPE=/ { sub(/^ID_PART_TABLE_TYPE=/, ""); print; exit }' "$_uf" 2>/dev/null)
+  is_empty_field "$_t" && return 1
+  printf '%s' "$_t"
+  return 0
+}
+
+# PTTYPE for whole disk: udev first (unprivileged), then lsblk/blkid if the device is readable.
+disk_pttype() {
+  _disk="$1"
+  _devpath="${DEV_ROOT}/${_disk}"
+
+  if _t=$(disk_pttype_from_udev "$_disk" 2>/dev/null); then
+    printf '%s' "$_t"
+    return 0
+  fi
+
+  if command -v lsblk >/dev/null 2>&1 && [ -b "$_devpath" ]; then
+    _t=$(lsblk -n -r -d -o PTTYPE "$_devpath" 2>/dev/null | sed -n '1p')
+    _t=$(printf '%s' "$_t" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+    if ! is_empty_field "$_t"; then
+      printf '%s' "$_t"
+      return 0
+    fi
+  fi
+
+  return 1
+}
+
+# lsblk TRAN — host sysfs only (same order as util-linux misc-utils/lsblk.c get_transport).
+# No block device open. Falls back to lsblk when sysfs path is inconclusive.
+disk_tran_from_sysfs() {
+  _disk="$1"
+  _class="${SYS_ROOT}/class"
+  _scsi_dev="${SYS_ROOT}/bus/scsi/devices"
+
+  case "$_disk" in
+    nvme*) printf '%s' "nvme"; return 0 ;;
+    vd*) printf '%s' "virtio"; return 0 ;;
+    mmcblk*) printf '%s' "mmc"; return 0 ;;
+  esac
+
+  _devlink="${SYS_ROOT}/block/${_disk}/device"
+  [ -L "$_devlink" ] || return 1
+  _can=$(readlink -f "$_devlink" 2>/dev/null) || return 1
+  _hctl=$(basename "$_can")
+  case "$_hctl" in
+    *:*:*:*) ;;
+    *) return 1 ;;
+  esac
+  _host=$(printf '%s' "$_hctl" | cut -d: -f1)
+  case "$_host" in
+    *[!0-9]*) return 1 ;;
+  esac
+  [ -n "$_host" ] || return 1
+
+  _sdp="${_scsi_dev}/${_hctl}"
+  [ -e "$_sdp" ] || return 1
+
+  if [ -d "${_class}/spi_host/host${_host}" ]; then
+    printf '%s' "spi"
+    return 0
+  fi
+
+  if [ -d "${_class}/fc_host/host${_host}" ]; then
+    if [ -f "${_class}/fc_host/host${_host}/symbolic_name" ]; then
+      _sn=$(read_sysfs_trim "${_class}/fc_host/host${_host}/symbolic_name" || true)
+      case "$_sn" in
+        *" over "*) printf '%s' "fcoe"; return 0 ;;
+      esac
+    fi
+    printf '%s' "fc"
+    return 0
+  fi
+
+  if [ -d "${_class}/sas_host/host${_host}" ] || [ -e "${_sdp}/sas_device" ]; then
+    printf '%s' "sas"
+    return 0
+  fi
+
+  if [ -e "${_sdp}/ieee1394_id" ]; then
+    printf '%s' "sbp"
+    return 0
+  fi
+
+  if [ -d "${_class}/iscsi_host/host${_host}" ]; then
+    printf '%s' "iscsi"
+    return 0
+  fi
+
+  _rl=$(readlink "$_sdp" 2>/dev/null || true)
+  case "$_rl" in
+    *usb*) printf '%s' "usb"; return 0 ;;
+  esac
+
+  if [ -d "${_class}/scsi_host/host${_host}" ]; then
+    [ -f "${_class}/scsi_host/host${_host}/proc_name" ] || return 1
+    _pn=$(read_sysfs_trim "${_class}/scsi_host/host${_host}/proc_name" || true)
+    is_empty_field "$_pn" && return 1
+    _pn=$(printf '%s' "$_pn" | tr '[:upper:]' '[:lower:]')
+    case "$_pn" in
+      ahci*|sata*) printf '%s' "sata"; return 0 ;;
+    esac
+    case "$_pn" in
+      *ata*) printf '%s' "ata"; return 0 ;;
+    esac
+    return 1
+  fi
+
+  return 1
+}
+
+disk_tran() {
+  _disk="$1"
+  _devpath="${DEV_ROOT}/${_disk}"
+
+  if _t=$(disk_tran_from_sysfs "$_disk" 2>/dev/null); then
+    printf '%s' "$_t"
+    return 0
+  fi
+
+  if command -v lsblk >/dev/null 2>&1 && [ -b "$_devpath" ]; then
+    _t=$(lsblk -n -r -d -o TRAN "$_devpath" 2>/dev/null | sed -n '1p')
+    _t=$(printf '%s' "$_t" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | tr '[:upper:]' '[:lower:]')
+    if ! is_empty_field "$_t"; then
+      printf '%s' "$_t"
+      return 0
+    fi
+  fi
+
+  return 1
+}
+
 # Unique non-empty FSTYPE values for this disk and its partitions (hyphen-joined).
 # 1) Host /proc/1/mountinfo (preferred) or /proc/mounts — mounted filesystems only.
 # 2) Host udev — ID_FS_TYPE (often includes unmounted partitions already probed on the host).
@@ -439,6 +588,14 @@ for disk in $(list_disk_bases); do
 
   if fs_raw=$(disk_fstypes "$disk"); then
     emit_pair "${safe}-fs" "$fs_raw"
+  fi
+
+  if pttype_raw=$(disk_pttype "$disk"); then
+    emit_pair "${safe}-pttype" "$pttype_raw"
+  fi
+
+  if tran_raw=$(disk_tran "$disk"); then
+    emit_pair "${safe}-tran" "$tran_raw"
   fi
 
   case "$disk" in
