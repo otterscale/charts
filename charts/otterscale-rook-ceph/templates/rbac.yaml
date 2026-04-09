@@ -1,0 +1,14 @@
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: otterscale-rook-ceph
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+rules:
+  - apiGroups: ["ceph.rook.io"]
+    resources:
+      - cephblockpools
+    verbs:
+      - get
+      - list
+      - watch
