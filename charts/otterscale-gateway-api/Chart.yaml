@@ -1,8 +1,8 @@
 apiVersion: v2
 name: otterscale-gateway-api
-version: 1.0.0
+version: 1.1.0
 # renovate: github=kubernetes-sigs/gateway-api
-appVersion: "1.4.1"
+appVersion: "1.5.1"
 description: >-
   Kubernetes Gateway API — Standard channel CRDs
   (GatewayClass, Gateway, HTTPRoute, GRPCRoute, ReferenceGrant).
