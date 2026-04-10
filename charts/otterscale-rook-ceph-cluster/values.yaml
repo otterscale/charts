@@ -2,6 +2,11 @@ rook-ceph-cluster:
   clusterName: rook-ceph
   operatorNamespace: rook-ceph
 
+  configOverride: |
+    [global]
+    osd_pool_default_size = 1
+    osd_pool_default_min_size = 1
+
   # -- CephCluster configuration
   # See: https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/
   cephClusterSpec:
