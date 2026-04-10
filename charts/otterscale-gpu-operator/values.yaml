@@ -2,6 +2,9 @@ gpu-operator:
   cdi:
     enabled: false
 
+  sandboxWorkloads:
+    enabled: true
+
   driver:
     enabled: true
     version: "580.126.20"
