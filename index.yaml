@@ -2955,6 +2955,37 @@ entries:
       module.otterscale.io/namespace: gpu-operator
     apiVersion: v2
     appVersion: 26.3.0
+    created: "2026-04-10T03:28:13.684813395Z"
+    dependencies:
+    - name: gpu-operator
+      repository: https://nvidia.github.io/gpu-operator
+      version: 26.3.0
+    description: NVIDIA GPU Operator — drivers, DCGM, DCGM Exporter, Node Status Exporter.
+      Device plugin disabled for use with HAMI vGPU.
+    digest: 4fcc7605b5226d412e811a6e1156c3799ccdc708df4ee08ba68d3660a1fe1086
+    home: https://github.com/NVIDIA/gpu-operator
+    icon: https://github.com/NVIDIA.png
+    keywords:
+    - gpu
+    - nvidia
+    - operator
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-gpu-operator
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-gpu-operator-1.0.1/otterscale-gpu-operator-1.0.1.tgz
+    version: 1.0.1
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-prometheus
+      module.otterscale.io/namespace: gpu-operator
+    apiVersion: v2
+    appVersion: 26.3.0
     created: "2026-04-01T08:26:02.422071415Z"
     dependencies:
     - name: gpu-operator
@@ -3524,6 +3555,33 @@ entries:
     - https://github.com/otterscale/charts/releases/download/otterscale-kserve-runtime-configs-0.1.0/otterscale-kserve-runtime-configs-0.1.0.tgz
     version: 0.1.0
   otterscale-kubevirt:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-kubevirt-base,otterscale-prometheus
+      module.otterscale.io/namespace: kubevirt
+    apiVersion: v2
+    appVersion: 1.8.1
+    created: "2026-04-10T03:28:13.805413441Z"
+    description: KubeVirt Operator — enables Kubernetes to manage VMs natively. Deploys
+      KubeVirt operator and KubeVirt custom resource.
+    digest: 28020a3cb162a588b39f0cee4aa2f7b0fb009aad061e097bbdcb2735481c478a
+    home: https://kubevirt.io
+    icon: https://github.com/kubevirt.png
+    keywords:
+    - kubevirt
+    - virtualization
+    - vm
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-kubevirt
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kubevirt-1.0.2/otterscale-kubevirt-1.0.2.tgz
+    version: 1.0.2
   - annotations:
       artifacthub.io/license: Apache-2.0
       module.otterscale.io/depends-on: otterscale-kubevirt-base
@@ -5067,4 +5125,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-09T13:18:30.419258659Z"
+generated: "2026-04-10T03:28:13.80570397Z"
