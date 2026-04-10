@@ -20,6 +20,6 @@ keywords:
 type: application
 kubeVersion: ">=1.25.0-0"
 annotations:
-  module.otterscale.io/depends-on: "otterscale-kubevirt-base, otterscale-prometheus"
+  module.otterscale.io/depends-on: "otterscale-kubevirt-base,otterscale-prometheus"
   module.otterscale.io/namespace: "kubevirt"
   artifacthub.io/license: Apache-2.0
