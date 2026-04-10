@@ -39,12 +39,12 @@ storage:
     reclaimPolicy: Retain
     image:
       repository: rancher/local-path-provisioner
-      tag: v0.0.28
+      tag: v0.0.35
       pullPolicy: IfNotPresent
     helperPod:
       image:
         repository: busybox
-        tag: "1.32"
+        tag: "1.37"
         pullPolicy: IfNotPresent
 
 # =============================================================================
@@ -66,7 +66,7 @@ server:
   image:
     repository: ghcr.io/otterscale/otterscale
     # renovate: image=ghcr.io/otterscale/otterscale
-    tag: "v1.0.0"
+    tag: "v1.0.1"
     pullPolicy: IfNotPresent
 
   # -- Container ports.
@@ -262,7 +262,7 @@ dashboard:
   image:
     repository: ghcr.io/otterscale/dashboard
     # renovate: image=ghcr.io/otterscale/dashboard
-    tag: "v1.0.0"
+    tag: "v1.0.4"
     pullPolicy: IfNotPresent
 
   # -- Container ports.
