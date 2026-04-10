@@ -93,9 +93,17 @@ rook-ceph-cluster:
         reclaimPolicy: Delete
         volumeBindingMode: Immediate
 
+  # -- Enable Ceph debugging pod deployment. See [toolbox](../Troubleshooting/ceph-toolbox.md)
+  toolbox:
+    enabled: false
+
   # -- Enable monitoring with Prometheus and Grafana
   monitoring:
     enabled: true
+
+# -- NFS Server for CephFilesystem
+nfsServer:
+  enabled: true
 
 # -- NodePort Service for ObjectStore RGW
 objectstoreService:

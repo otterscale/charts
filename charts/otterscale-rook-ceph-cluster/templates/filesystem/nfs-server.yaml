@@ -1,0 +1,15 @@
+{{- if .Values.nfsServer.enabled -}}
+{{- $namespace := include "rook-ceph-cluster.namespace" . -}}
+{{- range (index .Values "rook-ceph-cluster").cephFileSystems }}
+---
+apiVersion: ceph.rook.io/v1
+kind: CephNFS
+metadata:
+  name: {{ .name }}-nfs
+  namespace: {{ $namespace }}
+spec:
+  server:
+    active: 1
+    logLevel: NIV_INFO
+{{- end }}
+{{- end }}

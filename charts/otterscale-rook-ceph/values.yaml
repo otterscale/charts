@@ -2,8 +2,13 @@ rook-ceph:
   rbacAggregate:
     # -- If true, create a ClusterRole aggregated to [user facing roles](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles) for objectbucketclaims
     enableOBCs: true
+    # -- Enable the nfs csi driver
+    csi:
+      nfs:
+        enabled: true
   # -- Many OBC additional config fields may be risky for administrators to allow users control over.
   obcAllowAdditionalConfigFields: "maxObjects,maxSize,bucketMaxObjects,bucketMaxSize,bucketPolicy,bucketLifecycle,bucketOwner"
+
   # -- Enable monitoring with Prometheus and Grafana
   monitoring:
     enabled: true
