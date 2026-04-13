@@ -1,18 +1,21 @@
 {{- if .Values.nfsServer.enabled -}}
 {{- $namespace := include "rook-ceph-cluster.namespace" . -}}
 {{- range (index .Values "rook-ceph-cluster").cephFileSystems }}
+{{- $fsName := .name }}
+{{- range .spec.dataPools }}
+{{- $poolName := .name }}
 ---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: {{ .name }}-nfs
+  name: {{ $fsName }}-{{ $poolName }}-nfs
 provisioner: rook-ceph.nfs.csi.ceph.com
 parameters:
-  nfsCluster: {{ .name }}-nfs
-  server: rook-ceph-nfs-{{ .name }}-nfs-a
+  nfsCluster: {{ $fsName }}-nfs
+  server: rook-ceph-nfs-{{ $fsName }}-nfs-a
   clusterID: {{ $namespace }}
-  fsName: {{ .name }}
-  pool: {{ .name }}-{{ (index .spec.dataPools 0).name }}
+  fsName: {{ $fsName }}
+  pool: {{ $fsName }}-{{ $poolName }}
   csi.storage.k8s.io/provisioner-secret-name: rook-csi-cephfs-provisioner
   csi.storage.k8s.io/provisioner-secret-namespace: {{ $namespace }}
   csi.storage.k8s.io/controller-expand-secret-name: rook-csi-cephfs-provisioner
@@ -21,5 +24,6 @@ parameters:
   csi.storage.k8s.io/node-stage-secret-namespace: {{ $namespace }}
 reclaimPolicy: Delete
 allowVolumeExpansion: true
+{{- end }}
 {{- end }}
 {{- end }}
