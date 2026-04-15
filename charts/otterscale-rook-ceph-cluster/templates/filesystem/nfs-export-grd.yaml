@@ -15,17 +15,17 @@ spec:
       exportPath: string | required=true
     status:
       configMapRef:
-        name: string | ${configMap.metadata.name}
-        namespace: string | ${configMap.metadata.namespace}
+        name: ${configMap.metadata.name}
+        namespace: ${configMap.metadata.namespace}
       cephFilesystemRef:
-        name: string | ${cephFilesystem.metadata.name}
-        namespace: string | ${cephFilesystem.metadata.namespace}
+        name: ${cephFilesystem.metadata.name}
+        namespace: ${cephFilesystem.metadata.namespace}
       cephNfsRef:
-        name: string | ${cephNfs.metadata.name}
-        namespace: string | ${cephNfs.metadata.namespace}
+        name: ${cephNfs.metadata.name}
+        namespace: ${cephNfs.metadata.namespace}
       serviceRef:
-        name: string | ${service.metadata.name}
-        namespace: string | ${service.metadata.namespace}
+        name: ${service.metadata.name}
+        namespace: ${service.metadata.namespace}
 
   resources:
     - id: cephFilesystem
@@ -124,7 +124,7 @@ spec:
                   MOUNT_PATH="$$NODE_IP:$$EXPORT_PATH"
 
                   # Write ConfigMap to target namespace
-                  kubectl create configmap ${schema.metadata.name}-config \
+                  kubectl create configmap ${schema.metadata.name}-configmap \
                     -n $$TARGET_NAMESPACE \
                     --from-literal=mountPath="$$MOUNT_PATH" \
                     --from-literal=pool="$$POOL" \
