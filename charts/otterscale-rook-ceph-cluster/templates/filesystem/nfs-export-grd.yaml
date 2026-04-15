@@ -112,8 +112,8 @@ spec:
                   value: "${cephFilesystem.metadata.name}"
                 - name: NFS_SERVER
                   value: "${cephNfs.metadata.name}"
-                - name: NODE_PORT
-                  value: "${string(service.spec.ports[0].nodePort)}"
+                - name: SERVICE_NAME
+                  value: "${service.metadata.name}"
                 - name: EXPORT_NAME
                   value: "${schema.metadata.name}"
                 - name: EXPORT_NAMESPACE
@@ -128,111 +128,146 @@ spec:
                 args:
                 - |
                   set -e
-                  echo "=== NFS Export Controller for $$EXPORT_NAME ==="
+                  echo "=== NFS Export Controller for $EXPORT_NAME ==="
 
                   get_toolbox() {
-                    kubectl get pod -n $$FS_NAMESPACE -l app=rook-ceph-tools -o jsonpath='{.items[0].metadata.name}'
+                    kubectl get pod -n $FS_NAMESPACE -l app=rook-ceph-tools \
+                      -o jsonpath='{.items[0].metadata.name}'
                   }
 
                   # === Phase 1: Initial Setup ===
-                  echo "[$$(/bin/date -Iseconds)] Phase 1: Initial setup"
-                  TOOLBOX=$$(get_toolbox)
-                  echo "Using toolbox: $$TOOLBOX"
+                  echo "[$(date -Iseconds)] Phase 1: Creating subvolume and export"
+                  
+                  TOOLBOX=$(get_toolbox)
+                  echo "Using toolbox: $TOOLBOX"
 
-                  NODE_IP=$$(kubectl get nodes -o json | jq -r '.items[0].status.addresses[] | select(.type=="InternalIP") | .address')
+                  # Get NFS nodePort by port name
+                  NODE_PORT=$(kubectl get service $SERVICE_NAME -n $FS_NAMESPACE -o json | \
+                    jq -r '.spec.ports[] | select(.name=="nfs") | .nodePort')
+                  
+                  if [ -z "$NODE_PORT" ] || [ "$NODE_PORT" = "null" ]; then
+                    echo "[$(date -Iseconds)] ERROR: Could not find port with name 'nfs' in service $SERVICE_NAME"
+                    exit 1
+                  fi
+                  echo "[$(date -Iseconds)] Found NFS nodePort: $NODE_PORT"
 
-                  # Create subvolume (idempotent)
-                  kubectl exec -n $$FS_NAMESPACE $$TOOLBOX -- ceph fs subvolume create $$FS_NAME $$EXPORT_NAME
-                  echo "[$$(/bin/date -Iseconds)] Subvolume ensured"
+                  # Get NFS nodeIp by node type
+                  NODE_IP=$(kubectl get nodes -o json | \
+                    jq -r '.items[0].status.addresses[] | select(.type=="InternalIP") | .address')
+
+                  # Create subvolume (idempotent - succeeds if already exists)
+                  echo "[$(date -Iseconds)] Ensuring subvolume exists..."
+                  kubectl exec -n $FS_NAMESPACE $TOOLBOX -- \
+                    ceph fs subvolume create $FS_NAME $EXPORT_NAME || {
+                      echo "[$(date -Iseconds)] Subvolume may already exist, continuing..."
+                    }
 
                   # Get subvolume path
-                  SUBVOLUME_PATH=$$(kubectl exec -n $$FS_NAMESPACE $$TOOLBOX -- ceph fs subvolume getpath $$FS_NAME $$EXPORT_NAME | tr -d '\r\n')
+                  SUBVOLUME_PATH=$(kubectl exec -n $FS_NAMESPACE $TOOLBOX -- \
+                    ceph fs subvolume getpath $FS_NAME $EXPORT_NAME | tr -d '\r\n')
+                  echo "[$(date -Iseconds)] Subvolume path: $SUBVOLUME_PATH"
 
-                  # Create NFS export (idempotent)
-                  kubectl exec -n $$FS_NAMESPACE $$TOOLBOX -- ceph nfs export create cephfs $$NFS_SERVER $$EXPORT_PATH $$FS_NAME --path $$SUBVOLUME_PATH
-                  echo "[$$(/bin/date -Iseconds)] NFS export ensured"
+                  # Create NFS export (Ceph will reject if path already exists with different config)
+                  echo "[$(date -Iseconds)] Creating NFS export..."
+                  if ! kubectl exec -n $FS_NAMESPACE $TOOLBOX -- \
+                    ceph nfs export create cephfs $NFS_SERVER $EXPORT_PATH $FS_NAME \
+                    --path $SUBVOLUME_PATH 2>&1; then
+                    
+                    echo "[$(date -Iseconds)] ERROR: Failed to create NFS export at $EXPORT_PATH"
+                    echo "[$(date -Iseconds)] This may indicate the export path is already in use"
+                    
+                    # List existing exports for debugging
+                    echo "[$(date -Iseconds)] Current exports on $NFS_SERVER:"
+                    kubectl exec -n $FS_NAMESPACE $TOOLBOX -- \
+                      ceph nfs export ls $NFS_SERVER 2>/dev/null || true
+                    
+                    exit 1
+                  fi
+                  echo "[$(date -Iseconds)] NFS export created successfully"
 
-                  # Get pool info
-                  POOL=$$(kubectl exec -n $$FS_NAMESPACE $$TOOLBOX -- bash -c "ceph fs subvolume info $$FS_NAME $$EXPORT_NAME --format json | python3 -c \"import sys,json; d=json.load(sys.stdin); print(d.get('pool_namespace','') or d.get('data_pool','unknown'))\"" 2>/dev/null || echo "unknown")
-                  POOL=$$(echo "$$POOL" | tr -d '\r\n')
+                  # Get pool information
+                  POOL=$(kubectl exec -n $FS_NAMESPACE $TOOLBOX -- bash -c \
+                    "ceph fs subvolume info $FS_NAME $EXPORT_NAME --format json | \
+                     python3 -c \"import sys,json; d=json.load(sys.stdin); \
+                     print(d.get('pool_namespace','') or d.get('data_pool','unknown'))\"" \
+                    2>/dev/null | tr -d '\r\n' || echo "unknown")
 
-                  MOUNT_PATH="$$NODE_IP:$$EXPORT_PATH"
+                  MOUNT_PATH="$NODE_IP:$EXPORT_PATH"
 
-                  # Write initial ConfigMap
-                  kubectl create configmap $$CM_NAME \
-                    -n $$CM_NAMESPACE \
-                    --from-literal=mountPath="$$MOUNT_PATH" \
-                    --from-literal=nodePort="$$NODE_PORT" \
-                    --from-literal=pool="$$POOL" \
-                    --from-literal=subvolumePath="$$SUBVOLUME_PATH" \
+                  # Initialize ConfigMap
+                  echo "[$(date -Iseconds)] Creating ConfigMap..."
+                  kubectl create configmap $CM_NAME \
+                    -n $CM_NAMESPACE \
+                    --from-literal=mountPath="$MOUNT_PATH" \
+                    --from-literal=nodePort="$NODE_PORT" \
+                    --from-literal=pool="$POOL" \
+                    --from-literal=subvolumePath="$SUBVOLUME_PATH" \
                     --from-literal=clients="[]" \
                     --dry-run=client -o yaml | kubectl apply -f -
-                  echo "[$$(/bin/date -Iseconds)] ConfigMap initialized"
+                  echo "[$(date -Iseconds)] ConfigMap initialized"
 
                   # === Phase 2: Reconcile Loop ===
-                  echo "[$$(/bin/date -Iseconds)] Phase 2: Starting watch loop"
+                  echo "[$(date -Iseconds)] Phase 2: Starting reconciliation loop"
 
                   reconcile() {
-                    TOOLBOX=$$(get_toolbox)
-                    DESIRED=$$(kubectl get nfsexport $$EXPORT_NAME -n $$EXPORT_NAMESPACE -o jsonpath='{.spec.clients}' 2>/dev/null || echo "[]")
+                    TOOLBOX=$(get_toolbox)
 
-                    ACTUAL=$$(kubectl exec -n $$FS_NAMESPACE $$TOOLBOX -- bash -c \
-                      "ceph nfs export get $$NFS_SERVER $$EXPORT_PATH --format json 2>/dev/null" \
-                      | python3 -c "import sys,json; print(json.dumps(json.load(sys.stdin).get('clients',[])))" \
-                      2>/dev/null || echo "[]")
-                    ACTUAL=$$(echo "$$ACTUAL" | tr -d '\r\n')
+                    # Get desired state from NFSExport CR (always apply whatever we read)
+                    DESIRED=$(kubectl get nfsexport $EXPORT_NAME -n $EXPORT_NAMESPACE \
+                      -o jsonpath='{.spec.clients}' 2>/dev/null || echo "[]")
 
-                    NEED_UPDATE=$$(python3 -c "
-                  import json, sys
-                  desired = json.loads(sys.argv[1])
-                  actual = json.loads(sys.argv[2])
-                  print('yes' if json.dumps(desired, sort_keys=True) != json.dumps(actual, sort_keys=True) else 'no')
-                  " "$$DESIRED" "$$ACTUAL" 2>/dev/null || echo "no")
+                    echo "[$(date -Iseconds)] Forcing Ceph export update with clients: $DESIRED"
 
-                    if [ "$$NEED_UPDATE" = "yes" ]; then
-                      echo "[$$(/bin/date -Iseconds)] Drift detected, reconciling..."
-                      EXPORT_DATA=$$(kubectl exec -n $$FS_NAMESPACE $$TOOLBOX -- \
-                        ceph nfs export get $$NFS_SERVER $$EXPORT_PATH --format json 2>/dev/null || echo "{}")
+                    # Try to base on existing export if available, otherwise construct minimal object.
+                    EXPORT_DATA=$(kubectl exec -n $FS_NAMESPACE $TOOLBOX -- \
+                      ceph nfs export get $NFS_SERVER $EXPORT_PATH --format json 2>/dev/null) || \
+                      EXPORT_DATA='{\"path\": "'$EXPORT_PATH'", \"clients\": []}'
 
-                      UPDATED=$$(python3 -c "
-                  import json, sys
-                  e=json.loads(sys.argv[1])
-                  e['clients']=json.loads(sys.argv[2])
-                  print(json.dumps(e))
-                  " "$$EXPORT_DATA" "$$DESIRED")
+                    UPDATED=$(python3 -c "import json,sys; e=json.loads(sys.argv[1]); e['clients']=json.loads(sys.argv[2]); print(json.dumps(e))" \
+                      "$EXPORT_DATA" "$DESIRED")
 
-                      kubectl exec -n $$FS_NAMESPACE $$TOOLBOX -- bash -c "cat <<'INNER_EOF' > /tmp/nfs-export.json
-                  $$UPDATED
-                  INNER_EOF
-                  ceph nfs export apply $$NFS_SERVER -i /tmp/nfs-export.json"
-                      echo "[$$(/bin/date -Iseconds)] Ceph export updated"
+                    # Apply the updated configuration to Ceph
+                    if ! kubectl exec -n $FS_NAMESPACE $TOOLBOX -- bash -c "\
+                      cat <<'INNER_EOF' > /tmp/nfs-export.json\n$UPDATED\nINNER_EOF\n                      ceph nfs export apply $NFS_SERVER -i /tmp/nfs-export.json\
+                    " 2>&1; then
+                      echo "[$(date -Iseconds)] ERROR: Failed to apply export configuration to Ceph"
+                      return 1
                     fi
 
-                    # Sync actual clients to ConfigMap
-                    CURRENT=$$(kubectl exec -n $$FS_NAMESPACE $$TOOLBOX -- bash -c \
-                      "ceph nfs export get $$NFS_SERVER $$EXPORT_PATH --format json 2>/dev/null" \
-                      | python3 -c "import sys,json; print(json.dumps(json.load(sys.stdin).get('clients',[])))" \
-                      2>/dev/null || echo "[]")
-                    CURRENT=$$(echo "$$CURRENT" | tr -d '\r\n')
+                    echo "[$(date -Iseconds)] Ceph export apply executed, verifying..."
 
-                    kubectl patch configmap $$CM_NAME -n $$CM_NAMESPACE \
-                      --type merge -p "{\"data\":{\"clients\":\"$$CURRENT\"}}" \
-                      2>/dev/null && echo "[$$(/bin/date -Iseconds)] ConfigMap synced" \
-                      || echo "[$$(/bin/date -Iseconds)] ConfigMap patch failed"
+                    # Verify the update was applied and extract actual clients
+                    ACTUAL=$(kubectl exec -n $FS_NAMESPACE $TOOLBOX -- bash -c \
+                      "ceph nfs export get $NFS_SERVER $EXPORT_PATH --format json 2>/dev/null" \
+                      | python3 -c "import sys,json; d=json.load(sys.stdin); print(json.dumps(d.get('clients',[])))" 2>/dev/null | tr -d '\r\n' || echo "")
+
+                    if [ -z "$ACTUAL" ]; then
+                      echo "[$(date -Iseconds)] ERROR: Verification failed or no clients found; ConfigMap will not be updated"
+                      return 1
+                    fi
+
+                    # Update ConfigMap only after successful verification
+                    if kubectl patch configmap $CM_NAME -n $CM_NAMESPACE --type merge -p "{\"data\":{\"clients\":\"$ACTUAL\"}}" 2>&1; then
+                      echo "[$(date -Iseconds)] ConfigMap synced with actual Ceph state"
+                    else
+                      echo "[$(date -Iseconds)] WARNING: ConfigMap patch failed"
+                      return 1
+                    fi
                   }
 
-                  # Initial reconcile
+                  # Initial reconciliation
                   reconcile
 
-                  # Watch for changes
+                  # Watch for changes to NFSExport CR
                   while true; do
-                    kubectl get nfsexport $$EXPORT_NAME -n $$EXPORT_NAMESPACE \
+                    kubectl get nfsexport $EXPORT_NAME -n $EXPORT_NAMESPACE \
                       --watch --output-watch-events -o jsonpath='{.type} {.object.spec.clients}' 2>/dev/null \
                     | while read EVENT CLIENTS_VAL; do
-                      echo "[$$(/bin/date -Iseconds)] Watch event: $$EVENT"
+                        echo "[$(date -Iseconds)] Watch event: $EVENT"
                       reconcile
                     done
-                    echo "[$$(/bin/date -Iseconds)] Watch disconnected, reconnecting..."
+                    
+                    echo "[$(date -Iseconds)] Watch disconnected, reconnecting in 3s..."
                     sleep 3
                   done
 {{- end }}
