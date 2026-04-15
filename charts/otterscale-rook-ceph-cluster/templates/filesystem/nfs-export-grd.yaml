@@ -13,7 +13,7 @@ spec:
       targetNamespace: string | required=true
       fsName: string | required=true
       exportPath: string | required=true
-      clients: string | default="[]"
+      clients: [] | default=[]
     status:
       configMapRef:
         name: ${configMap.metadata.name}
