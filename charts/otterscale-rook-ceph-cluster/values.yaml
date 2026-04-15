@@ -2,9 +2,10 @@ rook-ceph-cluster:
   clusterName: rook-ceph
   operatorNamespace: rook-ceph
 
-  toolbox:
-    # -- Enable Ceph debugging pod deployment. See [toolbox](../Troubleshooting/ceph-toolbox.md)
-    enabled: true
+    configOverride: |
+      [global]
+      osd_pool_default_size = 1
+      osd_pool_default_min_size = 1
 
   # -- CephCluster configuration
   # See: https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/
@@ -108,7 +109,7 @@ rook-ceph-cluster:
 
   # -- Enable Ceph debugging pod deployment. See [toolbox](../Troubleshooting/ceph-toolbox.md)
   toolbox:
-    enabled: false
+    enabled: true
 
   # -- Enable monitoring with Prometheus and Grafana
   monitoring:
