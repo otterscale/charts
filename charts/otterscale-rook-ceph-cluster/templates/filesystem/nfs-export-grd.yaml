@@ -227,9 +227,12 @@ spec:
                       "$EXPORT_DATA" "$DESIRED")
 
                     # Apply the updated configuration to Ceph
-                    if ! kubectl exec -n $FS_NAMESPACE $TOOLBOX -- bash -c "\
-                      cat <<'INNER_EOF' > /tmp/nfs-export.json\n$UPDATED\nINNER_EOF\n                      ceph nfs export apply $NFS_SERVER -i /tmp/nfs-export.json\
-                    " 2>&1; then
+                    if ! kubectl exec -n $FS_NAMESPACE $TOOLBOX -- bash -c '
+                      cat <<"INNER_EOF" > /tmp/nfs-export.json
+                      '"$UPDATED"'+
+                      INNER_EOF
+                      ceph nfs export apply "$NFS_SERVER" -i /tmp/nfs-export.json
+                      ' 2>&1; then
                       echo "[$(date -Iseconds)] ERROR: Failed to apply export configuration to Ceph"
                       return 1
                     fi
