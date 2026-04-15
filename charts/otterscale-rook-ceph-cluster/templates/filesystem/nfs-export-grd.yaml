@@ -264,12 +264,15 @@ spec:
                   # Watch for changes to NFSExport CR
                   while true; do
                     kubectl get nfsexport $EXPORT_NAME -n $EXPORT_NAMESPACE \
-                      --watch --output-watch-events -o jsonpath='{.type} {.object.spec.clients}' 2>/dev/null \
-                    | while read EVENT CLIENTS_VAL; do
-                        echo "[$(date -Iseconds)] Watch event: $EVENT"
-                      reconcile
-                    done
-                    
+                      --watch --output-watch-events -o json 2>/dev/null \
+                    | jq -c '{type: .type, clients: .object.spec.clients}' \
+                    | while read line; do
+                        EVENT=$(echo "$line" | jq -r .type)
+                        CLIENTS_VAL=$(echo "$line" | jq -c .clients)
+                        echo "[$(date -Iseconds)] Watch event: $EVENT, clients: $CLIENTS_VAL"
+                        reconcile
+                      done
+
                     echo "[$(date -Iseconds)] Watch disconnected, reconnecting in 3s..."
                     sleep 3
                   done
