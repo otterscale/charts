@@ -6,14 +6,10 @@
 
 dashboard:
   externalURL: "http://192.168.1.100"
-  image:
-    tag: ""
 
 server:
   externalURL: "http://192.168.1.100/api/"
   externalTunnelURL: "https://192.168.1.100:30300"
-  image:
-    tag: ""
   tunnelService:
     type: NodePort
     nodePort: "30300"
