@@ -1,0 +1,28 @@
+apiVersion: v2
+name: otterscale-kro
+version: 0.1.0
+# renovate: helm=kro registry=oci://registry.k8s.io/kro/charts
+appVersion: "v0.9.1"
+description: >-
+  kro (Kube Resource Orchestrator) — define reusable Kubernetes
+  abstractions with ResourceGraphDefinitions and CEL expressions.
+home: https://kro.run
+icon: https://github.com/kubernetes-sigs.png
+sources:
+  - https://github.com/otterscale/charts
+maintainers:
+  - name: Zhang, En-Yao
+    email: enyao_chang@phison.com
+keywords:
+  - kro
+  - resource-graph
+  - orchestrator
+type: application
+kubeVersion: ">=1.25.0-0"
+annotations:
+  module.otterscale.io/namespace: "kro"
+  artifacthub.io/license: Apache-2.0
+dependencies:
+  - name: kro
+    version: 0.9.1
+    repository: oci://registry.k8s.io/kro/charts
