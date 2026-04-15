@@ -52,7 +52,7 @@ spec:
           name: rook-ceph-nfs-${schema.spec.fsName}-nfs-external
           namespace: {{ $namespace }}
 
-    - id: namespace
+    - id: targetNamespace
       template:
         apiVersion: v1
         kind: Namespace
@@ -64,8 +64,8 @@ spec:
         apiVersion: v1
         kind: ConfigMap
         metadata:
-          name: ${schema.metadata.name}-config
-          namespace: ${namespace.metadata.name}
+          name: ${schema.metadata.name}-configmap
+          namespace: ${targetNamespace.metadata.name}
       readyWhen:
         - ${configMap.data.mountPath != ""}
 
@@ -96,7 +96,7 @@ spec:
                   NODE_PORT="${string(service.spec.ports[0].nodePort)}"
                   EXPORT_NAME="${schema.metadata.name}"
                   EXPORT_PATH="${schema.spec.exportPath}"
-                  TARGET_NAMESPACE="${namespace.metadata.name}"
+                  TARGET_NAMESPACE="${targetNamespace.metadata.name}"
 
                   # Resolve toolbox pod
                   TOOLBOX=$$(kubectl get pod -n $$FS_NAMESPACE -l app=rook-ceph-tools -o jsonpath='{.items[0].metadata.name}')
