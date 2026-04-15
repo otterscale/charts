@@ -52,6 +52,16 @@ spec:
           name: rook-ceph-nfs-${schema.spec.fsName}-nfs-external
           namespace: {{ $namespace }}
 
+    - id: toolbox
+      externalRef:
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: rook-ceph-tools
+          namespace: {{ $namespace }}
+      readyWhen:
+        - ${toolbox.status.readyReplicas == 1}
+
     - id: targetNamespace
       template:
         apiVersion: v1
@@ -100,17 +110,18 @@ spec:
 
                   # Resolve toolbox pod
                   TOOLBOX=$$(kubectl get pod -n $$FS_NAMESPACE -l app=rook-ceph-tools -o jsonpath='{.items[0].metadata.name}')
+                  echo "Using toolbox: $$TOOLBOX"
 
-                  # Resolve node IP for external mount (use jq to filter by type)
+                  # Resolve node IP for external mount
                   NODE_IP=$$(kubectl get nodes -o json | jq -r '.items[0].status.addresses[] | select(.type=="InternalIP") | .address')
 
-                  # Create subvolume
+                  # Create subvolume (idempotent)
                   kubectl exec -n $$FS_NAMESPACE $$TOOLBOX -- ceph fs subvolume create $$FS_NAME $$EXPORT_NAME
 
                   # Get subvolume path
                   SUBVOLUME_PATH=$$(kubectl exec -n $$FS_NAMESPACE $$TOOLBOX -- ceph fs subvolume getpath $$FS_NAME $$EXPORT_NAME | tr -d '\r\n')
 
-                  # Create NFS export
+                  # Create NFS export (idempotent)
                   kubectl exec -n $$FS_NAMESPACE $$TOOLBOX -- ceph nfs export create cephfs $$NFS_SERVER $$EXPORT_PATH $$FS_NAME --path $$SUBVOLUME_PATH
 
                   # Get pool info
@@ -127,6 +138,7 @@ spec:
                   kubectl create configmap ${schema.metadata.name}-configmap \
                     -n $$TARGET_NAMESPACE \
                     --from-literal=mountPath="$$MOUNT_PATH" \
+                    --from-literal=nodePort="$$NODE_PORT" \
                     --from-literal=pool="$$POOL" \
                     --from-literal=subvolumePath="$$SUBVOLUME_PATH" \
                     --from-literal=clients="$$CLIENTS" \
