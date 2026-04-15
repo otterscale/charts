@@ -92,7 +92,7 @@ spec:
                   FS_NAMESPACE="{{ $namespace }}"
                   FS_NAME="${cephFilesystem.metadata.name}"
                   NFS_SERVER="${cephNfs.metadata.name}"
-                  NODE_PORT="${nfsSvc.spec.ports[0].nodePort}"
+                  NODE_PORT="${service.spec.ports[?(@.name=="nfs")].nodePort}"
                   EXPORT_NAME="${schema.metadata.name}"
                   EXPORT_PATH="${schema.spec.exportPath}"
 
