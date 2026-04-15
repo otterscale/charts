@@ -265,11 +265,8 @@ spec:
                   while true; do
                     kubectl get nfsexport $EXPORT_NAME -n $EXPORT_NAMESPACE \
                       --watch --output-watch-events -o json 2>/dev/null \
-                    | jq -c 'try {type: .type, clients: .object.spec.clients} catch {type: .type, clients: "[]"}' \
                     | while read line; do
-                        EVENT=$(echo "$line" | jq -r .type)
-                        CLIENTS_VAL=$(echo "$line" | jq -c .clients)
-                        echo "[$(date -Iseconds)] Watch event: $EVENT, clients: $CLIENTS_VAL"
+                        echo "[$(date -Iseconds)] Watch event received"
                         reconcile
                       done
 
