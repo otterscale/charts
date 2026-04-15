@@ -15,17 +15,17 @@ spec:
       exportPath: string | required=true
     status:
       configMapRef:
-        name: string | default="${schema.metadata.name}-config"
-        namespace: string | default="${schema.spec.targetNamespace}"
+        name: string | ${configMap.metadata.name}
+        namespace: string | ${configMap.metadata.namespace}
       cephFilesystemRef:
-        name: string | default="${cephFilesystem.metadata.name}"
-        namespace: string | default="${cephFilesystem.metadata.namespace}"
+        name: string | ${cephFilesystem.metadata.name}
+        namespace: string | ${cephFilesystem.metadata.namespace}
       cephNfsRef:
-        name: string | default="${cephNfs.metadata.name}"
-        namespace: string | default="${cephNfs.metadata.namespace}"
+        name: string | ${cephNfs.metadata.name}
+        namespace: string | ${cephNfs.metadata.namespace}
       serviceRef:
-        name: string | default="${service.metadata.name}"
-        namespace: string | default="${service.metadata.namespace}"
+        name: string | ${service.metadata.name}
+        namespace: string | ${service.metadata.namespace}
 
   resources:
     - id: cephFilesystem
@@ -92,7 +92,7 @@ spec:
                   FS_NAMESPACE="{{ $namespace }}"
                   FS_NAME="${cephFilesystem.metadata.name}"
                   NFS_SERVER="${cephNfs.metadata.name}"
-                  NODE_PORT="${service.spec.ports[0].nodePort}"
+                  NODE_PORT="${string(service.spec.ports[0].nodePort)}"
                   EXPORT_NAME="${schema.metadata.name}"
                   EXPORT_PATH="${schema.spec.exportPath}"
 

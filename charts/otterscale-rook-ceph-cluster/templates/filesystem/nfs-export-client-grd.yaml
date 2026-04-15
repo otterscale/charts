@@ -13,8 +13,6 @@ spec:
       nfsExportName: string | required=true
       nfsExportNamespace: string | required=true
       clients: string | required=true
-    status:
-      applied: string | default="pending"
 
   resources:
     - id: nfsExport
@@ -56,7 +54,7 @@ spec:
                   set -e
                   FS_NAMESPACE="${nfsExport.status.cephNfsRef.namespace}"
                   NFS_SERVER="${nfsExport.status.cephNfsRef.name}"
-                  EXPORT_PATH="${nfsExport.spec.exportPath}"
+                  EXPORT_PATH="${string(nfsExport.spec.exportPath)}"
                   CLIENTS='${schema.spec.clients}'
                   CM_NAMESPACE="${configMap.metadata.namespace}"
                   CM_NAME="${configMap.metadata.name}"
