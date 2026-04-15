@@ -20,7 +20,7 @@ keywords:
 type: application
 kubeVersion: ">=1.25.0-0"
 annotations:
-  module.otterscale.io/namespace: "kro"
+  module.otterscale.io/namespace: "kro-system"
   artifacthub.io/license: Apache-2.0
 dependencies:
   - name: kro
