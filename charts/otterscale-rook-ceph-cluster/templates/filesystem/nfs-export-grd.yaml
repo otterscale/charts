@@ -1,0 +1,132 @@
+{{- if .Values.nfsServer.enabled -}}
+{{- $namespace := include "rook-ceph-cluster.namespace" . -}}
+---
+apiVersion: kro.run/v1alpha1
+kind: ResourceGraphDefinition
+metadata:
+  name: nfs-export
+scope: Namespaced
+spec:
+  schema:
+    apiVersion: v1alpha1
+    kind: NFSExport
+    spec:
+      targetNamespace: string | required=true
+      fsName: string | required=true
+      exportPath: string | required=true
+    status:
+      configMapRef:
+        name: string | default="${schema.metadata.name}-config"
+        namespace: string | default="${schema.spec.targetNamespace}"
+      cephFilesystemRef:
+        name: string | default="${cephFilesystem.metadata.name}"
+        namespace: string | default="${cephFilesystem.metadata.namespace}"
+      cephNfsRef:
+        name: string | default="${cephNfs.metadata.name}"
+        namespace: string | default="${cephNfs.metadata.namespace}"
+      serviceRef:
+        name: string | default="${service.metadata.name}"
+        namespace: string | default="${service.metadata.namespace}"
+
+  resources:
+    - id: cephFilesystem
+      externalRef:
+        apiVersion: ceph.rook.io/v1
+        kind: CephFilesystem
+        metadata:
+          name: ${schema.spec.fsName}
+          namespace: {{ $namespace }}
+    
+    - id: cephNfs
+      externalRef:
+        apiVersion: ceph.rook.io/v1
+        kind: CephNFS
+        metadata:
+          name: ${schema.spec.fsName}-nfs
+          namespace: {{ $namespace }}
+
+    - id: service
+      externalRef:
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: rook-ceph-nfs-${schema.spec.fsName}-nfs-external
+          namespace: {{ $namespace }}
+
+    - id: serviceAccount
+      template:
+        apiVersion: v1
+        kind: ServiceAccount
+        metadata:
+          name: nfs-export-sa
+          namespace: {{ $namespace }}
+
+    - id: configMap
+      template:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: ${schema.metadata.name}-config
+          namespace: ${schema.spec.targetNamespace}
+
+    - id: job
+      template:
+        apiVersion: batch/v1
+        kind: Job
+        metadata:
+          name: ${schema.metadata.name}-job
+          namespace: ${schema.spec.targetNamespace}
+        spec:
+          ttlSecondsAfterFinished: 300
+          template:
+            spec:
+              serviceAccountName: nfs-export-sa
+              restartPolicy: Never
+              containers:
+              - name: nfs-export
+                image: alpine/k8s:1.30.2
+                command:
+                - bash
+                - -c
+                - |
+                  set -e
+                  FS_NAMESPACE="{{ $namespace }}"
+                  FS_NAME="${cephFilesystem.metadata.name}"
+                  NFS_SERVER="${cephNfs.metadata.name}"
+                  NODE_PORT="${nfsSvc.spec.ports[0].nodePort}"
+                  EXPORT_NAME="${schema.metadata.name}"
+                  EXPORT_PATH="${schema.spec.exportPath}"
+
+                  # Resolve toolbox pod
+                  TOOLBOX=$(kubectl get pod -n $FS_NAMESPACE -l app=rook-ceph-tools -o jsonpath='{.items[0].metadata.name}')
+
+                  # Resolve node IP for external mount
+                  NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[?(@.type=="InternalIP")].address}')
+
+                  # Create subvolume
+                  kubectl exec -n $FS_NAMESPACE $TOOLBOX -- ceph fs subvolume create $FS_NAME $EXPORT_NAME
+
+                  # Get subvolume path
+                  SUBVOLUME_PATH=$(kubectl exec -n $FS_NAMESPACE $TOOLBOX -- ceph fs subvolume getpath $FS_NAME $EXPORT_NAME | tr -d '\r\n')
+
+                  # Create NFS export
+                  kubectl exec -n $FS_NAMESPACE $TOOLBOX -- ceph nfs export create cephfs $NFS_SERVER $EXPORT_PATH $FS_NAME --path $SUBVOLUME_PATH
+
+                  # Get pool info
+                  POOL=$(kubectl exec -n $FS_NAMESPACE $TOOLBOX -- bash -c "ceph fs subvolume info $FS_NAME $EXPORT_NAME --format json | python3 -c \"import sys,json; d=json.load(sys.stdin); print(d.get('pool_namespace','') or d.get('data_pool','unknown'))\"" 2>/dev/null || echo "unknown")
+                  POOL=$(echo "$POOL" | tr -d '\r\n')
+
+                  # Get NFS export clients
+                  CLIENTS=$(kubectl exec -n $FS_NAMESPACE $TOOLBOX -- bash -c "ceph nfs export get $NFS_SERVER $EXPORT_PATH --format json | python3 -c \"import sys,json; d=json.load(sys.stdin); print(json.dumps(d.get('clients',[])))\"" 2>/dev/null || echo "[]")
+                  CLIENTS=$(echo "$CLIENTS" | tr -d '\r\n')
+
+                  MOUNT_PATH="${NODE_IP}:${EXPORT_PATH}"
+
+                  # Patch ConfigMap
+                  kubectl create configmap ${schema.metadata.name}-config -n ${schema.spec.targetNamespace} \
+                    --from-literal=mountPath="$MOUNT_PATH" \
+                    --from-literal=pool="$POOL" \
+                    --from-literal=subvolumePath="$SUBVOLUME_PATH" \
+                    --from-literal=clients="$CLIENTS" \
+                    --dry-run=client -o yaml | kubectl apply -f -
+{{- end }}

@@ -1,0 +1,49 @@
+{{- if .Values.nfsServer.enabled -}}
+{{- $namespace := include "rook-ceph-cluster.namespace" . -}}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: nfs-export-sa
+  namespace: {{ $namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: nfs-export-role
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["create", "get"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list", "create", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["services"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list"]
+  - apiGroups: ["ceph.rook.io"]
+    resources: ["cephnfses", "cephfilesystems"]
+    verbs: ["get", "list"]
+  - apiGroups: ["kro.run"]
+    resources: ["nfsexports", "nfsexports/status", "nfsexportclients", "nfsexportclients/status"]
+    verbs: ["get", "list", "patch", "update"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: nfs-export-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: nfs-export-role
+subjects:
+  - kind: ServiceAccount
+    name: nfs-export-sa
+    namespace: {{ $namespace }}
+{{- end }}
