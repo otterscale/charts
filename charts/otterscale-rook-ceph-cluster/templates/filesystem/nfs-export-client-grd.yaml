@@ -5,7 +5,6 @@ apiVersion: kro.run/v1alpha1
 kind: ResourceGraphDefinition
 metadata:
   name: nfs-export-client
-scope: Namespaced
 spec:
   schema:
     apiVersion: v1alpha1
