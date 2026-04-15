@@ -97,35 +97,35 @@ spec:
                   EXPORT_PATH="${schema.spec.exportPath}"
 
                   # Resolve toolbox pod
-                  TOOLBOX=$(kubectl get pod -n $FS_NAMESPACE -l app=rook-ceph-tools -o jsonpath='{.items[0].metadata.name}')
+                  TOOLBOX=$$(kubectl get pod -n $$FS_NAMESPACE -l app=rook-ceph-tools -o jsonpath='{.items[0].metadata.name}')
 
-                  # Resolve node IP for external mount
-                  NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[0].address}')
+                  # Resolve node IP for external mount (use jq to filter by type)
+                  NODE_IP=$$(kubectl get nodes -o json | jq -r '.items[0].status.addresses[] | select(.type=="InternalIP") | .address')
 
                   # Create subvolume
-                  kubectl exec -n $FS_NAMESPACE $TOOLBOX -- ceph fs subvolume create $FS_NAME $EXPORT_NAME
+                  kubectl exec -n $$FS_NAMESPACE $$TOOLBOX -- ceph fs subvolume create $$FS_NAME $$EXPORT_NAME
 
                   # Get subvolume path
-                  SUBVOLUME_PATH=$(kubectl exec -n $FS_NAMESPACE $TOOLBOX -- ceph fs subvolume getpath $FS_NAME $EXPORT_NAME | tr -d '\r\n')
+                  SUBVOLUME_PATH=$$(kubectl exec -n $$FS_NAMESPACE $$TOOLBOX -- ceph fs subvolume getpath $$FS_NAME $$EXPORT_NAME | tr -d '\r\n')
 
                   # Create NFS export
-                  kubectl exec -n $FS_NAMESPACE $TOOLBOX -- ceph nfs export create cephfs $NFS_SERVER $EXPORT_PATH $FS_NAME --path $SUBVOLUME_PATH
+                  kubectl exec -n $$FS_NAMESPACE $$TOOLBOX -- ceph nfs export create cephfs $$NFS_SERVER $$EXPORT_PATH $$FS_NAME --path $$SUBVOLUME_PATH
 
                   # Get pool info
-                  POOL=$(kubectl exec -n $FS_NAMESPACE $TOOLBOX -- bash -c "ceph fs subvolume info $FS_NAME $EXPORT_NAME --format json | python3 -c \"import sys,json; d=json.load(sys.stdin); print(d.get('pool_namespace','') or d.get('data_pool','unknown'))\"" 2>/dev/null || echo "unknown")
-                  POOL=$(echo "$POOL" | tr -d '\r\n')
+                  POOL=$$(kubectl exec -n $$FS_NAMESPACE $$TOOLBOX -- bash -c "ceph fs subvolume info $$FS_NAME $$EXPORT_NAME --format json | python3 -c \"import sys,json; d=json.load(sys.stdin); print(d.get('pool_namespace','') or d.get('data_pool','unknown'))\"" 2>/dev/null || echo "unknown")
+                  POOL=$$(echo "$$POOL" | tr -d '\r\n')
 
                   # Get NFS export clients
-                  CLIENTS=$(kubectl exec -n $FS_NAMESPACE $TOOLBOX -- bash -c "ceph nfs export get $NFS_SERVER $EXPORT_PATH --format json | python3 -c \"import sys,json; d=json.load(sys.stdin); print(json.dumps(d.get('clients',[])))\"" 2>/dev/null || echo "[]")
-                  CLIENTS=$(echo "$CLIENTS" | tr -d '\r\n')
+                  CLIENTS=$$(kubectl exec -n $$FS_NAMESPACE $$TOOLBOX -- bash -c "ceph nfs export get $$NFS_SERVER $$EXPORT_PATH --format json | python3 -c \"import sys,json; d=json.load(sys.stdin); print(json.dumps(d.get('clients',[])))\"" 2>/dev/null || echo "[]")
+                  CLIENTS=$$(echo "$$CLIENTS" | tr -d '\r\n')
 
-                  MOUNT_PATH="${NODE_IP}:${EXPORT_PATH}"
+                  MOUNT_PATH="$$NODE_IP:$$EXPORT_PATH"
 
                   # Patch ConfigMap
                   kubectl create configmap ${schema.metadata.name}-config -n ${schema.spec.targetNamespace} \
-                    --from-literal=mountPath="$MOUNT_PATH" \
-                    --from-literal=pool="$POOL" \
-                    --from-literal=subvolumePath="$SUBVOLUME_PATH" \
-                    --from-literal=clients="$CLIENTS" \
+                    --from-literal=mountPath="$$MOUNT_PATH" \
+                    --from-literal=pool="$$POOL" \
+                    --from-literal=subvolumePath="$$SUBVOLUME_PATH" \
+                    --from-literal=clients="$$CLIENTS" \
                     --dry-run=client -o yaml | kubectl apply -f -
 {{- end }}
