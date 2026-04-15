@@ -35,7 +35,7 @@ spec:
         metadata:
           name: ${schema.spec.fsName}
           namespace: {{ $namespace }}
-    
+
     - id: cephNfs
       externalRef:
         apiVersion: ceph.rook.io/v1
@@ -52,14 +52,6 @@ spec:
           name: rook-ceph-nfs-${schema.spec.fsName}-nfs-external
           namespace: {{ $namespace }}
 
-    - id: serviceAccount
-      template:
-        apiVersion: v1
-        kind: ServiceAccount
-        metadata:
-          name: nfs-export-sa
-          namespace: {{ $namespace }}
-
     - id: configMap
       template:
         apiVersion: v1
@@ -74,7 +66,7 @@ spec:
         kind: Job
         metadata:
           name: ${schema.metadata.name}-job
-          namespace: ${schema.spec.targetNamespace}
+          namespace: {{ $namespace }}
         spec:
           ttlSecondsAfterFinished: 300
           template:
@@ -95,6 +87,7 @@ spec:
                   NODE_PORT="${string(service.spec.ports[0].nodePort)}"
                   EXPORT_NAME="${schema.metadata.name}"
                   EXPORT_PATH="${schema.spec.exportPath}"
+                  TARGET_NAMESPACE="${schema.spec.targetNamespace}"
 
                   # Resolve toolbox pod
                   TOOLBOX=$$(kubectl get pod -n $$FS_NAMESPACE -l app=rook-ceph-tools -o jsonpath='{.items[0].metadata.name}')
@@ -121,8 +114,9 @@ spec:
 
                   MOUNT_PATH="$$NODE_IP:$$EXPORT_PATH"
 
-                  # Patch ConfigMap
-                  kubectl create configmap ${schema.metadata.name}-config -n ${schema.spec.targetNamespace} \
+                  # Write ConfigMap to target namespace
+                  kubectl create configmap ${schema.metadata.name}-config \
+                    -n $$TARGET_NAMESPACE \
                     --from-literal=mountPath="$$MOUNT_PATH" \
                     --from-literal=pool="$$POOL" \
                     --from-literal=subvolumePath="$$SUBVOLUME_PATH" \
