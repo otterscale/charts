@@ -1,0 +1,7 @@
+OtterScale kro (Kube Resource Orchestrator) has been installed.
+
+  Namespace: {{ .Release.Namespace }}
+
+  Next steps:
+  - Create ResourceGraphDefinitions to define reusable Kubernetes abstractions
+  - Docs: https://kro.run/docs/overview
