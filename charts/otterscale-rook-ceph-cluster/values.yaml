@@ -102,6 +102,11 @@ rook-ceph-cluster:
         reclaimPolicy: Delete
         volumeBindingMode: Immediate
 
+  # Installs a debugging toolbox deployment
+  toolbox:
+    # -- Enable Ceph debugging pod deployment. See [toolbox](../Troubleshooting/ceph-toolbox.md)
+    enabled: true
+
   # -- Enable monitoring with Prometheus and Grafana
   monitoring:
     enabled: true
