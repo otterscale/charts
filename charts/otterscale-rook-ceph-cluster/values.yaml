@@ -105,7 +105,7 @@ rook-ceph-cluster:
   # Installs a debugging toolbox deployment
   toolbox:
     # -- Enable Ceph debugging pod deployment. See [toolbox](../Troubleshooting/ceph-toolbox.md)
-    enabled: false
+    enabled: true
 
   # -- Enable monitoring with Prometheus and Grafana
   monitoring:
