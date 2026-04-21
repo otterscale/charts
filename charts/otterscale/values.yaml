@@ -33,8 +33,6 @@ storage:
     path: /opt/otterscale/storage
     # -- Name given to the created StorageClass.
     storageClassName: otterscale-local-path
-    # -- Set true to make this the cluster default StorageClass.
-    isDefault: true
     # -- ReclaimPolicy: Retain (safe default) or Delete.
     reclaimPolicy: Retain
     image:

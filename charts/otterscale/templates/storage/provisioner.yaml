@@ -198,10 +198,6 @@ metadata:
   labels:
     {{- include "otterscale.labels" . | nindent 4 }}
     app.kubernetes.io/component: local-path-provisioner
-  {{- if .Values.storage.localPath.isDefault }}
-  annotations:
-    storageclass.kubernetes.io/is-default-class: "false"
-  {{- end }}
 provisioner: {{ include "otterscale.localPath.provisionerName" . }}
 volumeBindingMode: WaitForFirstConsumer
 reclaimPolicy: {{ .Values.storage.localPath.reclaimPolicy }}
