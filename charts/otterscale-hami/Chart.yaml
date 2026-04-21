@@ -26,5 +26,5 @@ annotations:
   artifacthub.io/license: Apache-2.0
 dependencies:
   - name: hami
-    version: 2.8.0
+    version: 2.8.1
     repository: https://project-hami.github.io/HAMi/

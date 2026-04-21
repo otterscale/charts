@@ -8,7 +8,7 @@ global:
   # E.g. imagePullSecrets: [{ name: "my-registry-secret" }]
   imagePullSecrets: []
   # -- Global default StorageClass for all PVCs.
-  storageClass: ""
+  storageClass: "otterscale-local-path"
 
 # -- Override the namespace for all resources.
 # Defaults to "otterscale-system". When installing with helm, pass

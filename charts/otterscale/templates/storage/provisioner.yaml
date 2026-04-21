@@ -200,7 +200,7 @@ metadata:
     app.kubernetes.io/component: local-path-provisioner
   {{- if .Values.storage.localPath.isDefault }}
   annotations:
-    storageclass.kubernetes.io/is-default-class: "true"
+    storageclass.kubernetes.io/is-default-class: "false"
   {{- end }}
 provisioner: {{ include "otterscale.localPath.provisionerName" . }}
 volumeBindingMode: WaitForFirstConsumer
