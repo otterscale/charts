@@ -22,6 +22,16 @@ hami:
     nvidiaNodeSelector:
       gpu: null
       otterscale.io/gpu: "true"
+  
+  dra:
+    enabled: false
+
+  hami-dra:
+    drivers:
+      nvidia:
+        enabled: true
+        # If you are using gpu driver on host, you need to set this to false
+        containerDriver: true
 
 # ServiceMonitor configuration for Prometheus
 serviceMonitor:
