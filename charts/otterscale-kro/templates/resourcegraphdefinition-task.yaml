@@ -1,11 +1,11 @@
 apiVersion: kro.run/v1alpha1
 kind: ResourceGraphDefinition
 metadata:
-  name: quick-job
+  name: task
 spec:
   schema:
     apiVersion: v1alpha1
-    kind: QuickJob
+    kind: Task
     spec:
       name: string | description="Name of the Job and related resources."
       image: string | description="Container image name, for example nginx:1.27."

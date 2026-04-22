@@ -1,19 +1,19 @@
 apiVersion: kro.run/v1alpha1
 kind: ResourceGraphDefinition
 metadata:
-  name: quick-deployment
+  name: application
 spec:
   schema:
     apiVersion: v1alpha1
-    kind: QuickDeployment
+    kind: Application
     spec:
       name: string | description="Name of the Deployment and related resources."
       image: string | description="Container image name, for example nginx:1.27."
       command: '[]string | description="Entrypoint array. Not executed within a shell."'
       args: '[]string | description="Arguments to the entrypoint."'
       containerPort: integer | default=80 description="Container port exposed by the workload."
-      serviceType: string | default="ClusterIP" description="Service type. Use ClusterIP for internal access or NodePort for node-level access."
-      serviceNodePort: integer | description="NodePort value when serviceType is NodePort. Valid range is typically 30000-32767."
+      serviceType: string | default="ClusterIP" description="Service type. Valid values are ClusterIP or NodePort."
+      serviceNodePort: integer | description="NodePort value when serviceType is NodePort. 0 means randomly assigned by Kubernetes, or set 30000-32767 explicitly."
       replicas: integer | default=1 description="Desired number of Pod replicas."
       storageSize: string | description="Optional. PersistentVolumeClaim requested storage size. If empty, PVC is not created."
       accessMode: string | description="Optional. PersistentVolumeClaim access mode, for example ReadWriteOnce or ReadOnlyMany. If empty, PVC is not created."
@@ -25,11 +25,11 @@ spec:
       resourcesLimitsCpu: string | default="500m" description="CPU limit for the container."
       resourcesLimitsMemory: string | default="512Mi" description="Memory limit for the container."
     status:
-      deploymentWithPvcConditions: ${has(deploymentWithPvc) ? deploymentWithPvc.status.conditions : null}
-      deploymentNoPvcConditions: ${has(deploymentNoPvc) ? deploymentNoPvc.status.conditions : null}
-      availableReplicas: "${has(deploymentWithPvc.status.availableReplicas) ? deploymentWithPvc.status.availableReplicas : deploymentNoPvc.status.availableReplicas}"
-      serviceType: "${has(serviceNodePort) ? serviceNodePort.spec.type : serviceClusterIp.spec.type}"
-      nodePort: "${has(serviceNodePort) && has(serviceNodePort.spec.ports[0].nodePort) ? serviceNodePort.spec.ports[0].nodePort : 0}"
+      deploymentWithPvcConditions: "${has(deploymentWithPvc.status.conditions) ? deploymentWithPvc.status.conditions : []}"
+      deploymentNoPvcConditions: "${has(deploymentNoPvc.status.conditions) ? deploymentNoPvc.status.conditions : []}"
+      availableReplicas: "${has(deploymentWithPvc.status.availableReplicas) ? deploymentWithPvc.status.availableReplicas : (has(deploymentNoPvc.status.availableReplicas) ? deploymentNoPvc.status.availableReplicas : 0)}"
+      serviceType: "${has(serviceNodePort.spec.type) ? serviceNodePort.spec.type : (has(serviceClusterIp.spec.type) ? serviceClusterIp.spec.type : '')}"
+      nodePort: "${has(serviceNodePort.spec.ports) && size(serviceNodePort.spec.ports) > 0 && has(serviceNodePort.spec.ports[0].nodePort) ? serviceNodePort.spec.ports[0].nodePort : 0}"
 
   resources:
     - id: deploymentWithPvc
