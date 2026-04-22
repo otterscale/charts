@@ -47,7 +47,7 @@ spec:
                   labels:
                     app: ${schema.spec.name}
                 spec:
-                  restartPolicy: ${has(schema.spec.restartPolicy)
+                  restartPolicy: "${has(schema.spec.restartPolicy) ? schema.spec.restartPolicy : 'OnFailure'}"
                   containers:
                     - name: ${schema.spec.name}
                       image: ${schema.spec.image}
