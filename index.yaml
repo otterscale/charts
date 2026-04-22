@@ -3521,6 +3521,36 @@ entries:
       module.otterscale.io/namespace: kro-system
     apiVersion: v2
     appVersion: v0.9.1
+    created: "2026-04-22T12:18:54.052116538Z"
+    dependencies:
+    - name: kro
+      repository: oci://registry.k8s.io/kro/charts
+      version: 0.9.1
+    description: kro (Kube Resource Orchestrator) — define reusable Kubernetes abstractions
+      with ResourceGraphDefinitions and CEL expressions.
+    digest: 1d588c25ad2aa31b7582401c68b628e891b539df0be09a7f730675a388d5cc95
+    home: https://kro.run
+    icon: https://github.com/kubernetes-sigs.png
+    keywords:
+    - kro
+    - resource-graph
+    - orchestrator
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: enyao_chang@phison.com
+      name: Zhang, En-Yao
+    name: otterscale-kro
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kro-1.0.2/otterscale-kro-1.0.2.tgz
+    version: 1.0.2
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: kro-system
+    apiVersion: v2
+    appVersion: v0.9.1
     created: "2026-04-22T07:28:09.259147737Z"
     dependencies:
     - name: kro
@@ -5341,4 +5371,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-22T07:28:09.259398282Z"
+generated: "2026-04-22T12:18:54.0524043Z"
