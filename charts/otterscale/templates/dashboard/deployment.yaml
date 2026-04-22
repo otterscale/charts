@@ -63,7 +63,7 @@ spec:
               containerPort: {{ .Values.dashboard.ports.http }}
               protocol: TCP
           env:
-            - name: APP_VERSION
+            - name: PUBLIC_APP_VERSION
               value: {{ .Chart.AppVersion | quote }}
             {{- with .Values.dashboard.env }}
             {{- toYaml . | nindent 12 }}
