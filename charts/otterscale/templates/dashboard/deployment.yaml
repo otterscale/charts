@@ -62,10 +62,12 @@ spec:
             - name: http
               containerPort: {{ .Values.dashboard.ports.http }}
               protocol: TCP
-          {{- with .Values.dashboard.env }}
           env:
+            - name: APP_VERSION
+              value: {{ .Chart.AppVersion | quote }}
+            {{- with .Values.dashboard.env }}
             {{- toYaml . | nindent 12 }}
-          {{- end }}
+            {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ include "otterscale.dashboard.fullname" . }}-config
