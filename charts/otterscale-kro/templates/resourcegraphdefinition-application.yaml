@@ -25,11 +25,11 @@ spec:
       resourcesLimitsCpu: string | default="500m" description="CPU limit for the container."
       resourcesLimitsMemory: string | default="512Mi" description="Memory limit for the container."
     status:
-      deploymentWithPvcConditions: "${has(deploymentWithPvc.status.conditions) ? deploymentWithPvc.status.conditions : []}"
-      deploymentNoPvcConditions: "${has(deploymentNoPvc.status.conditions) ? deploymentNoPvc.status.conditions : []}"
-      availableReplicas: "${has(deploymentWithPvc.status.availableReplicas) ? deploymentWithPvc.status.availableReplicas : deploymentNoPvc.status.availableReplicas}"
-      serviceType: "${has(serviceNodePort.spec.type) ? serviceNodePort.spec.type : serviceClusterIp.spec.type}"
-      nodePort: "${has(serviceNodePort.spec.ports) && size(serviceNodePort.spec.ports) > 0 ? serviceNodePort.spec.ports[0].nodePort : 0}"
+      deploymentWithPvcConditions: "${has(schema.spec.storageSize) && has(schema.spec.accessMode) && has(schema.spec.mountPath) && schema.spec.storageSize != '' && schema.spec.accessMode != '' && schema.spec.mountPath != '' && has(deploymentWithPvc.status.conditions) ? deploymentWithPvc.status.conditions : []}"
+      deploymentNoPvcConditions: "${(!has(schema.spec.storageSize) || !has(schema.spec.accessMode) || !has(schema.spec.mountPath) || schema.spec.storageSize == '' || schema.spec.accessMode == '' || schema.spec.mountPath == '') && has(deploymentNoPvc.status.conditions) ? deploymentNoPvc.status.conditions : []}"
+      availableReplicas: "${has(schema.spec.storageSize) && has(schema.spec.accessMode) && has(schema.spec.mountPath) && schema.spec.storageSize != '' && schema.spec.accessMode != '' && schema.spec.mountPath != '' ? (has(deploymentWithPvc.status.availableReplicas) ? deploymentWithPvc.status.availableReplicas : 0) : (has(deploymentNoPvc.status.availableReplicas) ? deploymentNoPvc.status.availableReplicas : 0)}"
+      serviceType: "${schema.spec.serviceType == 'NodePort' ? (has(serviceNodePort.spec.type) ? serviceNodePort.spec.type : 'NodePort') : (has(serviceClusterIp.spec.type) ? serviceClusterIp.spec.type : 'ClusterIP')}"
+      nodePort: "${schema.spec.serviceType == 'NodePort' && has(serviceNodePort.spec.ports) && size(serviceNodePort.spec.ports) > 0 && has(serviceNodePort.spec.ports[0].nodePort) ? serviceNodePort.spec.ports[0].nodePort : 0}"
 
   resources:
     - id: deploymentWithPvc
