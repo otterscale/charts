@@ -36,10 +36,10 @@ spec:
           name: ${schema.spec.name}
         spec:
           schedule: "${schema.spec.cronSchedule}"
-          concurrencyPolicy: "${has(schema.spec.concurrencyPolicy) ? schema.spec.concurrencyPolicy : null}"
-          suspend: "${has(schema.spec.suspend) ? schema.spec.suspend : null}"
-          successfulJobsHistoryLimit: "${has(schema.spec.successfulJobsHistoryLimit) ? schema.spec.successfulJobsHistoryLimit : null}"
-          failedJobsHistoryLimit: "${has(schema.spec.failedJobsHistoryLimit) ? schema.spec.failedJobsHistoryLimit : null}"
+          concurrencyPolicy: "${has(schema.spec.concurrencyPolicy) ? schema.spec.concurrencyPolicy : 'Allow'}"
+          suspend: "${has(schema.spec.suspend) ? schema.spec.suspend : false}"
+          successfulJobsHistoryLimit: "${has(schema.spec.successfulJobsHistoryLimit) ? schema.spec.successfulJobsHistoryLimit : 3}"
+          failedJobsHistoryLimit: "${has(schema.spec.failedJobsHistoryLimit) ? schema.spec.failedJobsHistoryLimit : 1}"
           jobTemplate:
             spec:
               template:
