@@ -1,22 +1,22 @@
 apiVersion: kro.run/v1alpha1
 kind: ResourceGraphDefinition
 metadata:
-  name: quick-cronjob
+  name: schedule
 spec:
   schema:
     apiVersion: v1alpha1
-    kind: QuickCronJob
+    kind: Schedule
     spec:
       name: string | description="Name of the CronJob and related resources."
       image: string | description="Container image name, for example ubuntu:24.04."
       command: '[]string | description="Entrypoint array. Not executed within a shell."'
       args: '[]string | description="Arguments to the entrypoint."'
       cronSchedule: string | default="*/5 * * * *" description="Cron format schedule string, for example */5 * * * *."
-      concurrencyPolicy: string | description="How to treat concurrent executions. Valid values are Allow, Forbid, or Replace."
+      concurrencyPolicy: string | default="Allow" description="Cron concurrency policy. Valid values are Allow, Forbid, or Replace."
       suspend: boolean | description="Suspend controls whether subsequent executions are suspended."
       successfulJobsHistoryLimit: integer | description="Number of successful finished Jobs to retain."
       failedJobsHistoryLimit: integer | description="Number of failed finished Jobs to retain."
-      restartPolicy: string | default="OnFailure" description="Pod restart policy for CronJob Job template. Valid values are Never or OnFailure."
+      restartPolicy: string | default="OnFailure" description="Pod restart policy. Valid values are Never or OnFailure."
       containerPort: integer | default=8080 description="Container port exposed by the workload."
       resourcesRequestsCpu: string | default="100m" description="CPU request for the container."
       resourcesRequestsMemory: string | default="128Mi" description="Memory request for the container."
