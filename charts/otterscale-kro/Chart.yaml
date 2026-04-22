@@ -1,6 +1,6 @@
 apiVersion: v2
 name: otterscale-kro
-version: 1.0.0
+version: 1.0.1
 # renovate: helm=kro registry=oci://registry.k8s.io/kro/charts
 appVersion: "v0.9.1"
 description: >-
