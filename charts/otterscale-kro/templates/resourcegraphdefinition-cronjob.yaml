@@ -5,7 +5,7 @@ metadata:
 spec:
   schema:
     apiVersion: v1alpha1
-    kind: QuickCronjob
+    kind: QuickCronJob
     spec:
       name: string | description="Name of the CronJob and related resources."
       image: string | description="Container image name, for example ubuntu:24.04."
@@ -16,7 +16,7 @@ spec:
       suspend: boolean | description="Suspend controls whether subsequent executions are suspended."
       successfulJobsHistoryLimit: integer | description="Number of successful finished Jobs to retain."
       failedJobsHistoryLimit: integer | description="Number of failed finished Jobs to retain."
-      restartPolicy: string | description="Pod restart policy for CronJob Job template. Valid values are Never or OnFailure."
+      restartPolicy: string | default="OnFailure" description="Pod restart policy for CronJob Job template. Valid values are Never or OnFailure."
       containerPort: integer | default=8080 description="Container port exposed by the workload."
       resourcesRequestsCpu: string | default="100m" description="CPU request for the container."
       resourcesRequestsMemory: string | default="128Mi" description="Memory request for the container."
@@ -47,7 +47,7 @@ spec:
                   labels:
                     app: ${schema.spec.name}
                 spec:
-                  restartPolicy: "${has(schema.spec.restartPolicy) ? schema.spec.restartPolicy : null}"
+                  restartPolicy: ${has(schema.spec.restartPolicy)
                   containers:
                     - name: ${schema.spec.name}
                       image: ${schema.spec.image}

@@ -25,11 +25,11 @@ spec:
       resourcesLimitsCpu: string | default="500m" description="CPU limit for the container."
       resourcesLimitsMemory: string | default="512Mi" description="Memory limit for the container."
     status:
-      deploymentWithPvcConditions: ${deploymentWithPvc.status.conditions}
-      deploymentNoPvcConditions: ${deploymentNoPvc.status.conditions}
+      deploymentWithPvcConditions: ${has(deploymentWithPvc) ? deploymentWithPvc.status.conditions : null}
+      deploymentNoPvcConditions: ${has(deploymentNoPvc) ? deploymentNoPvc.status.conditions : null}
       availableReplicas: "${has(deploymentWithPvc.status.availableReplicas) ? deploymentWithPvc.status.availableReplicas : deploymentNoPvc.status.availableReplicas}"
-      serviceType: "${has(serviceNodePort.spec.type) ? serviceNodePort.spec.type : serviceClusterIp.spec.type}"
-      nodePort: "${has(serviceNodePort.spec.ports[0].nodePort) ? serviceNodePort.spec.ports[0].nodePort : 0}"
+      serviceType: "${has(serviceNodePort) ? serviceNodePort.spec.type : serviceClusterIp.spec.type}"
+      nodePort: "${has(serviceNodePort) && has(serviceNodePort.spec.ports[0].nodePort) ? serviceNodePort.spec.ports[0].nodePort : 0}"
 
   resources:
     - id: deploymentWithPvc
