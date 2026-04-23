@@ -177,7 +177,7 @@
         "tls": { "type": "array" }
       }
     },
-    "istio": {
+    "envoy": {
       "type": "object",
       "properties": {
         "enabled": { "type": "boolean" }

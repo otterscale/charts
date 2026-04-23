@@ -1,4 +1,4 @@
-{{- if and .Values.istio.enabled .Values.istio.httpRoute.enabled }}
+{{- if and .Values.envoy.enabled .Values.envoy.httpRoute.enabled }}
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -9,10 +9,10 @@ metadata:
 spec:
   parentRefs:
   - name: {{ include "otterscale.gatewayRef" . }}
-  {{- if .Values.istio.gateway.namespace }}
-    namespace: {{ .Values.istio.gateway.namespace }}
+  {{- if .Values.envoy.gateway.namespace }}
+    namespace: {{ .Values.envoy.gateway.namespace }}
   {{- end }}
-  {{- with .Values.istio.httpRoute.hostnames }}
+  {{- with .Values.envoy.httpRoute.hostnames }}
   hostnames:
     {{- toYaml . | nindent 4 }}
   {{- end }}
@@ -28,7 +28,7 @@ spec:
       requestHeaderModifier:
         set:
         - name: X-Forwarded-Proto
-          value: {{ if .Values.istio.tls.enabled }}"https"{{ else }}"http"{{ end }}
+          value: {{ if .Values.envoy.tls.enabled }}"https"{{ else }}"http"{{ end }}
     backendRefs:
     - name: {{ include "otterscale.keycloakx.serviceName" . }}
       port: {{ .Values.keycloakx.service.port }}

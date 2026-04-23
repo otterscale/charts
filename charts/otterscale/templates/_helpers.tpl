@@ -60,11 +60,11 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{- define "otterscale.tls.secretName" -}}
-{{- .Values.istio.tls.existingSecret | required "istio.tls.existingSecret must be set when istio.tls.enabled is true" -}}
-{{- end -}}
+{{- .Values.envoy.tls.existingSecret | required "envoy.tls.existingSecret must be set when envoy.tls.enabled is true" -}}
+{{- end }}
 
 {{- define "otterscale.gatewayRef" -}}
-{{- .Values.istio.gateway.name | required "istio.gateway.name must be set when istio is enabled" -}}
+{{- .Values.envoy.gateway.name | required "envoy.gateway.name must be set when envoy is enabled" -}}
 {{- end -}}
 
 {{/*

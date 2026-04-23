@@ -1,8 +1,8 @@
 OtterScale has been deployed successfully!
 
-{{- if .Values.istio.enabled }}
+{{- if .Values.envoy.enabled }}
 
-Access via Istio:
+Access via Envoy Gateway:
   External URL: {{ include "otterscale.externalURL" . }}
   Dashboard:    {{ include "otterscale.externalURL" . }}/
   API:          {{ include "otterscale.externalURL" . }}/api/

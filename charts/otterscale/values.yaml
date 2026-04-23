@@ -64,7 +64,7 @@ server:
   image:
     repository: ghcr.io/otterscale/otterscale
     # renovate: image=ghcr.io/otterscale/otterscale
-    tag: "v1.0.5"
+    tag: "v1.0.2"
     pullPolicy: IfNotPresent
 
   # -- Container ports.
@@ -260,7 +260,7 @@ dashboard:
   image:
     repository: ghcr.io/otterscale/dashboard
     # renovate: image=ghcr.io/otterscale/dashboard
-    tag: "v1.0.8"
+    tag: "v1.0.6"
     pullPolicy: IfNotPresent
 
   # -- Container ports.
@@ -421,7 +421,7 @@ dashboard:
 # Ingress Configuration (standard Kubernetes Ingress)
 # =============================================================================
 ingress:
-  # -- Enable standard Kubernetes Ingress. Typically used as an alternative to Istio.
+  # -- Enable standard Kubernetes Ingress. Typically used as an alternative to Envoy Gateway.
   enabled: false
   # -- IngressClass name (e.g. "nginx", "traefik").
   className: ""
@@ -450,14 +450,11 @@ ingress:
   #      - otterscale.local
 
 # =============================================================================
-# Service Mesh Configuration (Istio)
+# Envoy Gateway Configuration
 # =============================================================================
-istio:
-  # -- Enable Istio integration (Gateway API).
+envoy:
+  # -- Enable Envoy Gateway integration (Gateway API).
   enabled: false
-  sidecarInjection:
-    # -- Inject Istio sidecar into pods.
-    enabled: true
   httpRoute:
     # -- Create a Gateway API HTTPRoute.
     enabled: true
@@ -470,7 +467,7 @@ istio:
     # -- Enable TLS termination at the Gateway.
     enabled: false
     # -- Name of an existing Secret containing tls.crt and tls.key.
-    # Required when istio.tls.enabled is true.
+    # Required when envoy.tls.enabled is true.
     existingSecret: ""
 
   # Reference to an existing Gateway API Gateway resource.
@@ -478,7 +475,7 @@ istio:
     # -- Name of the Gateway resource that HTTPRoute should attach to.
     name: "gateway"
     # -- Namespace of the Gateway resource.
-    namespace: "istio-ingress"
+    namespace: "envoy-gateway-system"
 
 # =============================================================================
 # Valkey Configuration (Dashboard session cache)
@@ -488,8 +485,6 @@ dashboard-valkey:
   # -- Valkey service port.
   port: 6379
   # -- Pod labels for the Valkey deployment.
-  # When using Istio with sidecar injection, add:
-  #   sidecar.istio.io/inject: "true"
   podLabels: {}
   aclUsers:
     default:
@@ -503,8 +498,6 @@ keycloakx:
   enabled: true
   nameOverride: keycloak
   # -- Pod labels for the Keycloak StatefulSet.
-  # When using Istio with sidecar injection, add:
-  #   sidecar.istio.io/inject: "true"
   podLabels: {}
   # -- Keycloak realm name.
   realm: otterscale
