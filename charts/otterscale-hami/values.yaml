@@ -5,6 +5,10 @@ hami:
       prometheus.io/port: "31992"
 
   scheduler:
+    # binpack (concentrated) and spread
+    defaultSchedulerPolicy:
+      nodeSchedulerPolicy: binpack
+      gpuSchedulerPolicy: binpack
     service:
       type: ClusterIP
 
