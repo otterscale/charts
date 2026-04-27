@@ -658,20 +658,20 @@ harbor:
     enabled: true
     persistentVolumeClaim:
       registry:
-        storageClass: ""
+        storageClass: "otterscale-local-path"
         size: 50Gi
       database:
-        storageClass: ""
+        storageClass: "otterscale-local-path"
         size: 5Gi
       jobservice:
         jobLog:
-          storageClass: ""
+          storageClass: "otterscale-local-path"
           size: 1Gi
       redis:
-        storageClass: ""
+        storageClass: "otterscale-local-path"
         size: 1Gi
       trivy:
-        storageClass: ""
+        storageClass: "otterscale-local-path"
         size: 5Gi
 
   database:
