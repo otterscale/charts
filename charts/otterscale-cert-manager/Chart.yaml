@@ -1,0 +1,28 @@
+apiVersion: v2
+name: otterscale-cert-manager
+version: 0.1.0
+# renovate: helm=cert-manager registry=https://charts.jetstack.io
+appVersion: "1.20.2"
+description: >-
+  cert-manager — cloud native certificate management for Kubernetes.
+  Automates issuance and renewal from issuers such as Let's Encrypt.
+home: https://cert-manager.io
+icon: https://cert-manager.io/images/cert-manager-logo-icon.svg
+sources:
+  - https://github.com/otterscale/charts
+maintainers:
+  - name: Chung-Hsuan Tsai
+    email: paul_tsai@phison.com
+keywords:
+  - cert-manager
+  - tls
+  - certificates
+type: application
+kubeVersion: ">=1.25.0-0"
+annotations:
+  module.otterscale.io/namespace: "cert-manager"
+  artifacthub.io/license: Apache-2.0
+dependencies:
+  - name: cert-manager
+    version: 1.20.2
+    repository: https://charts.jetstack.io
