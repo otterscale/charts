@@ -4,7 +4,7 @@ OtterScale KServe (LLMInferenceService) has been installed.
 
   Prerequisites:
   - otterscale-envoy-gateway must be installed first
-  - otterscale-envoy-ai-gateway must be installed first
+  - otterscale-ai-envoy-gateway must be installed first
   - otterscale-leader-worker-set must be installed first
   - otterscale-gateway-api-inference-extension must be installed first
 
