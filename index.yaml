@@ -3828,6 +3828,42 @@ entries:
       module.otterscale.io/namespace: kserve
     apiVersion: v2
     appVersion: v0.18.0-rc1
+    created: "2026-04-29T14:07:25.803722767Z"
+    dependencies:
+    - name: kserve-llmisvc-crd
+      repository: oci://ghcr.io/kserve/charts
+      version: v0.18.0-rc1
+    - name: kserve-localmodel-crd
+      repository: oci://ghcr.io/kserve/charts
+      version: v0.18.0-rc1
+    description: KServe LLMInferenceService CRDs — Custom Resource Definitions for
+      KServe LLM inference. Deploys CRDs only.
+    digest: 85e502fe33cff63a57f5b63ad2cbd88988f7db42c2527c95d8867052580ebc67
+    home: https://kserve.github.io/website
+    icon: https://github.com/kserve.png
+    keywords:
+    - kserve
+    - llm
+    - inference
+    - llminferenceservice
+    kubeVersion: '>=1.32.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-kserve-base
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kserve-base-0.1.6/otterscale-kserve-base-0.1.6.tgz
+    version: 0.1.6
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      helm.sh/resource-policy: keep
+      module.otterscale.io/depends-on: otterscale-envoy-gateway,otterscale-envoy-ai-gateway,otterscale-gateway-api-inference-extension,otterscale-leader-worker-set
+      module.otterscale.io/namespace: kserve
+    apiVersion: v2
+    appVersion: v0.18.0-rc1
     created: "2026-04-29T12:20:54.617653891Z"
     dependencies:
     - name: kserve-crd
@@ -4035,6 +4071,40 @@ entries:
     type: application
     urls:
     - https://github.com/otterscale/charts/releases/download/otterscale-kserve-base-0.1.0/otterscale-kserve-base-0.1.0.tgz
+    version: 0.1.0
+  otterscale-kserve-crd:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      helm.sh/resource-policy: keep
+      module.otterscale.io/depends-on: otterscale-envoy-gateway,otterscale-envoy-ai-gateway,otterscale-gateway-api-inference-extension,otterscale-leader-worker-set
+      module.otterscale.io/namespace: kserve
+    apiVersion: v2
+    appVersion: v0.18.0-rc1
+    created: "2026-04-29T14:07:26.062593094Z"
+    dependencies:
+    - name: kserve-crd
+      repository: oci://ghcr.io/kserve/charts
+      version: v0.18.0-rc1
+    description: KServe LLMInferenceService CRDs — Custom Resource Definitions for
+      KServe LLM inference. Deploys CRDs only.
+    digest: 9aad17adfdca9d42ab992a5eb3503ca13387b17a3c0a9eab69d7d381faca1a85
+    home: https://kserve.github.io/website
+    icon: https://github.com/kserve.png
+    keywords:
+    - kserve
+    - llm
+    - inference
+    - llminferenceservice
+    kubeVersion: '>=1.32.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-kserve-crd
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kserve-crd-0.1.0/otterscale-kserve-crd-0.1.0.tgz
     version: 0.1.0
   otterscale-kserve-llmisvc-resource:
   - annotations:
@@ -5866,4 +5936,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-29T12:20:54.617978204Z"
+generated: "2026-04-29T14:07:26.276025258Z"
