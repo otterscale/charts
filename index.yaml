@@ -2992,6 +2992,36 @@ entries:
   otterscale-envoy-gateway:
   - annotations:
       artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: envoy-gateway-system
+    apiVersion: v2
+    appVersion: 1.7.2
+    created: "2026-04-29T06:34:52.852377985Z"
+    dependencies:
+    - name: gateway-helm
+      repository: oci://docker.io/envoyproxy
+      version: 1.7.2
+    description: Envoy Gateway — Kubernetes-native Gateway API implementation powered
+      by Envoy Proxy.
+    digest: 00e0464e7eab65d328b01162a559c10981f848b53dd46d363df6a33e3af802ca
+    home: https://gateway.envoyproxy.io
+    icon: https://github.com/envoyproxy.png
+    keywords:
+    - envoy
+    - gateway-api
+    - ingress
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-envoy-gateway
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-envoy-gateway-0.1.1/otterscale-envoy-gateway-0.1.1.tgz
+    version: 0.1.1
+  - annotations:
+      artifacthub.io/license: Apache-2.0
       module.otterscale.io/depends-on: otterscale-gateway-api
       module.otterscale.io/namespace: envoy-gateway-system
     apiVersion: v2
@@ -3794,6 +3824,42 @@ entries:
   - annotations:
       artifacthub.io/license: Apache-2.0
       helm.sh/resource-policy: keep
+      module.otterscale.io/depends-on: otterscale-envoy-gateway,otterscale-ai-envoy-gateway,otterscale-gateway-api-inference-extension,otterscale-leader-worker-set
+      module.otterscale.io/namespace: kserve
+    apiVersion: v2
+    appVersion: v0.18.0-rc1
+    created: "2026-04-29T06:34:53.00456329Z"
+    dependencies:
+    - name: kserve-llmisvc-crd
+      repository: oci://ghcr.io/kserve/charts
+      version: v0.18.0-rc1
+    - name: kserve-localmodel-crd
+      repository: oci://ghcr.io/kserve/charts
+      version: v0.18.0-rc1
+    description: KServe LLMInferenceService CRDs — Custom Resource Definitions for
+      KServe LLM inference. Deploys CRDs only.
+    digest: 6fd37e6d3f51ab7ac6dbb2467deca62fc8e00ce5c246da84a0d128e47c5e1a3f
+    home: https://kserve.github.io/website
+    icon: https://github.com/kserve.png
+    keywords:
+    - kserve
+    - llm
+    - inference
+    - llminferenceservice
+    kubeVersion: '>=1.32.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-kserve-base
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kserve-base-0.1.2/otterscale-kserve-base-0.1.2.tgz
+    version: 0.1.2
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      helm.sh/resource-policy: keep
       module.otterscale.io/namespace: kserve
     apiVersion: v2
     appVersion: v0.17.0
@@ -3889,7 +3955,75 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/otterscale-kserve-llmisvc-resource-0.1.0/otterscale-kserve-llmisvc-resource-0.1.0.tgz
     version: 0.1.0
+  otterscale-kserve-resource:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-leader-worker-set,otterscale-envoy-gateway,otterscale-envoy-ai-gateway,otterscale-kserve-base
+      module.otterscale.io/namespace: kserve
+    apiVersion: v2
+    appVersion: v0.18.0-rc1
+    created: "2026-04-29T06:34:53.142981154Z"
+    dependencies:
+    - name: kserve-llmisvc-resources
+      repository: oci://ghcr.io/kserve/charts
+      version: v0.18.0-rc1
+    - name: kserve-localmodel-resources
+      repository: oci://ghcr.io/kserve/charts
+      version: v0.18.0-rc1
+    description: KServe LLMInferenceService — Controller and resources for Kubernetes-native
+      distributed LLM inference with llm-d.
+    digest: c38e36c964a92f4058cded4e089208d68c2bfe7e07558ba847676cb110c4463d
+    home: https://kserve.github.io/website
+    icon: https://github.com/kserve.png
+    keywords:
+    - kserve
+    - llm
+    - inference
+    - llminferenceservice
+    kubeVersion: '>=1.32.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-kserve-resource
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kserve-resource-0.1.1/otterscale-kserve-resource-0.1.1.tgz
+    version: 0.1.1
   otterscale-kserve-runtime-configs:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-kserve-resource
+      module.otterscale.io/namespace: kserve
+    apiVersion: v2
+    appVersion: v0.18.0-rc1
+    created: "2026-04-29T06:34:53.294311749Z"
+    dependencies:
+    - name: kserve-runtime-configs
+      repository: oci://ghcr.io/kserve/charts
+      version: v0.18.0-rc1
+    description: KServe LLMInferenceService — Controller and resources for Kubernetes-native
+      distributed LLM inference with llm-d.
+    digest: e4a6c5e1df88a29181c08d135fc32a90a7093e821e6deff5bd41854a7611da3d
+    home: https://kserve.github.io/website
+    icon: https://github.com/kserve.png
+    keywords:
+    - kserve
+    - llm
+    - inference
+    - llminferenceservice
+    kubeVersion: '>=1.32.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-kserve-runtime-configs
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kserve-runtime-configs-0.1.1/otterscale-kserve-runtime-configs-0.1.1.tgz
+    version: 0.1.1
   - annotations:
       artifacthub.io/license: Apache-2.0
       module.otterscale.io/depends-on: otterscale-kserve-llmisvc-resource
@@ -3922,6 +4056,37 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/otterscale-kserve-runtime-configs-0.1.0/otterscale-kserve-runtime-configs-0.1.0.tgz
     version: 0.1.0
+  otterscale-kube-resource-orchestrator:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: kro-system
+    apiVersion: v2
+    appVersion: v0.9.1
+    created: "2026-04-29T06:34:53.431191548Z"
+    dependencies:
+    - name: kro
+      repository: oci://registry.k8s.io/kro/charts
+      version: 0.9.1
+    description: kro (Kube Resource Orchestrator) — define reusable Kubernetes abstractions
+      with ResourceGraphDefinitions and CEL expressions.
+    digest: d0b0b9556f19a9df8b02fbe316d0e9d73f13e656f90384b1fd5fb63c6d951890
+    home: https://kro.run
+    icon: https://github.com/kubernetes-sigs.png
+    keywords:
+    - kro
+    - resource-graph
+    - orchestrator
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: enyao_chang@phison.com
+      name: Zhang, En-Yao
+    name: otterscale-kube-resource-orchestrator
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kube-resource-orchestrator-1.0.0/otterscale-kube-resource-orchestrator-1.0.0.tgz
+    version: 1.0.0
   otterscale-kubevirt:
   - annotations:
       artifacthub.io/license: Apache-2.0
@@ -4168,6 +4333,33 @@ entries:
     - https://github.com/otterscale/charts/releases/download/otterscale-kubevirt-base-0.1.0/otterscale-kubevirt-base-0.1.0.tgz
     version: 0.1.0
   otterscale-leader-worker-set:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: lws-system
+    apiVersion: v2
+    appVersion: 0.8.0
+    created: "2026-04-29T06:34:53.62556193Z"
+    description: LeaderWorkerSet — multi-node pod group orchestration for distributed
+      LLM inference (tensor/pipeline parallelism).
+    digest: 40d57bfe651cc2d7e8d46fa0a078305d263e2e54935c08e753b3730139c749df
+    home: https://lws.sigs.k8s.io
+    icon: https://lws.sigs.k8s.io/images/logo.svg
+    keywords:
+    - lws
+    - leader-worker-set
+    - distributed
+    - inference
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-leader-worker-set
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-leader-worker-set-0.1.1/otterscale-leader-worker-set-0.1.1.tgz
+    version: 0.1.1
   - annotations:
       artifacthub.io/license: Apache-2.0
       module.otterscale.io/namespace: lws-system
@@ -5525,4 +5717,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-27T09:10:05.939124032Z"
+generated: "2026-04-29T06:34:53.625777775Z"
