@@ -1,6 +1,6 @@
 apiVersion: v2
 name: otterscale-leader-worker-set
-version: 0.1.0
+version: 0.1.1
 # renovate: github=kubernetes-sigs/lws
 appVersion: "0.8.0"
 description: >-
