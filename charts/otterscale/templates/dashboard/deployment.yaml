@@ -23,9 +23,6 @@ spec:
     metadata:
       labels:
         {{- include "otterscale.dashboard.selectorLabels" . | nindent 8 }}
-        {{- if and .Values.istio.enabled .Values.istio.sidecarInjection.enabled }}
-        sidecar.istio.io/inject: "true"
-        {{- end }}
         {{- with .Values.dashboard.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

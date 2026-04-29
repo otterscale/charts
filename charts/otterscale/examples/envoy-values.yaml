@@ -1,4 +1,4 @@
-# Example: Gateway API HTTPRoute with Istio
+# Example: Gateway API HTTPRoute with Envoy Gateway
 # All services are accessed through a single IP via path-based routing.
 #
 # Usage:
@@ -21,18 +21,10 @@ storage:
   localPath:
     enabled: true
 
-istio:
+envoy:
   enabled: true
   gateway:
     name: gateway
-    namespace: istio-ingress
+    namespace: envoy-gateway-system
 
-# Inject Istio sidecar into subchart pods for mTLS.
-# Required when PeerAuthentication is set to STRICT.
-keycloakx:
-  podLabels:
-    sidecar.istio.io/inject: "true"
-
-dashboard-valkey:
-  podLabels:
-    sidecar.istio.io/inject: "true"
+# Envoy Gateway does not require sidecar injection.

@@ -8,11 +8,11 @@ global:
 
 externalURL: "https://10.0.0.1"
 
-istio:
+envoy:
   enabled: true
   gateway:
     name: gateway
-    namespace: istio-ingress
+    namespace: envoy-gateway-system
   tls:
     enabled: true
     existingSecret: otterscale-tls

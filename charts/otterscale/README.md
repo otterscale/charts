@@ -9,7 +9,7 @@ A unified platform for simplified compute, storage, and networking.
 
 - Kubernetes >= 1.25.0
 - Helm >= 3.10.0
-- (Optional) NGINX Ingress Controller or Istio service mesh
+- (Optional) NGINX Ingress Controller or Envoy Gateway
 
 **Components:**
 
@@ -113,21 +113,21 @@ Access:
 - API: `http://192.168.1.100/api/`
 - Keycloak: `http://192.168.1.100/auth/`
 
-### 3. Istio Service Mesh
+### 3. Envoy Gateway
 
-Full service mesh with mTLS, traffic management, and observability.
+Gateway API integration using Envoy Gateway for routing and TLS termination.
 
 ```yaml
 dashboard:
   externalURL: "https://192.168.1.100"
 
-istio:
+envoy:
   enabled: true
   tls:
     existingSecret: "otterscale-tls"
   gateway:
     name: "my-gateway"
-    namespace: "istio-ingress"
+    namespace: "envoy-gateway-system"
 ```
 
 ## Local Development with KIND
@@ -305,21 +305,20 @@ http://192.168.1.100/auth/      -> Keycloak
 | `ingress.hosts[].paths[].rewrite` | Strip path prefix before forwarding | `false`                        |
 | `ingress.tls`                     | TLS configuration                   | `[]`                           |
 
-### Istio (Gateway API)
+### Envoy Gateway (Gateway API)
 
-> **Prerequisites:** Istio uses the [Kubernetes Gateway API](https://gateway-api.sigs.k8s.io/).
-> Install the Gateway API CRDs before enabling Istio integration:
+> **Prerequisites:** Envoy Gateway uses the [Kubernetes Gateway API](https://gateway-api.sigs.k8s.io/).
+> Install Envoy Gateway CRDs before enabling integration:
 
-| Parameter                        | Description                                 | Default           |
-| -------------------------------- | ------------------------------------------- | ----------------- |
-| `istio.enabled`                  | Enable Istio integration (Gateway API)      | `false`           |
-| `istio.sidecarInjection.enabled` | Inject Istio sidecar                        | `true`            |
-| `istio.httpRoute.enabled`        | Create Gateway API HTTPRoute                | `true`            |
-| `istio.httpRoute.hostnames`      | Hostnames for HTTPRoute (subset of Gateway) | `[]`              |
-| `istio.tls.enabled`              | Enable TLS termination at the Gateway       | `false`           |
-| `istio.tls.existingSecret`       | TLS Secret for Gateway                      | `""`              |
-| `istio.gateway.name`             | Name of existing Gateway resource           | `"gateway"`       |
-| `istio.gateway.namespace`        | Namespace of existing Gateway               | `"istio-ingress"` |
+| Parameter                        | Description                                 | Default                   |
+| -------------------------------- | ------------------------------------------- | ------------------------- |
+| `envoy.enabled`                  | Enable Envoy Gateway integration            | `false`                   |
+| `envoy.httpRoute.enabled`        | Create Gateway API HTTPRoute                | `true`                    |
+| `envoy.httpRoute.hostnames`      | Hostnames for HTTPRoute (subset of Gateway) | `[]`                      |
+| `envoy.tls.enabled`              | Enable TLS termination at the Gateway       | `false`                   |
+| `envoy.tls.existingSecret`       | TLS Secret for Gateway                      | `""`                      |
+| `envoy.gateway.name`             | Name of existing Gateway resource           | `"gateway"`               |
+| `envoy.gateway.namespace`        | Namespace of existing Gateway               | `"envoy-gateway-system"` |
 
 ### Keycloak
 
