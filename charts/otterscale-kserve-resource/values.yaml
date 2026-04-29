@@ -3,3 +3,5 @@ kserve-llmisvc-resources:
     controller:
       llmisvc:
         enabled: true
+    localModel:
+      enabled: true
