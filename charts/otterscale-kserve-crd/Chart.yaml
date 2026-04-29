@@ -1,11 +1,11 @@
 apiVersion: v2
-name: otterscale-kserve-resource
-version: 0.1.2
+name: otterscale-kserve-crd
+version: 0.1.0
 # renovate: helm=kserve registry=oci://ghcr.io/kserve/charts
 appVersion: "v0.18.0-rc1"
 description: >-
-  KServe LLMInferenceService — Controller and resources
-  for Kubernetes-native distributed LLM inference with llm-d.
+  KServe LLMInferenceService CRDs — Custom Resource Definitions for KServe LLM inference.
+  Deploys CRDs only.
 home: https://kserve.github.io/website
 icon: https://github.com/kserve.png
 sources:
@@ -20,15 +20,12 @@ keywords:
   - llminferenceservice
 type: application
 kubeVersion: ">=1.32.0-0"
-# Note: CRD chart should be installed separately before this chart
 dependencies:
-  - name: kserve-llmisvc-resources
-    version: v0.18.0-rc1
-    repository: oci://ghcr.io/kserve/charts
-  - name: kserve-localmodel-resources
+  - name: kserve-crd
     version: v0.18.0-rc1
     repository: oci://ghcr.io/kserve/charts
 annotations:
-  module.otterscale.io/depends-on: "otterscale-leader-worker-set,otterscale-envoy-gateway,otterscale-envoy-ai-gateway,otterscale-kserve-base,otterscale-kserve-crd"
+  module.otterscale.io/depends-on: "otterscale-envoy-gateway,otterscale-envoy-ai-gateway,otterscale-gateway-api-inference-extension,otterscale-leader-worker-set"
   module.otterscale.io/namespace: "kserve"
   artifacthub.io/license: Apache-2.0
+  helm.sh/resource-policy: keep
