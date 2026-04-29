@@ -562,7 +562,7 @@ keycloakx:
       pullPolicy: IfNotPresent
     persistence:
       enabled: true
-      storageClassName: ""
+      storageClassName: "otterscale-local-path"
       accessMode: ReadWriteOnce
       size: 5Gi
     # -- Resource requests and limits for the Keycloak PostgreSQL container.
