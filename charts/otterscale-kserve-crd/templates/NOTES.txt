@@ -1,0 +1,5 @@
+KServe CRDs have been installed.
+
+These are the Custom Resource Definitions for KServe LLMInferenceService.
+
+The KServe resources chart should be installed separately.

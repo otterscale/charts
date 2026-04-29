@@ -1,6 +1,6 @@
 apiVersion: v2
-name: otterscale-kserve-runtime-configs
-version: 0.1.1
+name: otterscale-kserve-resource
+version: 0.1.2
 # renovate: helm=kserve registry=oci://ghcr.io/kserve/charts
 appVersion: "v0.18.0-rc1"
 description: >-
@@ -22,10 +22,13 @@ type: application
 kubeVersion: ">=1.32.0-0"
 # Note: CRD chart should be installed separately before this chart
 dependencies:
-  - name: kserve-runtime-configs
+  - name: kserve-llmisvc-resources
+    version: v0.18.0-rc1
+    repository: oci://ghcr.io/kserve/charts
+  - name: kserve-localmodel-resources
     version: v0.18.0-rc1
     repository: oci://ghcr.io/kserve/charts
 annotations:
-  module.otterscale.io/depends-on: "otterscale-kserve-resource"
+  module.otterscale.io/depends-on: "otterscale-leader-worker-set,otterscale-envoy-gateway,otterscale-envoy-ai-gateway,otterscale-kserve-base,otterscale-kserve-crd"
   module.otterscale.io/namespace: "kserve"
   artifacthub.io/license: Apache-2.0

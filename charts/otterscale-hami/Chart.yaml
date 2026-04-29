@@ -1,8 +1,8 @@
 apiVersion: v2
 name: otterscale-hami
-version: 1.0.4
+version: 1.0.5
 # renovate: helm=hami registry=https://project-hami.github.io/HAMi/
-appVersion: "2.8.1"
+appVersion: "2.8.0"
 description: >-
   HAMI — GPU sharing (vGPU) with device split, memory/core scaling.
   Integrates with NVIDIA GPU Operator.
@@ -26,5 +26,5 @@ annotations:
   artifacthub.io/license: Apache-2.0
 dependencies:
   - name: hami
-    version: 2.8.1
+    version: 2.8.0
     repository: https://project-hami.github.io/HAMi/
