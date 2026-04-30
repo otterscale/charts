@@ -1,6 +1,6 @@
 apiVersion: v2
 name: otterscale-kserve-crd
-version: 0.1.0
+version: 0.1.1
 # renovate: helm=kserve registry=oci://ghcr.io/kserve/charts
 appVersion: "v0.18.0"
 description: >-
