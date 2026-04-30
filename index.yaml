@@ -3228,6 +3228,37 @@ entries:
       module.otterscale.io/depends-on: otterscale-prometheus
       module.otterscale.io/namespace: gpu-operator
     apiVersion: v2
+    appVersion: 26.3.1
+    created: "2026-04-30T03:36:24.556321584Z"
+    dependencies:
+    - name: gpu-operator
+      repository: https://nvidia.github.io/gpu-operator
+      version: 26.3.1
+    description: NVIDIA GPU Operator — drivers, DCGM, DCGM Exporter, Node Status Exporter.
+      Device plugin disabled for use with HAMI vGPU.
+    digest: 2e4970ef651e845a5412cd6c1035da5df35cd8c5b1c4b2c443a498ed9b7f5dde
+    home: https://github.com/NVIDIA/gpu-operator
+    icon: https://github.com/NVIDIA.png
+    keywords:
+    - gpu
+    - nvidia
+    - operator
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-gpu-operator
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-gpu-operator-1.1.0/otterscale-gpu-operator-1.1.0.tgz
+    version: 1.1.0
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-prometheus
+      module.otterscale.io/namespace: gpu-operator
+    apiVersion: v2
     appVersion: 26.3.0
     created: "2026-04-10T03:28:13.684813395Z"
     dependencies:
@@ -3347,6 +3378,38 @@ entries:
     - https://github.com/otterscale/charts/releases/download/otterscale-gpu-operator-0.1.0/otterscale-gpu-operator-0.1.0.tgz
     version: 0.1.0
   otterscale-hami:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-gpu-operator
+      module.otterscale.io/namespace: kube-system
+    apiVersion: v2
+    appVersion: 2.8.0
+    created: "2026-04-30T03:36:24.741480474Z"
+    dependencies:
+    - name: hami
+      repository: https://project-hami.github.io/HAMi/
+      version: 2.8.0
+    description: HAMI — GPU sharing (vGPU) with device split, memory/core scaling.
+      Integrates with NVIDIA GPU Operator.
+    digest: 4a99d5617464ae947bbbd6371976ed3cf034cf9cb120dd0ff38b46b2881f4f85
+    home: https://github.com/Project-HAMi/HAMi
+    icon: https://github.com/Project-HAMi.png
+    keywords:
+    - gpu
+    - vgpu
+    - hami
+    - sharing
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-hami
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-hami-1.1.0/otterscale-hami-1.1.0.tgz
+    version: 1.1.0
   - annotations:
       artifacthub.io/license: Apache-2.0
       module.otterscale.io/depends-on: otterscale-gpu-operator
@@ -3888,6 +3951,42 @@ entries:
       module.otterscale.io/depends-on: otterscale-envoy-gateway,otterscale-envoy-ai-gateway,otterscale-gateway-api-inference-extension,otterscale-leader-worker-set
       module.otterscale.io/namespace: kserve
     apiVersion: v2
+    appVersion: v0.18.0
+    created: "2026-04-30T03:36:24.922122649Z"
+    dependencies:
+    - name: kserve-llmisvc-crd
+      repository: oci://ghcr.io/kserve/charts
+      version: v0.18.0
+    - name: kserve-localmodel-crd
+      repository: oci://ghcr.io/kserve/charts
+      version: v0.18.0
+    description: KServe LLMInferenceService CRDs — Custom Resource Definitions for
+      KServe LLM inference. Deploys CRDs only.
+    digest: 997502a7a95f8d96aa21a88b8cc44b38dda47dbb0b961b869447aa6125e314f6
+    home: https://kserve.github.io/website
+    icon: https://github.com/kserve.png
+    keywords:
+    - kserve
+    - llm
+    - inference
+    - llminferenceservice
+    kubeVersion: '>=1.32.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-kserve-base
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kserve-base-0.1.7/otterscale-kserve-base-0.1.7.tgz
+    version: 0.1.7
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      helm.sh/resource-policy: keep
+      module.otterscale.io/depends-on: otterscale-envoy-gateway,otterscale-envoy-ai-gateway,otterscale-gateway-api-inference-extension,otterscale-leader-worker-set
+      module.otterscale.io/namespace: kserve
+    apiVersion: v2
     appVersion: v0.18.0-rc1
     created: "2026-04-29T14:07:25.803722767Z"
     dependencies:
@@ -4140,6 +4239,39 @@ entries:
       module.otterscale.io/depends-on: otterscale-envoy-gateway,otterscale-envoy-ai-gateway,otterscale-gateway-api-inference-extension,otterscale-leader-worker-set
       module.otterscale.io/namespace: kserve
     apiVersion: v2
+    appVersion: v0.18.0
+    created: "2026-04-30T03:36:25.082227171Z"
+    dependencies:
+    - name: kserve-crd
+      repository: oci://ghcr.io/kserve/charts
+      version: v0.18.0
+    description: KServe LLMInferenceService CRDs — Custom Resource Definitions for
+      KServe LLM inference. Deploys CRDs only.
+    digest: 57d4c4f31b44f40187c23acdc285bfb0450d822c86faca7be21960edbfaa9ec7
+    home: https://kserve.github.io/website
+    icon: https://github.com/kserve.png
+    keywords:
+    - kserve
+    - llm
+    - inference
+    - llminferenceservice
+    kubeVersion: '>=1.32.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-kserve-crd
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kserve-crd-0.1.1/otterscale-kserve-crd-0.1.1.tgz
+    version: 0.1.1
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      helm.sh/resource-policy: keep
+      module.otterscale.io/depends-on: otterscale-envoy-gateway,otterscale-envoy-ai-gateway,otterscale-gateway-api-inference-extension,otterscale-leader-worker-set
+      module.otterscale.io/namespace: kserve
+    apiVersion: v2
     appVersion: v0.18.0-rc1
     created: "2026-04-29T14:07:26.062593094Z"
     dependencies:
@@ -4201,6 +4333,41 @@ entries:
     - https://github.com/otterscale/charts/releases/download/otterscale-kserve-llmisvc-resource-0.1.0/otterscale-kserve-llmisvc-resource-0.1.0.tgz
     version: 0.1.0
   otterscale-kserve-resource:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-leader-worker-set,otterscale-envoy-gateway,otterscale-envoy-ai-gateway,otterscale-kserve-base,otterscale-kserve-crd
+      module.otterscale.io/namespace: kserve
+    apiVersion: v2
+    appVersion: v0.18.0
+    created: "2026-04-30T03:36:25.254539524Z"
+    dependencies:
+    - name: kserve-llmisvc-resources
+      repository: oci://ghcr.io/kserve/charts
+      version: v0.18.0
+    - name: kserve-localmodel-resources
+      repository: oci://ghcr.io/kserve/charts
+      version: v0.18.0
+    description: KServe LLMInferenceService — Controller and resources for Kubernetes-native
+      distributed LLM inference with llm-d.
+    digest: 2ae03059bd46ba13bec4d3e80051a65078d52f2c056b86c45779d20557dfa7d4
+    home: https://kserve.github.io/website
+    icon: https://github.com/kserve.png
+    keywords:
+    - kserve
+    - llm
+    - inference
+    - llminferenceservice
+    kubeVersion: '>=1.32.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-kserve-resource
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kserve-resource-0.1.3/otterscale-kserve-resource-0.1.3.tgz
+    version: 0.1.3
   - annotations:
       artifacthub.io/license: Apache-2.0
       module.otterscale.io/depends-on: otterscale-leader-worker-set,otterscale-envoy-gateway,otterscale-envoy-ai-gateway,otterscale-kserve-base
@@ -4277,6 +4444,38 @@ entries:
       module.otterscale.io/depends-on: otterscale-kserve-resource
       module.otterscale.io/namespace: kserve
     apiVersion: v2
+    appVersion: v0.18.0
+    created: "2026-04-30T03:36:25.440873057Z"
+    dependencies:
+    - name: kserve-runtime-configs
+      repository: oci://ghcr.io/kserve/charts
+      version: v0.18.0
+    description: KServe LLMInferenceService — Controller and resources for Kubernetes-native
+      distributed LLM inference with llm-d.
+    digest: dfda6a05b51115c15925ac4fb32fee8b3bd27a7346468d5fa0f5770ad47abe46
+    home: https://kserve.github.io/website
+    icon: https://github.com/kserve.png
+    keywords:
+    - kserve
+    - llm
+    - inference
+    - llminferenceservice
+    kubeVersion: '>=1.32.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-kserve-runtime-configs
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kserve-runtime-configs-0.1.2/otterscale-kserve-runtime-configs-0.1.2.tgz
+    version: 0.1.2
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-kserve-resource
+      module.otterscale.io/namespace: kserve
+    apiVersion: v2
     appVersion: v0.18.0-rc1
     created: "2026-04-29T06:34:53.294311749Z"
     dependencies:
@@ -4342,6 +4541,36 @@ entries:
       module.otterscale.io/namespace: kro-system
     apiVersion: v2
     appVersion: v0.9.1
+    created: "2026-04-30T03:36:25.59402016Z"
+    dependencies:
+    - name: kro
+      repository: oci://registry.k8s.io/kro/charts
+      version: 0.9.1
+    description: kro (Kube Resource Orchestrator) — define reusable Kubernetes abstractions
+      with ResourceGraphDefinitions and CEL expressions.
+    digest: 3b49b719d8325d3edda52a947930ec4027514e5187b0681d01d2c6dd98342896
+    home: https://kro.run
+    icon: https://github.com/kubernetes-sigs.png
+    keywords:
+    - kro
+    - resource-graph
+    - orchestrator
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: enyao_chang@phison.com
+      name: Zhang, En-Yao
+    name: otterscale-kube-resource-orchestrator
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kube-resource-orchestrator-1.1.0/otterscale-kube-resource-orchestrator-1.1.0.tgz
+    version: 1.1.0
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: kro-system
+    apiVersion: v2
+    appVersion: v0.9.1
     created: "2026-04-29T06:34:53.431191548Z"
     dependencies:
     - name: kro
@@ -4368,6 +4597,33 @@ entries:
     - https://github.com/otterscale/charts/releases/download/otterscale-kube-resource-orchestrator-1.0.0/otterscale-kube-resource-orchestrator-1.0.0.tgz
     version: 1.0.0
   otterscale-kubevirt:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-kubevirt-base,otterscale-prometheus
+      module.otterscale.io/namespace: kubevirt
+    apiVersion: v2
+    appVersion: 1.8.2
+    created: "2026-04-30T03:36:25.747686027Z"
+    description: KubeVirt Operator — enables Kubernetes to manage VMs natively. Deploys
+      KubeVirt operator and KubeVirt custom resource.
+    digest: c3f8f9716cece472b13a19db4f8e6784563df712c3f916eee8e3d364b162dd49
+    home: https://kubevirt.io
+    icon: https://github.com/kubevirt.png
+    keywords:
+    - kubevirt
+    - virtualization
+    - vm
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-kubevirt
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kubevirt-1.1.0/otterscale-kubevirt-1.1.0.tgz
+    version: 1.1.0
   - annotations:
       artifacthub.io/license: Apache-2.0
       module.otterscale.io/depends-on: otterscale-kubevirt-base,otterscale-prometheus
@@ -4531,6 +4787,33 @@ entries:
     - https://github.com/otterscale/charts/releases/download/otterscale-kubevirt-0.1.0/otterscale-kubevirt-0.1.0.tgz
     version: 0.1.0
   otterscale-kubevirt-base:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      helm.sh/resource-policy: keep
+      meta.helm.sh/release-name: kubevirt-crd
+    apiVersion: v2
+    appVersion: 1.8.2
+    created: "2026-04-30T03:36:25.903409056Z"
+    description: KubeVirt CRDs — Custom Resource Definitions for KubeVirt. Deploys
+      namespace and CRDs only.
+    digest: c4ef308e4c879602a0b361f5c79f8617777ccbfd810f306394ec4a738bf22f10
+    home: https://kubevirt.io
+    icon: https://github.com/kubevirt.png
+    keywords:
+    - kubevirt
+    - virtualization
+    - vm
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-kubevirt-base
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kubevirt-base-1.1.0/otterscale-kubevirt-base-1.1.0.tgz
+    version: 1.1.0
   - annotations:
       artifacthub.io/license: Apache-2.0
       helm.sh/resource-policy: keep
@@ -4930,6 +5213,36 @@ entries:
       module.otterscale.io/namespace: node-feature-discovery
     apiVersion: v2
     appVersion: 0.18.3
+    created: "2026-04-30T03:36:26.066011213Z"
+    dependencies:
+    - name: node-feature-discovery
+      repository: oci://registry.k8s.io/nfd/charts
+      version: 0.18.3
+    description: Wraps upstream node-feature-discovery (Helm dependency) plus a DaemonSet
+      that runs a host script to refresh NFD local feature files under features.d.
+    digest: 7c10c7a6cfc53ac10d5a7539323dbb693d952368fbc63c7abf6f6ed0d1536812
+    home: https://github.com/kubernetes-sigs/node-feature-discovery
+    icon: https://kubernetes-sigs.github.io/node-feature-discovery/v0.18/assets/images/nfd/favicon.svg
+    keywords:
+    - node-feature-discovery
+    - nfd
+    - labels
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-node-feature-discovery
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-node-feature-discovery-1.1.0/otterscale-node-feature-discovery-1.1.0.tgz
+    version: 1.1.0
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: node-feature-discovery
+    apiVersion: v2
+    appVersion: 0.18.3
     created: "2026-04-09T03:25:08.677407089Z"
     dependencies:
     - name: node-feature-discovery
@@ -5170,6 +5483,36 @@ entries:
       artifacthub.io/license: Apache-2.0
       module.otterscale.io/namespace: monitoring
     apiVersion: v2
+    appVersion: 84.3.0
+    created: "2026-04-30T03:36:26.29421874Z"
+    dependencies:
+    - name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 84.3.0
+    description: kube-prometheus-stack — Prometheus, Alertmanager, Node Exporter.
+      Grafana disabled; persistent storage with remote-write receiver.
+    digest: 2fe7cb1cfbc353dd89c61fab0ed7ef8fdf0d0d91f3d5814e849d676a526822b4
+    home: https://github.com/prometheus-community/helm-charts
+    icon: https://github.com/prometheus.png
+    keywords:
+    - prometheus
+    - monitoring
+    - alertmanager
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-prometheus
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-prometheus-1.1.0/otterscale-prometheus-1.1.0.tgz
+    version: 1.1.0
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: monitoring
+    apiVersion: v2
     appVersion: 82.16.0
     created: "2026-04-01T08:26:03.811707754Z"
     dependencies:
@@ -5257,6 +5600,36 @@ entries:
     - https://github.com/otterscale/charts/releases/download/otterscale-prometheus-0.1.0/otterscale-prometheus-0.1.0.tgz
     version: 0.1.0
   otterscale-rook-ceph:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: rook-ceph
+    apiVersion: v2
+    appVersion: 1.19.4
+    created: "2026-04-30T03:36:26.490264526Z"
+    dependencies:
+    - name: rook-ceph
+      repository: https://charts.rook.io/release
+      version: 1.19.4
+    description: 'Rook-Ceph Operator — Phase 1: CRDs + Operator deployment. Create
+      CephCluster separately.'
+    digest: 4691c0bd931900ff1181d5ec973af20738bed8ab8c1ee96680baec308dc48229
+    home: https://rook.io
+    icon: https://github.com/rook.png
+    keywords:
+    - rook
+    - ceph
+    - storage
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-rook-ceph
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-rook-ceph-1.1.0/otterscale-rook-ceph-1.1.0.tgz
+    version: 1.1.0
   - annotations:
       artifacthub.io/license: Apache-2.0
       module.otterscale.io/namespace: rook-ceph
@@ -5408,6 +5781,38 @@ entries:
     - https://github.com/otterscale/charts/releases/download/otterscale-rook-ceph-0.1.0/otterscale-rook-ceph-0.1.0.tgz
     version: 0.1.0
   otterscale-rook-ceph-cluster:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-rook-ceph,otterscale-node-feature-discovery
+      module.otterscale.io/namespace: rook-ceph
+    apiVersion: v2
+    appVersion: 1.19.4
+    created: "2026-04-30T03:36:26.7116047Z"
+    dependencies:
+    - name: rook-ceph-cluster
+      repository: https://charts.rook.io/release
+      version: 1.19.4
+    description: 'Rook-Ceph Cluster — Phase 2: CephCluster, CephBlockPool, CephFilesystem,
+      StorageClass provisioning. Requires otterscale-rook-ceph operator first.'
+    digest: c8f829eda60358bb7610c67cf36e2e331e594bc020f772955b53a24a7f021d33
+    home: https://rook.io
+    icon: https://github.com/rook.png
+    keywords:
+    - rook
+    - ceph
+    - storage
+    - cluster
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-rook-ceph-cluster
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-rook-ceph-cluster-1.1.0/otterscale-rook-ceph-cluster-1.1.0.tgz
+    version: 1.1.0
   - annotations:
       artifacthub.io/license: Apache-2.0
       module.otterscale.io/depends-on: otterscale-rook-ceph,otterscale-node-feature-discovery
@@ -5997,4 +6402,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-04-30T02:34:06.755200846Z"
+generated: "2026-04-30T03:36:26.711959622Z"
