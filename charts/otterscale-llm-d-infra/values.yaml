@@ -1,4 +1,0 @@
-llm-d-infra:
-  gateway:
-    service:
-      type: NodePort
