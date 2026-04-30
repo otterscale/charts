@@ -61,7 +61,7 @@ spec:
               protocol: TCP
           env:
             - name: PUBLIC_APP_VERSION
-              value: {{ .Chart.AppVersion | quote }}
+              value: {{ .Chart.AppVersion | splitList "-" | first | quote }}
             {{- with .Values.dashboard.env }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
