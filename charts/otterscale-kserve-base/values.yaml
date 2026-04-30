@@ -1,4 +1,0 @@
-kserve-llmisvc-crd:
-  kserver:
-    storagecontainer:
-      enabled: false

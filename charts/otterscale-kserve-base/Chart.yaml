@@ -28,7 +28,7 @@ dependencies:
     version: v0.18.0
     repository: oci://ghcr.io/kserve/charts
 annotations:
-  module.otterscale.io/depends-on: "otterscale-envoy-gateway,otterscale-envoy-ai-gateway,otterscale-gateway-api-inference-extension,otterscale-leader-worker-set"
+  module.otterscale.io/depends-on: "otterscale-envoy-gateway,otterscale-envoy-ai-gateway,otterscale-leader-worker-set"
   module.otterscale.io/namespace: "kserve"
   artifacthub.io/license: Apache-2.0
   helm.sh/resource-policy: keep
