@@ -1,0 +1,5 @@
+Envoy AI Gateway CRDs have been installed.
+
+These are the Custom Resource Definitions for Envoy AI Gateway.
+
+The otterscale-envoy-ai-gateway chart should be installed separately.
