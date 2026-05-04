@@ -1,0 +1,67 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+  name: kro-task-admin-role
+rules:
+  - apiGroups:
+      - kro.run
+    resources:
+      - tasks
+    verbs:
+      - "*"
+  - apiGroups:
+      - kro.run
+    resources:
+      - tasks/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+  name: kro-task-editor-role
+rules:
+  - apiGroups:
+      - kro.run
+    resources:
+      - tasks
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - kro.run
+    resources:
+      - tasks/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+  name: kro-task-viewer-role
+rules:
+  - apiGroups:
+      - kro.run
+    resources:
+      - tasks
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - kro.run
+    resources:
+      - tasks/status
+    verbs:
+      - get
