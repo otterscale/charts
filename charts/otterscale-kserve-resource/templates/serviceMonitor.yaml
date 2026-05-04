@@ -11,6 +11,11 @@ spec:
     interval: 15s
     path: /metrics
     port: https
+    relabelings:
+    - action: replace
+      sourceLabels:
+      - __meta_kubernetes_service_label_app_kubernetes_io_name
+      targetLabel: llm_inference_service
     scrapeTimeout: 15s
   namespaceSelector:
     any: true
