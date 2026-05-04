@@ -4,7 +4,7 @@ metadata:
   name: kserve-ingress-gateway
   namespace: {{ .Release.Namespace }}
 spec:
-  gatewayClassName: envoy-ai
+  gatewayClassName: envoy
   listeners:
     - name: http
       protocol: HTTP
@@ -12,3 +12,8 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
+  infrastructure:
+    parametersRef:
+      group: gateway.envoyproxy.io
+      kind: EnvoyProxy
+      name: kserve-envoyproxy
