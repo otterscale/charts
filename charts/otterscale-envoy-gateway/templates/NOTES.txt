@@ -2,15 +2,12 @@ OtterScale Envoy Gateway has been installed.
 
   Namespace: {{ .Release.Namespace }}
 
-  Prerequisites:
-  - otterscale-gateway-api must be installed first
-
   Components:
   - Envoy Gateway controller
-  - GatewayClass: envoy-gateway
+  - GatewayClass: envoy
+  - Gateway: gateway
 
   Next steps:
-  - Create a Gateway resource referencing the GatewayClass
   - Install otterscale-envoy-ai-gateway for AI/ML inference routing
 
   Verify:
