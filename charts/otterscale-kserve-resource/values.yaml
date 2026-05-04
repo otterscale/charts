@@ -9,3 +9,7 @@ kserve-llmisvc-resources:
 envoyProxy:
   # LoadBalancer / ClusterIP / NodePort
   type: NodePort
+
+prometheus:
+  serviceMonitor: 
+    enabled: true
