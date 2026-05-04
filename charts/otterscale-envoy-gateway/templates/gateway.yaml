@@ -4,7 +4,7 @@ metadata:
   name: envoy-gateway
   namespace: {{ .Release.Namespace }}
 spec:
-  gatewayClassName: envoy-gatewayclass
+  gatewayClassName: envoy
   listeners:
     - name: http
       protocol: HTTP
