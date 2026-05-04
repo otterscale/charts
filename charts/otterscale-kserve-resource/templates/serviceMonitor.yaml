@@ -1,0 +1,21 @@
+{{- if .Values.prometheus.serviceMonitor -}}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: kserve-llmisvc
+  namespace: kserve
+spec:
+  endpoints:
+  - honorLabels: false
+    honorTimestamps: false
+    interval: 15s
+    path: /metrics
+    port: https
+    scrapeTimeout: 15s
+  namespaceSelector:
+    any: true
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: llminferenceservice-workload
+      app.kubernetes.io/part-of: llminferenceservice
+{{- end }}
