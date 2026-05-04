@@ -1,10 +1,10 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: kserve-ingress-gateway
+  name: envoy-gateway
   namespace: {{ .Release.Namespace }}
 spec:
-  gatewayClassName: envoy
+  gatewayClassName: envoy-gatewayclass
   listeners:
     - name: http
       protocol: HTTP
@@ -12,9 +12,3 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
-  infrastructure:
-    parametersRef:
-      group: gateway.envoyproxy.io
-      kind: EnvoyProxy
-      name: kserve-envoyproxy
-      namespace: {{ .Release.Namespace }}
