@@ -2,6 +2,10 @@
 # https://raw.githubusercontent.com/envoyproxy/ai-gateway/v0.5.0/examples/inference-pool/envoy-gateway-values-addon.yaml
 
 gateway-helm:
+  deployment:
+    pod:
+      annotations:
+        module.otterscale.io/ai-gateway: enabled
   config:
     envoyGateway:
       gateway:
