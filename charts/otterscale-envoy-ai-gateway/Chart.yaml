@@ -1,6 +1,6 @@
 apiVersion: v2
 name: otterscale-envoy-ai-gateway
-version: 1.1.2
+version: 1.1.3
 # renovate: helm=ai-gateway-helm registry=oci://docker.io/envoyproxy
 appVersion: "0.5.0"
 description: >-
@@ -21,7 +21,7 @@ keywords:
 type: application
 kubeVersion: ">=1.25.0-0"
 annotations:
-  module.otterscale.io/depends-on: "otterscale-envoy-gateway,otterscale-envoy-ai-gateway-base"
+  module.otterscale.io/depends-on: "otterscale-envoy-gateway,otterscale-envoy-ai-gateway-base,otterscale-kserve-resource"
   module.otterscale.io/namespace: "envoy-ai-gateway-system"
   artifacthub.io/license: Apache-2.0
 dependencies:
