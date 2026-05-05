@@ -5,11 +5,13 @@ kserve-llmisvc-resources:
         enabled: true
     localmodel:
       enabled: true
+    storage:
+      uidModelcar: 2000
 
 envoyProxy:
   # LoadBalancer / ClusterIP / NodePort
   type: NodePort
 
 prometheus:
-  serviceMonitor: 
+  serviceMonitor:
     enabled: true
