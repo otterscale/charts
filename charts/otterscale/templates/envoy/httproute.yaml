@@ -54,4 +54,7 @@ spec:
     backendRefs:
     - name: {{ include "otterscale.dashboard.fullname" $ }}
       port: {{ .Values.dashboard.ports.http }}
+    timeouts:
+      backendRequest: 0s
+      request: 0s
 {{- end }}
