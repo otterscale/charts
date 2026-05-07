@@ -17,7 +17,8 @@ rook-ceph-cluster:
       provider: host
     storage:
       useAllNodes: true
-      useAllDevices: true
+      useAllDevices: false
+      devicePathFilter: "^/dev/disk/by-rook/.*"
     disruptionManagement:
       managePodBudgets: false
 
