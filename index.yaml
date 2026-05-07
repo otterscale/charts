@@ -7074,6 +7074,38 @@ entries:
       module.otterscale.io/namespace: rook-ceph
     apiVersion: v2
     appVersion: 1.19.5
+    created: "2026-05-07T07:46:53.150162537Z"
+    dependencies:
+    - name: rook-ceph-cluster
+      repository: https://charts.rook.io/release
+      version: 1.19.5
+    description: 'Rook-Ceph Cluster — Phase 2: CephCluster, CephBlockPool, CephFilesystem,
+      StorageClass provisioning. Requires otterscale-rook-ceph operator first.'
+    digest: a7db6f575e8b5978a043188b92981442bf4c6f95b65d2238232775e399ee821c
+    home: https://rook.io
+    icon: https://github.com/rook.png
+    keywords:
+    - rook
+    - ceph
+    - storage
+    - cluster
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-rook-ceph-cluster
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-rook-ceph-cluster-1.1.2/otterscale-rook-ceph-cluster-1.1.2.tgz
+    version: 1.1.2
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-rook-ceph,otterscale-node-feature-discovery
+      module.otterscale.io/namespace: rook-ceph
+    apiVersion: v2
+    appVersion: 1.19.5
     created: "2026-05-04T09:56:32.488840698Z"
     dependencies:
     - name: rook-ceph-cluster
@@ -7721,4 +7753,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-05-07T02:54:06.566574661Z"
+generated: "2026-05-07T07:46:53.150567154Z"
