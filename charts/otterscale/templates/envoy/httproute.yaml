@@ -32,6 +32,9 @@ spec:
     backendRefs:
     - name: {{ include "otterscale.keycloakx.serviceName" . }}
       port: {{ .Values.keycloakx.service.port }}
+    timeouts:
+      backendRequest: 0s
+      request: 0s
   {{- end }}
   # ---- OtterScale routes ----
   - matches:
@@ -47,6 +50,9 @@ spec:
     backendRefs:
     - name: {{ include "otterscale.server.fullname" $ }}
       port: {{ .Values.server.ports.http }}
+    timeouts:
+      backendRequest: 0s
+      request: 0s
   - matches:
     - path:
         type: PathPrefix
