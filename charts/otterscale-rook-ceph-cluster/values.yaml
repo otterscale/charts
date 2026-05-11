@@ -110,7 +110,3 @@ rook-ceph-cluster:
   # -- Enable monitoring with Prometheus and Grafana
   monitoring:
     enabled: true
-
-# -- NodePort Service for ObjectStore RGW
-objectstoreService:
-  enabled: true
