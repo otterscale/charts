@@ -12,7 +12,7 @@ spec:
   rules:
     - backendRefs:
         - name: rook-ceph-rgw-ceph-objectstore
-          port: 80
+          port: 8301
       matches:
         - path:
             type: PathPrefix
