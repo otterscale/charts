@@ -1,7 +1,7 @@
 apiVersion: v2
 name: otterscale
 appVersion: SXHR0101-0002
-version: 1.1.2
+version: 1.2.0
 description: OtterScale - A unified platform for simplified compute, storage, and networking
 home: https://otterscale.github.io
 icon: https://github.com/otterscale.png
@@ -48,7 +48,7 @@ dependencies:
   - condition: harbor.enabled
     repository: "https://helm.goharbor.io"
     name: harbor
-    version: 1.18.x
+    version: 1.19.x
   - name: common
     repository: oci://registry-1.docker.io/bitnamicharts
     tags:
