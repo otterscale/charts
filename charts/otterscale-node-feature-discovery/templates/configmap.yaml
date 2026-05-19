@@ -9,4 +9,6 @@ metadata:
 data:
   disk-features.sh: |
 {{ .Files.Get "files/disk-features.sh" | nindent 4 }}
+  gpu-features.sh: |
+{{ .Files.Get "files/gpu-features.sh" | nindent 4 }}
 {{- end }}

@@ -21,6 +21,7 @@ featureWriter:
   imagePullPolicy: IfNotPresent
   intervalSeconds: 60
   featureFileName: otterscale-disk-features
+  gpuFeatureFileName: otterscale-gpu-features
   # Script only publishes "data disk" candidates: excludes loop, ram, zram, dm-*, fd*, and nbd* by default.
   dataDiskIncludeNbd: false
   resources:
