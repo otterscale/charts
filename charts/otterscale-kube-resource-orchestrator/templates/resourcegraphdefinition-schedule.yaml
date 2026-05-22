@@ -51,8 +51,8 @@ spec:
                   containers:
                     - name: ${schema.spec.name}
                       image: ${schema.spec.image}
-                      command: "${has(schema.spec.command) ? schema.spec.command : []}"
-                      args: "${has(schema.spec.args) ? schema.spec.args : []}"
+                      command: ${schema.spec.command}
+                      args: ${schema.spec.args}
                       ports:
                         - containerPort: ${schema.spec.containerPort}
                       resources:
