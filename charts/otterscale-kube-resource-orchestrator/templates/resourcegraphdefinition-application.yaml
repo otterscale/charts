@@ -146,7 +146,7 @@ spec:
             - protocol: TCP
               port: ${schema.spec.containerPort}
               targetPort: ${schema.spec.containerPort}
-              nodePort: "${has(schema.spec.serviceNodePort) ? schema.spec.serviceNodePort : 0}"
+              nodePort: ${schema.spec.serviceNodePort}
 
     - id: pvc
       includeWhen:
