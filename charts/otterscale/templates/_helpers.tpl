@@ -289,3 +289,16 @@ Usage: {{ include "otterscale.image" (dict "imageRoot" .Values.server.image "glo
   {{- printf "%s:%s" $repository $tag -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Render the dashboard image reference.
+When ee.enabled is true, the repository is switched to its "-ee" variant
+(e.g. ghcr.io/otterscale/dashboard → ghcr.io/otterscale/dashboard-ee).
+*/}}
+{{- define "otterscale.dashboard.image" -}}
+{{- $imageRoot := deepCopy .Values.dashboard.image -}}
+{{- if .Values.ee.enabled -}}
+  {{- $_ := set $imageRoot "repository" (printf "%s-ee" $imageRoot.repository) -}}
+{{- end -}}
+{{- include "otterscale.image" (dict "imageRoot" $imageRoot "global" .Values.global "chart" .Chart) -}}
+{{- end -}}
