@@ -21,6 +21,14 @@ nameOverride: ""
 fullnameOverride: ""
 
 # =============================================================================
+# Enterprise Edition (EE) Configuration
+# =============================================================================
+ee:
+  # -- Enable Enterprise Edition. When true, the dashboard image repository
+  # is switched to its "-ee" variant (e.g. ghcr.io/otterscale/dashboard-ee).
+  enabled: false
+
+# =============================================================================
 # Storage Configuration
 # =============================================================================
 storage:
@@ -64,7 +72,7 @@ server:
   image:
     repository: ghcr.io/otterscale/otterscale
     # renovate: image=ghcr.io/otterscale/otterscale
-    tag: "v1.1.2"
+    tag: "v1.2.0-rc.2"
     pullPolicy: IfNotPresent
 
   # -- Container ports.
@@ -260,7 +268,7 @@ dashboard:
   image:
     repository: ghcr.io/otterscale/dashboard
     # renovate: image=ghcr.io/otterscale/dashboard
-    tag: "v1.1.18"
+    tag: "v1.2.0-beta.1"
     pullPolicy: IfNotPresent
 
   # -- Container ports.
