@@ -67,15 +67,22 @@ spec:
             - |
               set -eu
               OUT_DIR="/etc/kubernetes/node-feature-discovery/features.d"
-              TMP="${OUT_DIR}/.{{ .Values.featureWriter.featureFileName }}.tmp"
-              FINAL="${OUT_DIR}/{{ .Values.featureWriter.featureFileName }}"
+              DISK_TMP="${OUT_DIR}/.{{ .Values.featureWriter.featureFileName }}.tmp"
+              DISK_FINAL="${OUT_DIR}/{{ .Values.featureWriter.featureFileName }}"
+              GPU_TMP="${OUT_DIR}/.{{ .Values.featureWriter.gpuFeatureFileName }}.tmp"
+              GPU_FINAL="${OUT_DIR}/{{ .Values.featureWriter.gpuFeatureFileName }}"
               INTERVAL={{ .Values.featureWriter.intervalSeconds | int }}
               mkdir -p "${OUT_DIR}"
               while true; do
-                if /bin/sh /scripts/disk-features.sh > "${TMP}"; then
-                  mv -f "${TMP}" "${FINAL}"
+                if /bin/sh /scripts/disk-features.sh > "${DISK_TMP}"; then
+                  mv -f "${DISK_TMP}" "${DISK_FINAL}"
                 else
-                  rm -f "${TMP}"
+                  rm -f "${DISK_TMP}"
+                fi
+                if /bin/sh /scripts/gpu-features.sh > "${GPU_TMP}"; then
+                  mv -f "${GPU_TMP}" "${GPU_FINAL}"
+                else
+                  rm -f "${GPU_TMP}"
                 fi
                 sleep "${INTERVAL}"
               done
