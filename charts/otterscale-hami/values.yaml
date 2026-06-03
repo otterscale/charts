@@ -17,7 +17,7 @@ hami:
     gpuOperatorToolkitReady:
       enabled: true
       hostPath: "/run/nvidia/validations"
-    deviceSplitCount: 10
+    deviceSplitCount: 20
     deviceMemoryScaling: 1
     deviceCoreScaling: 1
     service:
