@@ -2,7 +2,7 @@ apiVersion: serving.kserve.io/v1alpha2
 kind: LLMInferenceServiceConfig
 metadata:
   name: opt-125m
-  namespace: {{ .Release.Namespace }}
+  namespace: otterscale-system
 spec:
   model:
     name: facebook/opt-125m
