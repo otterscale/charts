@@ -72,7 +72,7 @@ server:
   image:
     repository: ghcr.io/otterscale/otterscale
     # renovate: image=ghcr.io/otterscale/otterscale
-    tag: "v1.2.0-rc.3"
+    tag: "v1.2.0"
     pullPolicy: IfNotPresent
 
   # -- Container ports.
@@ -268,7 +268,7 @@ dashboard:
   image:
     repository: ghcr.io/otterscale/dashboard
     # renovate: image=ghcr.io/otterscale/dashboard
-    tag: "v1.2.0-beta.3"
+    tag: "v1.2.0"
     pullPolicy: IfNotPresent
 
   # -- Container ports.
