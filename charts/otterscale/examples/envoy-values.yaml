@@ -5,10 +5,10 @@
 #   helm install otterscale ./charts/otterscale -f examples/istio-values.yaml
 
 dashboard:
-  externalURL: "http://192.168.1.100"
+  externalURL: "http://192.168.1.100:30080"
 
 server:
-  externalURL: "http://192.168.1.100/api/"
+  externalURL: "http://192.168.1.100:30080/api/"
   externalTunnelURL: "https://192.168.1.100:30300"
   tunnelService:
     type: NodePort
@@ -24,7 +24,7 @@ storage:
 envoy:
   enabled: true
   gateway:
-    name: gateway
+    name: gateway 
     namespace: envoy-gateway-system
 
 # Envoy Gateway does not require sidecar injection.

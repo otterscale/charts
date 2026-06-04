@@ -1,6 +1,6 @@
 apiVersion: v2
 name: otterscale-rook-ceph-cluster
-version: 1.2.0
+version: 1.2.1-rc.0
 # renovate: helm=rook-ceph-cluster registry=https://charts.rook.io/release
 appVersion: "1.19.5"
 description: >-
@@ -21,7 +21,7 @@ keywords:
 type: application
 kubeVersion: ">=1.25.0-0"
 annotations:
-  module.otterscale.io/depends-on: "otterscale-rook-ceph,otterscale-node-feature-discovery"
+  module.otterscale.io/depends-on: "otterscale-rook-ceph,otterscale-node-feature-discovery,otterscale-envoy-gateway"
   module.otterscale.io/namespace: "rook-ceph"
   artifacthub.io/license: Apache-2.0
 dependencies:
