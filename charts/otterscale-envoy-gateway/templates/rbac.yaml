@@ -1,3 +1,7 @@
+# ============================================================================
+# User-facing aggregation roles
+# These get auto-merged into K8s built-in admin/edit/view ClusterRoles
+# ============================================================================
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -89,3 +93,43 @@ rules:
       - gateways/status
     verbs:
       - get
+---
+# ============================================================================
+# Controller RBAC: grant envoy-gateway SA access to InferencePool resources.
+# Required because gateway-helm 1.8.0 watches inference.networking.k8s.io/v1
+# InferencePool when registered via extensionManager.backendResources,
+# but the upstream chart doesn't ship the corresponding RBAC.
+# ============================================================================
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: otterscale-envoy-gateway-inferencepool
+rules:
+  - apiGroups:
+      - inference.networking.k8s.io
+    resources:
+      - inferencepools
+      - inferenceobjectives
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - inference.networking.k8s.io
+    resources:
+      - inferencepools/status
+    verbs:
+      - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: otterscale-envoy-gateway-inferencepool
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: otterscale-envoy-gateway-inferencepool
+subjects:
+  - kind: ServiceAccount
+    name: envoy-gateway
+    namespace: {{ .Release.Namespace }}

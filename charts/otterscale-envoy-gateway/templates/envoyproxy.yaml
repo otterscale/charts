@@ -26,5 +26,5 @@ spec:
                 - name: http-rook-ceph
                   port: 8301
                   protocol: TCP
-                  targetPort: 10080
+                  targetPort: 8301
                   nodePort: 31080
