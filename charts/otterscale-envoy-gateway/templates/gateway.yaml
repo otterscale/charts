@@ -6,7 +6,7 @@ metadata:
 spec:
   gatewayClassName: envoy
   listeners:
-    - name: http
+    - name: http-otterscale
       protocol: HTTP
       port: 80
       allowedRoutes:

@@ -4,7 +4,7 @@ metadata:
   name: kserve-ingress-gateway
   namespace: {{ .Release.Namespace }}
 spec:
-  gatewayClassName: envoy
+  gatewayClassName: envoy-kserve
   listeners:
     - name: http
       protocol: HTTP

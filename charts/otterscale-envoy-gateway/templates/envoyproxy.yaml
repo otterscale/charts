@@ -1,0 +1,30 @@
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: otterscale-envoyproxy
+  namespace: {{ .Release.Namespace }}
+spec:
+  logging:
+    level:
+      default: warn
+  mergeGateways: true
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        type: NodePort
+        patch:
+          type: StrategicMerge
+          value:
+            spec:
+              ports:
+                - name: http-otterscale
+                  port: 80
+                  protocol: TCP
+                  targetPort: 10080
+                  nodePort: 30080
+                - name: http-rook-ceph
+                  port: 83
+                  protocol: TCP
+                  targetPort: 10083
+                  nodePort: 30083
