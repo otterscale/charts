@@ -8,7 +8,7 @@ spec:
   listeners:
     - name: http-rook-ceph
       protocol: HTTP
-      port: 8301
+      port: 83
       allowedRoutes:
         namespaces:
           from: All
