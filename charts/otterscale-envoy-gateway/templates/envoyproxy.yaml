@@ -14,7 +14,7 @@ spec:
       envoyService:
         labels:
           gateway.envoyproxy.io/owning-gateway-name: "rook-ceph-ingress-gateway"
-          gateway.envoyproxy.io/owning-gateway-namespace": "rook-ceph"
+          gateway.envoyproxy.io/owning-gateway-namespace: "rook-ceph"
         type: NodePort
         patch:
           type: StrategicMerge
