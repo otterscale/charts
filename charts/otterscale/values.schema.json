@@ -193,39 +193,15 @@
           "type": "object",
           "properties": {
             "enabled": { "type": "boolean" },
-            "mode": { "type": "string", "enum": ["existingSecret", "provided", "certManager"] },
+            "crt": { "type": "string" },
+            "key": { "type": "string" },
             "existingSecret": { "type": "string" },
-            "provided": {
-              "type": "object",
-              "properties": {
-                "crt": { "type": "string" },
-                "key": { "type": "string" }
-              }
-            },
-            "certManager": {
-              "type": "object",
-              "properties": {
-                "createSelfSignedIssuer": { "type": "boolean" },
-                "issuerRef": {
-                  "type": "object",
-                  "properties": {
-                    "name": { "type": "string" },
-                    "kind": { "type": "string", "enum": ["Issuer", "ClusterIssuer"] }
-                  }
-                }
-              }
-            },
             "redirectToHTTPS": { "type": "boolean" }
           },
-          "allOf": [
-            {
-              "if": {
-                "properties": { "enabled": { "const": true }, "mode": { "const": "existingSecret" } },
-                "required": ["enabled"]
-              },
-              "then": { "required": ["existingSecret"], "properties": { "existingSecret": { "minLength": 1 } } }
-            }
-          ]
+          "dependentRequired": {
+            "crt": ["key"],
+            "key": ["crt"]
+          }
         },
         "gateway": {
           "type": "object",
@@ -235,12 +211,6 @@
             "namespace": { "type": "string" }
           }
         }
-      }
-    },
-    "cert-manager": {
-      "type": "object",
-      "properties": {
-        "enabled": { "type": "boolean" }
       }
     }
   },

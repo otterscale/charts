@@ -61,26 +61,18 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 
 {{/*
 Name of the TLS Secret the Gateway HTTPS listener references.
-Resolution depends on envoy.tls.mode:
-  - existingSecret : a Secret the user created out-of-band (envoy.tls.existingSecret).
-  - provided       : a Secret this chart creates from envoy.tls.provided.{crt,key}.
-  - certManager    : a Secret cert-manager creates from the Certificate resource.
+  - crt + key set     : a kubernetes.io/tls Secret this chart creates.
+  - existingSecret set : a Secret the user created out-of-band (in the Gateway ns).
 */}}
 {{- define "otterscale.tls.secretName" -}}
-{{- $mode := .Values.envoy.tls.mode | default "existingSecret" -}}
-{{- if eq $mode "existingSecret" -}}
-  {{- .Values.envoy.tls.existingSecret | required "envoy.tls.existingSecret must be set when envoy.tls.mode is 'existingSecret'" -}}
-{{- else -}}
+{{- if and .Values.envoy.tls.crt .Values.envoy.tls.key -}}
   {{- printf "%s-tls" (include "otterscale.fullname" .) -}}
+{{- else if .Values.envoy.tls.existingSecret -}}
+  {{- .Values.envoy.tls.existingSecret -}}
+{{- else -}}
+  {{- required "envoy.tls: set crt+key (chart creates the Secret) or existingSecret when envoy.tls.enabled is true" "" -}}
 {{- end -}}
 {{- end }}
-
-{{/*
-Name of the chart-managed cert-manager (self-signed) Issuer.
-*/}}
-{{- define "otterscale.tls.issuerName" -}}
-{{- printf "%s-selfsigned" (include "otterscale.fullname" .) -}}
-{{- end -}}
 
 {{- define "otterscale.gatewayRef" -}}
 {{- .Values.envoy.gateway.name | required "envoy.gateway.name must be set when envoy is enabled" -}}

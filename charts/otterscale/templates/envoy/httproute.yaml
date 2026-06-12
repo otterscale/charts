@@ -11,10 +11,11 @@ spec:
   - name: {{ include "otterscale.gatewayRef" . }}
     namespace: {{ include "otterscale.gateway.namespace" . }}
     sectionName: {{ include "otterscale.gateway.sectionName" . }}
-  hostnames:
   {{- if .Values.envoy.httpRoute.hostnames }}
+  hostnames:
     {{- toYaml .Values.envoy.httpRoute.hostnames | nindent 4 }}
-  {{- else }}
+  {{- else if .Values.envoy.tls.enabled }}
+  hostnames:
   - {{ include "otterscale.host" . | quote }}
   {{- end }}
   rules:

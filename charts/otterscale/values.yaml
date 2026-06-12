@@ -476,35 +476,24 @@ envoy:
     # Gateway listener hostnames. Leave empty to derive from dashboard.externalURL.
     hostnames: []
 
-  # TLS termination at the Gateway.
+  # TLS termination at the Gateway. Two modes only:
+  #   enabled: true  -> HTTPS. Supply a certificate (crt+key or existingSecret).
+  #   enabled: false -> HTTP only, accessed via ip:port (no HTTPS listener,
+  #                     no redirect, no per-domain Harbor route).
   tls:
     # -- Enable TLS termination (adds an HTTPS listener on the Gateway).
     enabled: false
 
-    # -- How the TLS certificate is sourced:
-    #   existingSecret : reference a Secret you created out-of-band.
-    #   provided       : paste crt/key below; the chart creates the Secret.
-    #   certManager    : the chart creates a cert-manager Certificate (self-signed).
-    mode: "certManager"
+    # -- PEM-encoded certificate and private key (raw PEM, not base64).
+    # When both are set, the chart creates a kubernetes.io/tls Secret named
+    # "<fullname>-tls" in the Gateway namespace and the HTTPS listener uses it.
+    crt: ""
+    key: ""
 
-    # -- mode=existingSecret: name of an existing Secret holding tls.crt + tls.key.
+    # -- Alternatively, reference an existing tls Secret. It MUST already exist
+    # in the Gateway namespace (envoy.gateway.namespace). Ignored when crt/key
+    # are provided.
     existingSecret: ""
-
-    # -- mode=provided: paste PEM contents; the chart creates "<fullname>-tls".
-    provided:
-      crt: ""
-      key: ""
-
-    # -- mode=certManager: issue a (by default self-signed) certificate.
-    certManager:
-      # -- Create a self-signed Issuer in the Gateway namespace and use it.
-      # Set false to bring your own Issuer/ClusterIssuer via issuerRef.
-      createSelfSignedIssuer: true
-      issuerRef:
-        # -- Issuer name. Ignored when createSelfSignedIssuer is true.
-        name: ""
-        # -- Issuer kind: Issuer or ClusterIssuer.
-        kind: "Issuer"
 
     # -- Add an HTTP->HTTPS 301 redirect HTTPRoute on the HTTP listener.
     redirectToHTTPS: true
@@ -729,20 +718,3 @@ harbor:
     # -- Name of the Secret containing Harbor OIDC config JSON.
     # Must match the name referenced in harbor.core.extraEnvVars.
     configSecretName: "otterscale-harbor-oidc-config"
-
-# =============================================================================
-# cert-manager (optional subchart, used by envoy.tls.mode=certManager)
-# =============================================================================
-# CAVEAT: bundling cert-manager as a subchart means its CRDs and the chart's
-# own Certificate/Issuer are applied in the SAME Helm pass, which can race
-# (the Certificate may be rejected because the CRD is not established yet).
-# RECOMMENDED: install cert-manager once, cluster-wide, BEFORE this chart and
-# keep this disabled:
-#   helm repo add jetstack https://charts.jetstack.io
-#   helm install cert-manager jetstack/cert-manager -n cert-manager \
-#     --create-namespace --set crds.enabled=true
-# Only enable the bundled copy below if you accept the CRD-ordering caveat.
-cert-manager:
-  enabled: false
-  crds:
-    enabled: true

@@ -11,8 +11,5 @@ dependencies:
 - name: common
   repository: oci://registry-1.docker.io/bitnamicharts
   version: 2.40.0
-- name: cert-manager
-  repository: https://charts.jetstack.io
-  version: v1.20.2
-digest: sha256:c1e02e645d93e1c1717e1c850029ef1bd74a58541776abaf98f1ce992bc76fc8
-generated: "2026-06-12T16:28:10.4222977+08:00"
+digest: sha256:dd9129c1fb761fc5b4429de196d8e370474341b254c38d0ab189c1eb341de3a1
+generated: "2026-06-12T17:02:06.5752554+08:00"
