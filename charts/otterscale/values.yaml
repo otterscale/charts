@@ -565,7 +565,6 @@ keycloakx:
       --http-port=8080 \
       --http-enabled=true \
       --proxy-headers=xforwarded \
-      --hostname-strict=false \
       --spi-events-listener-jboss-logging-success-level=info \
       --spi-events-listener-jboss-logging-error-level=warn
 

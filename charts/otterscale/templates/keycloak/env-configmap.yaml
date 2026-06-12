@@ -10,6 +10,12 @@ metadata:
     {{- include "otterscale.labels" . | nindent 4 }}
 data:
   KC_BOOTSTRAP_ADMIN_USERNAME: {{ .Values.keycloakx.auth.adminUser | quote }}
+  # Pin Keycloak's frontend hostname to the full external URL (scheme + host +
+  # port) so the OIDC issuer is deterministic. Without this, Keycloak derives
+  # the issuer from forwarded headers and drops a non-standard NodePort (e.g.
+  # :30080), causing "issuer URL did not match" errors in the server.
+  KC_HOSTNAME: {{ include "otterscale.externalURL" . | quote }}
+  KC_HOSTNAME_STRICT: "true"
   JAVA_OPTS_APPEND: >-
     -XX:+UseContainerSupport
     -XX:MaxRAMPercentage=70.0
