@@ -9,12 +9,13 @@ metadata:
 spec:
   parentRefs:
   - name: {{ include "otterscale.gatewayRef" . }}
-  {{- if .Values.envoy.gateway.namespace }}
-    namespace: {{ .Values.envoy.gateway.namespace }}
-  {{- end }}
-  {{- with .Values.envoy.httpRoute.hostnames }}
+    namespace: {{ include "otterscale.gateway.namespace" . }}
+    sectionName: {{ include "otterscale.gateway.sectionName" . }}
   hostnames:
-    {{- toYaml . | nindent 4 }}
+  {{- if .Values.envoy.httpRoute.hostnames }}
+    {{- toYaml .Values.envoy.httpRoute.hostnames | nindent 4 }}
+  {{- else }}
+  - {{ include "otterscale.host" . | quote }}
   {{- end }}
   rules:
   {{- if .Values.keycloakx.enabled }}

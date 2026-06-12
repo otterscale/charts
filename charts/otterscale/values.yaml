@@ -72,7 +72,7 @@ server:
   image:
     repository: ghcr.io/otterscale/otterscale
     # renovate: image=ghcr.io/otterscale/otterscale
-    tag: "v1.2.0"
+    tag: "v1.2.1-rc.1"
     pullPolicy: IfNotPresent
 
   # -- Container ports.
@@ -268,7 +268,7 @@ dashboard:
   image:
     repository: ghcr.io/otterscale/dashboard
     # renovate: image=ghcr.io/otterscale/dashboard
-    tag: "v1.2.0"
+    tag: "v1.2.1-rc.1"
     pullPolicy: IfNotPresent
 
   # -- Container ports.
@@ -463,26 +463,64 @@ ingress:
 envoy:
   # -- Enable Envoy Gateway integration (Gateway API).
   enabled: false
+
+  # -- Name of the GatewayClass backed by the Envoy Gateway controller.
+  # The controller itself lives in envoy-gateway-system; this is the class
+  # the chart-managed Gateway binds to.
+  gatewayClassName: "eg"
+
   httpRoute:
     # -- Create a Gateway API HTTPRoute.
     enabled: true
-    # -- Hostnames for the HTTPRoute. Must be a subset of the Gateway listener hostnames.
-    # Leave empty to match all hostnames.
+    # -- Hostnames for the OtterScale HTTPRoute. Must be a subset of the
+    # Gateway listener hostnames. Leave empty to derive from dashboard.externalURL.
     hostnames: []
 
-  # TLS configuration for Gateway.
+  # TLS termination at the Gateway.
   tls:
-    # -- Enable TLS termination at the Gateway.
+    # -- Enable TLS termination (adds an HTTPS listener on the Gateway).
     enabled: false
-    # -- Name of an existing Secret containing tls.crt and tls.key.
-    # Required when envoy.tls.enabled is true.
+
+    # -- How the TLS certificate is sourced:
+    #   existingSecret : reference a Secret you created out-of-band.
+    #   provided       : paste crt/key below; the chart creates the Secret.
+    #   certManager    : the chart creates a cert-manager Certificate (self-signed).
+    mode: "certManager"
+
+    # -- mode=existingSecret: name of an existing Secret holding tls.crt + tls.key.
     existingSecret: ""
 
-  # Reference to an existing Gateway API Gateway resource.
+    # -- mode=provided: paste PEM contents; the chart creates "<fullname>-tls".
+    provided:
+      crt: ""
+      key: ""
+
+    # -- mode=certManager: issue a (by default self-signed) certificate.
+    certManager:
+      # -- Create a self-signed Issuer in the Gateway namespace and use it.
+      # Set false to bring your own Issuer/ClusterIssuer via issuerRef.
+      createSelfSignedIssuer: true
+      issuerRef:
+        # -- Issuer name. Ignored when createSelfSignedIssuer is true.
+        name: ""
+        # -- Issuer kind: Issuer or ClusterIssuer.
+        kind: "Issuer"
+
+    # -- Add an HTTP->HTTPS 301 redirect HTTPRoute on the HTTP listener.
+    redirectToHTTPS: true
+
+  # Gateway API Gateway resource.
   gateway:
-    # -- Name of the Gateway resource that HTTPRoute should attach to.
-    name: "gateway"
-    # -- Namespace of the Gateway resource.
+    # -- Let the chart create and manage the Gateway, GatewayClass and
+    # EnvoyProxy. Set false to attach HTTPRoutes to a pre-existing Gateway.
+    create: true
+    # -- Name of the Gateway resource HTTPRoutes attach to.
+    name: "otterscale"
+    # -- Namespace of the Gateway / EnvoyProxy. The chart-managed TLS Secret
+    # or Certificate is created here too, co-located with the Gateway so the
+    # HTTPS listener can reference it without a ReferenceGrant.
+    # NOTE: when using envoy.tls.mode=existingSecret, that Secret must already
+    # live in THIS namespace.
     namespace: "envoy-gateway-system"
 
 # =============================================================================
@@ -537,6 +575,7 @@ keycloakx:
       --import-realm \
       --http-port=8080 \
       --http-enabled=true \
+      --proxy-headers=xforwarded \
       --hostname-strict=false \
       --spi-events-listener-jboss-logging-success-level=info \
       --spi-events-listener-jboss-logging-error-level=warn
@@ -690,3 +729,20 @@ harbor:
     # -- Name of the Secret containing Harbor OIDC config JSON.
     # Must match the name referenced in harbor.core.extraEnvVars.
     configSecretName: "otterscale-harbor-oidc-config"
+
+# =============================================================================
+# cert-manager (optional subchart, used by envoy.tls.mode=certManager)
+# =============================================================================
+# CAVEAT: bundling cert-manager as a subchart means its CRDs and the chart's
+# own Certificate/Issuer are applied in the SAME Helm pass, which can race
+# (the Certificate may be rejected because the CRD is not established yet).
+# RECOMMENDED: install cert-manager once, cluster-wide, BEFORE this chart and
+# keep this disabled:
+#   helm repo add jetstack https://charts.jetstack.io
+#   helm install cert-manager jetstack/cert-manager -n cert-manager \
+#     --create-namespace --set crds.enabled=true
+# Only enable the bundled copy below if you accept the CRD-ordering caveat.
+cert-manager:
+  enabled: false
+  crds:
+    enabled: true

@@ -1,0 +1,26 @@
+{{- if and .Values.envoy.enabled .Values.envoy.httpRoute.enabled .Values.harbor.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "otterscale.fullname" . }}-harbor
+  namespace: {{ include "otterscale.namespace" . }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+spec:
+  parentRefs:
+  - name: {{ include "otterscale.gatewayRef" . }}
+    namespace: {{ include "otterscale.gateway.namespace" . }}
+    sectionName: {{ include "otterscale.gateway.sectionName" . }}
+  hostnames:
+  - {{ include "otterscale.harbor.host" . | quote }}
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - group: ""
+      kind: Service
+      name: {{ include "otterscale.harbor.serviceName" . }}
+      port: {{ include "otterscale.harbor.servicePort" . }}
+{{- end }}

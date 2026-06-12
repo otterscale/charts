@@ -1,0 +1,36 @@
+{{- if and .Values.envoy.enabled .Values.envoy.gateway.create }}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: otterscale-envoyproxy
+  namespace: {{ include "otterscale.gateway.namespace" . }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+spec:
+  logging:
+    level:
+      default: warn
+  mergeGateways: true
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        type: NodePort
+        patch:
+          type: StrategicMerge
+          value:
+            spec:
+              ports:
+                - name: http-otterscale
+                  port: 80
+                  protocol: TCP
+                  targetPort: 10080
+                  nodePort: 30080
+                {{- if .Values.envoy.tls.enabled }}
+                - name: https-otterscale
+                  port: 443
+                  protocol: TCP
+                  targetPort: 10443
+                  nodePort: 30443
+                {{- end }}
+{{- end }}

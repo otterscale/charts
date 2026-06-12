@@ -1,7 +1,7 @@
 apiVersion: v2
 name: otterscale
 appVersion: SXHR0102T-0001
-version: 1.2.1-rc.0
+version: 1.2.1-rc.2
 description: OtterScale - A unified platform for simplified compute, storage, and networking
 home: https://otterscale.github.io
 icon: https://github.com/otterscale.png
@@ -54,3 +54,10 @@ dependencies:
     tags:
       - bitnami-common
     version: 2.x.x
+  # Optional: only pulled in when cert-manager.enabled is true. cert-manager is
+  # a cluster-singleton with its own CRDs — prefer installing it separately and
+  # leaving this disabled. See values.yaml "cert-manager" notes for the caveat.
+  - condition: cert-manager.enabled
+    repository: "https://charts.jetstack.io"
+    name: cert-manager
+    version: v1.x.x

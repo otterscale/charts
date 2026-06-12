@@ -1,0 +1,39 @@
+{{- if and .Values.envoy.enabled .Values.envoy.tls.enabled (eq (.Values.envoy.tls.mode | default "existingSecret") "certManager") }}
+{{- $cm := .Values.envoy.tls.certManager }}
+{{- if $cm.createSelfSignedIssuer }}
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ include "otterscale.tls.issuerName" . }}
+  namespace: {{ include "otterscale.gateway.namespace" . }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+spec:
+  selfSigned: {}
+---
+{{- end }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "otterscale.tls.secretName" . }}
+  namespace: {{ include "otterscale.gateway.namespace" . }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+spec:
+  secretName: {{ include "otterscale.tls.secretName" . }}
+  commonName: {{ include "otterscale.host" . | quote }}
+  dnsNames:
+    - {{ include "otterscale.host" . | quote }}
+    {{- if .Values.harbor.enabled }}
+    - {{ include "otterscale.harbor.host" . | quote }}
+    {{- end }}
+  issuerRef:
+    {{- if $cm.createSelfSignedIssuer }}
+    name: {{ include "otterscale.tls.issuerName" . }}
+    kind: Issuer
+    {{- else }}
+    name: {{ $cm.issuerRef.name | required "envoy.tls.certManager.issuerRef.name must be set when createSelfSignedIssuer is false" }}
+    kind: {{ $cm.issuerRef.kind | default "Issuer" }}
+    {{- end }}
+    group: cert-manager.io
+{{- end }}

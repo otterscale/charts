@@ -23,11 +23,20 @@ storage:
 
 envoy:
   enabled: true
+  gatewayClassName: "eg"
   gateway:
-    name: gateway
+    # The chart creates the Gateway, GatewayClass and EnvoyProxy in
+    # envoy-gateway-system. HTTPRoutes stay in the release namespace and
+    # attach cross-namespace (Gateway listeners use allowedRoutes.from: All).
+    create: true
+    name: otterscale
     namespace: envoy-gateway-system
 
 ee:
   enabled: true
 
 # Envoy Gateway does not require sidecar injection.
+# To attach to a pre-existing Gateway instead, set:
+#   envoy.gateway.create: false
+#   envoy.gateway.name / envoy.gateway.namespace: <your gateway>
+# and ensure that Gateway's listeners allow routes from the otterscale namespace.

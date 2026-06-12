@@ -59,12 +59,57 @@ app.kubernetes.io/name: {{ include "otterscale.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
+{{/*
+Name of the TLS Secret the Gateway HTTPS listener references.
+Resolution depends on envoy.tls.mode:
+  - existingSecret : a Secret the user created out-of-band (envoy.tls.existingSecret).
+  - provided       : a Secret this chart creates from envoy.tls.provided.{crt,key}.
+  - certManager    : a Secret cert-manager creates from the Certificate resource.
+*/}}
 {{- define "otterscale.tls.secretName" -}}
-{{- .Values.envoy.tls.existingSecret | required "envoy.tls.existingSecret must be set when envoy.tls.enabled is true" -}}
+{{- $mode := .Values.envoy.tls.mode | default "existingSecret" -}}
+{{- if eq $mode "existingSecret" -}}
+  {{- .Values.envoy.tls.existingSecret | required "envoy.tls.existingSecret must be set when envoy.tls.mode is 'existingSecret'" -}}
+{{- else -}}
+  {{- printf "%s-tls" (include "otterscale.fullname" .) -}}
+{{- end -}}
 {{- end }}
+
+{{/*
+Name of the chart-managed cert-manager (self-signed) Issuer.
+*/}}
+{{- define "otterscale.tls.issuerName" -}}
+{{- printf "%s-selfsigned" (include "otterscale.fullname" .) -}}
+{{- end -}}
 
 {{- define "otterscale.gatewayRef" -}}
 {{- .Values.envoy.gateway.name | required "envoy.gateway.name must be set when envoy is enabled" -}}
+{{- end -}}
+
+{{/*
+Namespace the Gateway, EnvoyProxy and the chart-managed TLS Secret/Certificate
+live in (default: envoy-gateway-system). HTTPRoutes stay in the release
+namespace and attach cross-namespace, so the Gateway listeners use
+allowedRoutes.from: All. Co-locating the TLS Secret with the Gateway avoids
+needing a ReferenceGrant for the HTTPS listener's certificateRef.
+*/}}
+{{- define "otterscale.gateway.namespace" -}}
+{{- .Values.envoy.gateway.namespace | default (include "otterscale.namespace" .) -}}
+{{- end -}}
+
+{{/*
+Gateway listener sectionName an HTTPRoute should attach to.
+HTTPS when TLS is enabled, otherwise HTTP.
+*/}}
+{{- define "otterscale.gateway.sectionName" -}}
+{{- if .Values.envoy.tls.enabled -}}https{{- else -}}http{{- end -}}
+{{- end -}}
+
+{{/*
+External host for the OtterScale dashboard (scheme + port stripped).
+*/}}
+{{- define "otterscale.harbor.host" -}}
+{{- (splitList "://" .Values.harbor.externalURL) | last | trimSuffix "/" | splitList ":" | first -}}
 {{- end -}}
 
 {{/*
