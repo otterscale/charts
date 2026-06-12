@@ -1,6 +1,6 @@
 apiVersion: v2
 name: otterscale-envoy-gateway
-version: 1.2.2
+version: 1.2.3
 # renovate: helm=gateway-helm registry=oci://docker.io/envoyproxy
 appVersion: "1.8.0"
 description: >-

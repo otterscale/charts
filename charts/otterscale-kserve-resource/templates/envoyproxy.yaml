@@ -8,6 +8,9 @@ spec:
     type: Kubernetes
     kubernetes:
       envoyService:
+        labels:
+          gateway.envoyproxy.io/owning-gateway-name: {{ .Values.gateway.name }}
+          gateway.envoyproxy.io/owning-gateway-namespace: {{ .Release.Namespace }}
         patch:
           value:
             spec:
