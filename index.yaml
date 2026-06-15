@@ -3586,6 +3586,30 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/otterscale-0.1.5/otterscale-0.1.5.tgz
     version: 0.1.5
+  otterscale-cache-operator:
+  - apiVersion: v2
+    appVersion: 1.0.2
+    created: "2026-06-15T09:50:25.550801764Z"
+    dependencies:
+    - name: cache-operator
+      repository: oci://cr-ext.phison.com/otterscale
+      version: 1.0.2
+    description: Otterscale cache operator chart.
+    digest: e355f5e79564093250b380253d712d0aaae8d744890bff5775a3611ed4761552
+    home: https://otterscale.github.io
+    keywords:
+    - otterscale
+    - cache
+    maintainers:
+    - email: shawn_tsai@phison.com
+      name: Shawn Tsai
+    name: otterscale-cache-operator
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-cache-operator-1.2.0/otterscale-cache-operator-1.2.0.tgz
+    version: 1.2.0
   otterscale-containerized-data-importer:
   - annotations:
       artifacthub.io/license: Apache-2.0
@@ -9243,4 +9267,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-06-12T08:27:51.550040183Z"
+generated: "2026-06-15T09:50:25.551123895Z"
