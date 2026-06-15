@@ -34,11 +34,6 @@ ee:
 
 envoy:
   enabled: true
-  gatewayClassName: "eg"
-  gateway:
-    create: true
-    name: "otterscale"
-    namespace: "envoy-gateway-system"   # Gateway + EnvoyProxy + TLS Secret 都在這
   tls:
     enabled: true
     redirectToHTTPS: true

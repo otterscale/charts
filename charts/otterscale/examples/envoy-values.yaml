@@ -9,7 +9,7 @@ dashboard:
 
 server:
   externalURL: "http://192.168.1.100:30080/api/"
-  externalTunnelURL: "https://192.168.1.100:30300"
+  externalTunnelURL: "http://192.168.1.100:30300"
   tunnelService:
     type: NodePort
     nodePort: "30300"
@@ -23,14 +23,6 @@ storage:
 
 envoy:
   enabled: true
-  gatewayClassName: "eg"
-  gateway:
-    # The chart creates the Gateway, GatewayClass and EnvoyProxy in
-    # envoy-gateway-system. HTTPRoutes stay in the release namespace and
-    # attach cross-namespace (Gateway listeners use allowedRoutes.from: All).
-    create: true
-    name: otterscale
-    namespace: envoy-gateway-system
 
 ee:
   enabled: true
