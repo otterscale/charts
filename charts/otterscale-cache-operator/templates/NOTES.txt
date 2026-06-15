@@ -1,0 +1,7 @@
+OtterScale Cache Operator has been installed.
+
+  Namespace: {{ .Release.Namespace }}
+
+  Components:
+  - Cache device-plugin
+  - Cache node discovery
