@@ -1,4 +1,5 @@
 {{- if and .Values.envoy.enabled .Values.envoy.gateway.create }}
+{{- $svc := .Values.envoy.gateway.service }}
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: EnvoyProxy
 metadata:
@@ -15,7 +16,8 @@ spec:
     type: Kubernetes
     kubernetes:
       envoyService:
-        type: NodePort
+        type: {{ $svc.type }}
+        {{- if eq $svc.type "NodePort" }}
         patch:
           type: StrategicMerge
           value:
@@ -25,12 +27,19 @@ spec:
                   port: 80
                   protocol: TCP
                   targetPort: 10080
-                  nodePort: 30080
+                  nodePort: {{ $svc.httpNodePort }}
                 {{- if .Values.envoy.tls.enabled }}
                 - name: https-otterscale
                   port: 443
                   protocol: TCP
                   targetPort: 10443
-                  nodePort: 30443
+                  nodePort: {{ $svc.httpsNodePort }}
                 {{- end }}
+        {{- else if and (eq $svc.type "LoadBalancer") $svc.loadBalancerIP }}
+        patch:
+          type: StrategicMerge
+          value:
+            spec:
+              loadBalancerIP: {{ $svc.loadBalancerIP | quote }}
+        {{- end }}
 {{- end }}
