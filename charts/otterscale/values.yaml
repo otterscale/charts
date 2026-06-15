@@ -310,7 +310,7 @@ ingress:
 envoy:
   enabled: false
   # GatewayClass backed by the Envoy Gateway controller (envoy-gateway-system).
-  gatewayClassName: "envoy"
+  gatewayClassName: "envoy-otterscale"
   httpRoute:
     enabled: true
     hostnames: []  # empty = derive from dashboard.externalURL host
@@ -327,7 +327,7 @@ envoy:
     redirectToHTTPS: true
   gateway:
     create: true
-    name: "otterscale"
+    name: "otterscale-gateway"
     # Gateway / EnvoyProxy / chart-managed TLS Secret all live here (co-located
     # so the HTTPS listener references the Secret without a ReferenceGrant).
     namespace: "envoy-gateway-system"
