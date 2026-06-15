@@ -38,7 +38,7 @@ storage:
     # this StorageClass.
     enabled: false
     # -- Absolute host path used for volume storage.
-    path: /opt/hci/storage
+    path: /opt/otterscale/storage
     # -- Name given to the created StorageClass.
     storageClassName: otterscale-local-path
     # -- ReclaimPolicy: Retain (safe default) or Delete.
