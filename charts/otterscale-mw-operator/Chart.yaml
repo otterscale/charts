@@ -1,0 +1,26 @@
+apiVersion: v2
+name: otterscale-mw-operator
+version: 1.2.3
+appVersion: 1.2.3
+description: Umbrella chart that wraps phison-mw-operator with OtterScale-flavored defaults
+  (monitoring on, ai_gateway off, AI100=1, mw image pinned, workload PVC export on,
+  Valkey-HA storage class pinned to otterscale-local-path).
+sources:
+  - https://github.com/otterscale/charts
+maintainers:
+  - name: george_wu
+  - email: george_wu@phison.com
+keywords:
+  - llm
+  - kvcache
+  - mooncake
+  - lmcache
+  - otterscale
+type: application
+kubeVersion: '>= 1.30.0-0'
+annotations:
+  module.otterscale.io/namespace: "phison-mw-operator"
+dependencies:
+  - name: phison-mw-operator
+    version: 0.4.26-otterscale
+    repository: oci://cr-ext.phison.com/otterscale
