@@ -4,7 +4,7 @@ metadata:
   name: rook-ceph-ingress-gateway
   namespace: {{ .Release.Namespace }}
 spec:
-  gatewayClassName: envoy
+  gatewayClassName: envoy-otterscale
   listeners:
     - name: http-rook-ceph
       protocol: HTTP
