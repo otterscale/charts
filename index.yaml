@@ -7876,6 +7876,37 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/otterscale-model-operator-0.1.0/otterscale-model-operator-0.1.0.tgz
     version: 0.1.0
+  otterscale-mw-operator:
+  - annotations:
+      module.otterscale.io/namespace: phison-mw-operator
+    apiVersion: v2
+    appVersion: 1.2.3
+    created: "2026-06-16T11:50:48.774699731Z"
+    dependencies:
+    - name: phison-mw-operator
+      repository: oci://cr-ext.phison.com/otterscale
+      version: 0.4.26-otterscale
+    description: Umbrella chart that wraps phison-mw-operator with OtterScale-flavored
+      defaults (monitoring on, ai_gateway off, AI100=1, mw image pinned, workload
+      PVC export on, Valkey-HA storage class pinned to otterscale-local-path).
+    digest: 1a764e1817399752218e2f4da4d90f435deaf8fec5cc37ac210156290e49f5a9
+    keywords:
+    - llm
+    - kvcache
+    - mooncake
+    - lmcache
+    - otterscale
+    kubeVersion: '>= 1.30.0-0'
+    maintainers:
+    - email: george_wu@phison.com
+      name: george_wu
+    name: otterscale-mw-operator
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-mw-operator-1.2.3/otterscale-mw-operator-1.2.3.tgz
+    version: 1.2.3
   otterscale-node-feature-discovery:
   - annotations:
       artifacthub.io/license: Apache-2.0
@@ -9321,4 +9352,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-06-16T09:01:54.650783933Z"
+generated: "2026-06-16T11:50:48.774963609Z"
