@@ -1,0 +1,21 @@
+apiVersion: v2
+name: otterscale-cache-operator
+version: 1.2.1
+appVersion: "1.0.2"
+description: >-
+  Otterscale cache operator chart.
+home: https://otterscale.github.io
+sources:
+  - https://github.com/otterscale/charts
+maintainers:
+  - name: Shawn Tsai
+    email: shawn_tsai@phison.com
+keywords:
+  - otterscale
+  - cache
+annotations:
+  module.otterscale.io/namespace: "cache-operator-system"
+dependencies:
+  - name: cache-operator
+    version: 1.0.2
+    repository: oci://cr-ext.phison.com/otterscale
