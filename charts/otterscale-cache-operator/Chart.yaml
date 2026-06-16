@@ -1,6 +1,6 @@
 apiVersion: v2
 name: otterscale-cache-operator
-version: 1.2.0
+version: 1.2.1
 appVersion: "1.0.2"
 description: >-
   Otterscale cache operator chart.
@@ -13,7 +13,8 @@ maintainers:
 keywords:
   - otterscale
   - cache
-type: application
+annotations:
+  module.otterscale.io/namespace: "cache-operator-system"
 dependencies:
   - name: cache-operator
     version: 1.0.2
