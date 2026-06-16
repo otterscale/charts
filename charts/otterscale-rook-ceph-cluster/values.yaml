@@ -94,7 +94,7 @@ rook-ceph-cluster:
             size: 1
             requireSafeReplicaSize: false
         gateway:
-          port: 80
+          port: 8301
           instances: 1
           priorityClassName: system-cluster-critical
       storageClass:

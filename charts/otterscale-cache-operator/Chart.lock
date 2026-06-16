@@ -1,0 +1,6 @@
+dependencies:
+- name: cache-operator
+  repository: oci://cr-ext.phison.com/otterscale
+  version: 1.0.2
+digest: sha256:19197298258af3fd8f268302c5cb299c1b49856d0d4a13095d3257c8a29940e3
+generated: "2026-06-15T17:03:53.785738223+08:00"
