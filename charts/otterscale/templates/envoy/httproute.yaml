@@ -58,22 +58,6 @@ spec:
   - matches:
     - path:
         type: PathPrefix
-        value: /tunnel/
-    filters:
-    - type: URLRewrite
-      urlRewrite:
-        path:
-          type: ReplacePrefixMatch
-          replacePrefixMatch: /
-    backendRefs:
-    - name: {{ include "otterscale.tunnel.fullname" $ }}
-      port: 8300
-    timeouts:
-      backendRequest: 0s
-      request: 0s
-  - matches:
-    - path:
-        type: PathPrefix
         value: /
     backendRefs:
     - name: {{ include "otterscale.dashboard.fullname" $ }}

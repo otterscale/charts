@@ -17,7 +17,10 @@ dashboard:
 
 server:
   externalURL: "https://otterscale.phison.com/api/"
-  externalTunnelURL: "https://otterscale.phison.com/tunnel/"
+  externalTunnelURL: "http://192.168.1.100:30300"
+  tunnelService:
+    type: NodePort
+    nodePort: "30300"
 
 harbor:
   externalURL: "https://cr.phison.com"
