@@ -28,7 +28,7 @@ phison-mw-operator:
     workload_pvc_export:
       enabled: true
       vllm_cache_storage_class: otterscale-local-path
-      s3_credentials_secret: models
+      s3_credentials_secret: models-kserve
       s3_endpoint_host_port: rook-ceph-rgw-ceph-objectstore.rook-ceph.svc:8301
 
   valkey-ha:
