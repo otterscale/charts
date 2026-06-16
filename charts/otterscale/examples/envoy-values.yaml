@@ -9,7 +9,7 @@ dashboard:
 
 server:
   externalURL: "http://192.168.1.100:30080/api/"
-  externalTunnelURL: "http://192.168.1.100:30300"
+  externalTunnelURL: "https://192.168.1.100:30300"
   tunnelService:
     type: NodePort
     nodePort: "30300"
