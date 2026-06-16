@@ -27,7 +27,7 @@ Access via NodePort:
 
 Keycloak Admin:
   Username: {{ .Values.keycloakx.auth.adminUser }}
-  Password: kubectl get secret -n {{ include "otterscale.namespace" . }} {{ .Release.Name }}-keycloakx-admin -o jsonpath="{.data.KC_BOOTSTRAP_ADMIN_PASSWORD}" | base64 -d
+  Password: kubectl get secret -n {{ include "otterscale.namespace" . }} {{ .Release.Name }}-keycloak-admin -o jsonpath="{.data.KC_BOOTSTRAP_ADMIN_PASSWORD}" | base64 -d
 {{- end }}
 
 Run 'helm test {{ .Release.Name }}' to verify the deployment.
