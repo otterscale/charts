@@ -43,6 +43,10 @@ Prefer .Values.namespace; fall back to .Release.Namespace.
 {{- printf "%s-dashboard" (include "otterscale.fullname" .) -}}
 {{- end -}}
 
+{{- define "otterscale.tunnel.fullname" -}}
+{{- printf "%s-server-tunnel" (include "otterscale.fullname" .) -}}
+{{- end -}}
+
 {{- define "otterscale.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
