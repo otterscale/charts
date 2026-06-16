@@ -9,7 +9,7 @@ sources:
   - https://github.com/otterscale/charts
 maintainers:
   - name: george_wu
-  - email: george_wu@phison.com
+    email: george_wu@phison.com
 keywords:
   - llm
   - kvcache
