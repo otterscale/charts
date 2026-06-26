@@ -1,7 +1,7 @@
 apiVersion: v2
 name: otterscale-lincense-operator
-version: 1.2.1
-appVersion: "1.1.0"
+version: 1.2.2
+appVersion: "1.2.0"
 description: >-
   Otterscale lincense operator chart.
 home: https://otterscale.github.io
