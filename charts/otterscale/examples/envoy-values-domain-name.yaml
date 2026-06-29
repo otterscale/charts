@@ -36,11 +36,6 @@ envoy:
   enabled: true
   gateway:
     service:
-      # 域名情境：用 LoadBalancer（不帶 nodePort）。若無 cloud LB 控制器，
-      # 安裝後自行指定 IP：
-      #   kubectl patch svc <envoy-svc> -n envoy-gateway-system \
-      #     --subresource=status --type=merge \
-      #     -p '{"status":{"loadBalancer":{"ingress":[{"ip":"192.168.196.103"}]}}}'
       type: LoadBalancer
   tls:
     enabled: true

@@ -26,9 +26,3 @@ envoy:
 
 ee:
   enabled: true
-
-# Envoy Gateway does not require sidecar injection.
-# To attach to a pre-existing Gateway instead, set:
-#   envoy.gateway.create: false
-#   envoy.gateway.name / envoy.gateway.namespace: <your gateway>
-# and ensure that Gateway's listeners allow routes from the otterscale namespace.
