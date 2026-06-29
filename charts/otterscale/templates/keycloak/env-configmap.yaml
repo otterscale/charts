@@ -10,6 +10,16 @@ metadata:
     {{- include "otterscale.labels" . | nindent 4 }}
 data:
   KC_BOOTSTRAP_ADMIN_USERNAME: {{ .Values.keycloakx.auth.adminUser | quote }}
+  # Pin Keycloak's frontend hostname to the full external URL, INCLUDING the
+  # relative path (e.g. https://host:port/auth), so the OIDC issuer is fully
+  # deterministic. Two reasons:
+  #   - Without scheme/host/port, Keycloak derives them from forwarded headers
+  #     and drops a non-standard NodePort (e.g. :30080).
+  #   - In Keycloak 26 hostname v2, a full-URL hostname's path overrides the
+  #     context path, so the path here must match KC_HTTP_RELATIVE_PATH (/auth);
+  #     omitting it makes the issuer drop /auth.
+  KC_HOSTNAME: {{ printf "%s%s" (include "otterscale.externalURL" .) (.Values.keycloakx.http.relativePath | trimSuffix "/") | quote }}
+  KC_HOSTNAME_STRICT: "true"
   JAVA_OPTS_APPEND: >-
     -XX:+UseContainerSupport
     -XX:MaxRAMPercentage=70.0

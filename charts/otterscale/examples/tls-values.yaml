@@ -1,0 +1,54 @@
+# Example: Envoy Gateway with TLS + two domains (OtterScale + Harbor)
+#
+# Single helm install — no manual post-install editing of Gateway/HTTPRoute/
+# ConfigMaps. The chart creates the Gateway (HTTP + HTTPS listeners), the TLS
+# Secret, the Harbor HTTPRoute, and an HTTP->HTTPS redirect.
+#
+# Usage:
+#   helm install otterscale . -n otterscale-system --create-namespace \
+#     -f examples/tls-values.yaml
+
+dashboard:
+  externalURL: "https://otterscale.phison.com"
+
+server:
+  externalURL: "https://otterscale.phison.com/api/"
+  externalTunnelURL: "https://otterscale.phison.com:30300"
+  tunnelService:
+    type: NodePort
+    nodePort: "30300"
+
+harbor:
+  externalURL: "https://cr.phison.com"
+
+storage:
+  localPath:
+    enabled: true
+
+ee:
+  enabled: true
+
+envoy:
+  enabled: true
+  gatewayClassName: "eg"        # the Envoy Gateway GatewayClass name
+  gateway:
+    create: true
+    name: "otterscale"
+    namespace: "envoy-gateway-system"   # Gateway + EnvoyProxy + TLS Secret live here
+  tls:
+    enabled: true
+    redirectToHTTPS: true
+
+    # --- Provide the certificate; the chart creates "<release>-tls" Secret ---
+    crt: |
+      -----BEGIN CERTIFICATE-----
+      ...paste your tls.crt (PEM) here...
+      -----END CERTIFICATE-----
+    key: |
+      -----BEGIN PRIVATE KEY-----
+      ...paste your tls.key (PEM) here...
+      -----END PRIVATE KEY-----
+
+    # --- OR reference a Secret you already created in envoy-gateway-system ---
+    # (leave crt/key empty to use this)
+    # existingSecret: "phison-new-2026"

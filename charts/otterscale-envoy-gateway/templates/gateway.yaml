@@ -1,10 +1,10 @@
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: gateway
+  name: otterscale-gateway
   namespace: {{ .Release.Namespace }}
 spec:
-  gatewayClassName: envoy
+  gatewayClassName: envoy-otterscale
   listeners:
     - name: http-otterscale
       protocol: HTTP
