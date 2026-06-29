@@ -39,18 +39,18 @@ dependencies:
   - condition: keycloakx.enabled
     repository: "https://codecentric.github.io/helm-charts"
     name: keycloakx
-    version: 7.1.11
+    version: 7.1.x
   - condition: dashboard-valkey.enabled
     repository: "https://valkey.io/valkey-helm/"
     name: valkey
     alias: dashboard-valkey
-    version: 0.9.4
+    version: 0.9.x
   - condition: harbor.enabled
     repository: "https://helm.goharbor.io"
     name: harbor
-    version: 1.18.4
+    version: 1.18.x
   - name: common
     repository: oci://registry-1.docker.io/bitnamicharts
     tags:
       - bitnami-common
-    version: 2.40.0
+    version: 2.x.x
