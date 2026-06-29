@@ -23,11 +23,6 @@ storage:
 
 envoy:
   enabled: true
-  gateway:
-    name: gateway
-    namespace: envoy-gateway-system
 
 ee:
   enabled: true
-
-# Envoy Gateway does not require sidecar injection.

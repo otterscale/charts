@@ -31,3 +31,6 @@ gpu-operator:
 
   vgpuDeviceManager:
     enabled: false
+
+  migManager:
+    enabled: false

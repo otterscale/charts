@@ -1,0 +1,25 @@
+{{- if and .Values.envoy.enabled .Values.envoy.httpRoute.enabled .Values.envoy.tls.enabled .Values.envoy.tls.redirectToHTTPS }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "otterscale.fullname" . }}-redirect
+  namespace: {{ include "otterscale.namespace" . }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+spec:
+  parentRefs:
+  - name: {{ include "otterscale.gatewayRef" . }}
+    namespace: {{ include "otterscale.gateway.namespace" . }}
+    sectionName: http
+  hostnames:
+  - {{ include "otterscale.host" . | quote }}
+  {{- if .Values.harbor.enabled }}
+  - {{ include "otterscale.harbor.host" . | quote }}
+  {{- end }}
+  rules:
+  - filters:
+    - type: RequestRedirect
+      requestRedirect:
+        scheme: https
+        statusCode: 301
+{{- end }}
