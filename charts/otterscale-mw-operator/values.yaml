@@ -1,14 +1,17 @@
 # Umbrella defaults — equivalent to passing the following to phison-mw-operator:
 #   --set monitoring.enabled=true
 #   --set ai_gateway.enabled=false
-#   --set cache-tier.resources.ai100=1
+#   --set cache-tier.resources.ai100=0
 #   --set cache-tier.lmcache.l1_size_gb=32
-#   --set cache-tier.lmcache.mooncake_global_segment_size_bytes=68719476736
-#   --set cache-tier.images.mw=harbor.phison.com/ai-mw/mw:501-0004.001
-#   --set cache-tier.workload_pvc_export.enabled=true
-#   --set cache-tier.workload_pvc_export.vllm_cache_storage_class=otterscale-local-path
-#   --set cache-tier.workload_pvc_export.s3_credentials_secret=models
-#   --set cache-tier.workload_pvc_export.s3_endpoint_host_port=rook-ceph-rgw-ceph-objectstore.rook-ceph.svc:8301
+#   --set cache-tier.lmcache.mooncake_global_segment_size_bytes=34359738368
+#   --set cache-tier.lmcache.mooncake_local_disk_size_bytes=68719476736
+#   --set cache-tier.images.mw=harbor.phison.com/ai-mw/mw:501-0006.001
+#   --set cache-tier.workload.enabled=true
+#   --set cache-tier.workload.create_s3_sa=true
+#   --set cache-tier.workload.vllm_cache_storage_class=otterscale-local-path
+#   --set cache-tier.workload.model_hub_sc=ceph-filesystem
+#   --set cache-tier.workload.s3_credentials_secret=models
+#   --set cache-tier.workload.s3_endpoint_host_port=rook-ceph-rgw-ceph-objectstore.rook-ceph.svc:8301
 #   --set valkey-ha.global.storageClass=otterscale-local-path
 phison-mw-operator:
   monitoring:
@@ -19,15 +22,18 @@ phison-mw-operator:
 
   cache-tier:
     resources:
-      ai100: 1
+      ai100: 0
     lmcache:
       l1_size_gb: 32
-      mooncake_global_segment_size_bytes: 68719476736
+      mooncake_global_segment_size_bytes: 34359738368
+      mooncake_local_disk_size_bytes: 68719476736
     images:
-      mw: harbor.phison.com/ai-mw/mw:501-0004.001
-    workload_pvc_export:
+      mw: harbor.phison.com/ai-mw/mw:501-0006.001
+    workload:
       enabled: true
+      create_s3_sa: true
       vllm_cache_storage_class: otterscale-local-path
+      model_hub_sc: ceph-filesystem
       s3_credentials_secret: models-kserve
       s3_endpoint_host_port: rook-ceph-rgw-ceph-objectstore.rook-ceph.svc:8301
 
