@@ -22,10 +22,10 @@ type: application
 kubeVersion: ">=1.32.0-0"
 dependencies:
   - name: kserve-llmisvc-crd
-    version: v0.19.0
+    version: v0.18.0
     repository: oci://ghcr.io/kserve/charts
   - name: kserve-localmodel-crd
-    version: v0.19.0
+    version: v0.18.0
     repository: oci://ghcr.io/kserve/charts
 annotations:
   module.otterscale.io/namespace: "kserve"
