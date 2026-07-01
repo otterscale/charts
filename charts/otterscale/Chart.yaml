@@ -1,7 +1,7 @@
 apiVersion: v2
 name: otterscale
 appVersion: SXHR0103T-0000
-version: 1.3.0-rc.0
+version: 1.3.0-rc.1
 description: OtterScale - A unified platform for simplified compute, storage, and networking
 home: https://otterscale.github.io
 icon: https://github.com/otterscale.png
@@ -39,7 +39,7 @@ dependencies:
   - condition: keycloakx.enabled
     repository: "https://codecentric.github.io/helm-charts"
     name: keycloakx
-    version: 7.1.x
+    version: 7.2.x
   - condition: dashboard-valkey.enabled
     repository: "https://valkey.io/valkey-helm/"
     name: valkey
@@ -48,7 +48,7 @@ dependencies:
   - condition: harbor.enabled
     repository: "https://helm.goharbor.io"
     name: harbor
-    version: 1.18.x
+    version: 1.19.x
   - name: common
     repository: oci://registry-1.docker.io/bitnamicharts
     tags:
