@@ -3,4 +3,4 @@ dependencies:
   repository: oci://docker.io/envoyproxy
   version: 0.5.0
 digest: sha256:90460e95392001a11604b9d98ad33085c19e631d4def82070d7f1d8fc1b33e5a
-generated: "2026-05-05T01:46:02.178596194+08:00"
+generated: "2026-07-01T14:07:44.370843641+08:00"

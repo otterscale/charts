@@ -1,48 +1,32 @@
-# =============================================================================
-# Global Configuration
-# =============================================================================
+# OtterScale chart values.
+# Top-level keys (server, dashboard, storage, ingress, envoy) drive this chart's
+# own templates; keycloakx, dashboard-valkey and harbor are passed through to
+# their respective subcharts.
+
+# ── Global ──
 global:
-  # -- Override the image registry for all images in this chart.
   imageRegistry: ""
-  # -- Global image pull secrets.
-  # E.g. imagePullSecrets: [{ name: "my-registry-secret" }]
   imagePullSecrets: []
-  # -- Global default StorageClass for all PVCs.
   storageClass: "otterscale-local-path"
 
-# -- Override the namespace for all resources.
-# Defaults to "otterscale-system". When installing with helm, pass
-# --namespace otterscale-system --create-namespace to match.
+# Namespace for all chart resources (pass --namespace to match).
 namespace: "otterscale-system"
-
-# -- Override the chart name used in resource names.
 nameOverride: ""
-# -- Override the full resource name prefix.
 fullnameOverride: ""
 
-# =============================================================================
-# Enterprise Edition (EE) Configuration
-# =============================================================================
+# ── Enterprise Edition ──
+# When enabled, the dashboard image switches to its "-ee" variant.
 ee:
-  # -- Enable Enterprise Edition. When true, the dashboard image repository
-  # is switched to its "-ee" variant (e.g. ghcr.io/otterscale/dashboard-ee).
   enabled: false
 
-# =============================================================================
-# Storage Configuration
-# =============================================================================
+# ── Storage ──
+# localPath.enabled deploys rancher/local-path-provisioner + a StorageClass.
 storage:
   localPath:
-    # -- When enabled, the chart deploys rancher/local-path-provisioner and
-    # creates a dedicated StorageClass.  PostgreSQL will automatically use
-    # this StorageClass.
     enabled: false
-    # -- Absolute host path used for volume storage.
     path: /opt/otterscale/storage
-    # -- Name given to the created StorageClass.
     storageClassName: otterscale-local-path
-    # -- ReclaimPolicy: Retain (safe default) or Delete.
-    reclaimPolicy: Retain
+    reclaimPolicy: Retain  # Retain or Delete
     image:
       repository: rancher/local-path-provisioner
       tag: v0.0.28
@@ -53,87 +37,54 @@ storage:
         tag: "1.32"
         pullPolicy: IfNotPresent
 
-# =============================================================================
-# OtterScale Server Configuration
-# =============================================================================
+# ── OtterScale Server ──
 server:
-  # -- Override the external URL the server advertises to clients (API endpoint).
-  # When empty, auto-derived from externalURL (+ nodePort if configured).
-  # E.g. "https://otterscale.example.com", "http://192.168.1.100:30080"
+  # Advertised endpoints. Empty = auto-derive from dashboard.externalURL
+  # (+ nodePort if set).
   externalURL: ""
-  # -- Override the external tunnel URL the server advertises to agents.
-  # When empty, auto-derived from externalURL (+ nodePort if configured).
-  # E.g. "https://otterscale.example.com:8300", "https://192.168.1.100:30300"
   externalTunnelURL: ""
 
-  # -- Number of replicas. Ignored when autoscaling.enabled is true.
-  replicaCount: 1
-
+  replicaCount: 1  # ignored when autoscaling.enabled
   image:
     repository: ghcr.io/otterscale/otterscale
     # renovate: image=ghcr.io/otterscale/otterscale
-    tag: "v1.2.1"
+    tag: "v1.3.0-rc.1"
     pullPolicy: IfNotPresent
-
-  # -- Container ports.
   ports:
     http: 8299
     tunnel: 8300
 
-  # -- ServiceAccount configuration.
   serviceAccount:
-    # -- Create a dedicated ServiceAccount.
     create: true
-    # -- Override the ServiceAccount name. Defaults to server fullname.
     name: ""
-    # -- Annotations added to the ServiceAccount.
     annotations: {}
-    # -- Automount API credentials into pods.
     automountServiceAccountToken: true
 
-  # -- Deployment revision history limit (number of old ReplicaSets to retain).
   revisionHistoryLimit: 3
-
-  # -- Deployment update strategy.
   updateStrategy:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
 
-  # -- HTTP service configuration.
-  service:
-    # -- Kubernetes Service type: ClusterIP, NodePort, or LoadBalancer.
+  service:  # type: ClusterIP | NodePort | LoadBalancer
     type: ClusterIP
-    # -- NodePort value (only used when type is NodePort).
     nodePort: ""
-    # -- Annotations added to the Service.
     annotations: {}
-    # -- Extra labels added to the Service.
     labels: {}
-
-  # -- Tunnel service configuration.
   tunnelService:
-    # -- Kubernetes Service type: ClusterIP, NodePort, or LoadBalancer.
     type: ClusterIP
-    # -- NodePort value (only used when type is NodePort).
     nodePort: ""
-    # -- Annotations added to the Service.
     annotations: {}
-    # -- Extra labels added to the Service.
     labels: {}
 
-  # -- Resource requests and limits.
   resources:
     requests:
       cpu: "500m"
       memory: "512Mi"
-    limits:
-      # -- CPU limit omitted by default to avoid throttling.
-      # cpu: "1"
+    limits:  # CPU limit omitted by default to avoid throttling
       memory: "1024Mi"
 
-  # -- Liveness probe configuration.
   livenessProbe:
     enabled: true
     tcpSocket:
@@ -142,8 +93,6 @@ server:
     periodSeconds: 15
     timeoutSeconds: 5
     failureThreshold: 3
-
-  # -- Readiness probe configuration.
   readinessProbe:
     enabled: true
     tcpSocket:
@@ -152,8 +101,6 @@ server:
     periodSeconds: 10
     timeoutSeconds: 5
     failureThreshold: 3
-
-  # -- Startup probe configuration (disabled by default).
   startupProbe:
     enabled: false
     tcpSocket:
@@ -162,7 +109,6 @@ server:
     periodSeconds: 10
     failureThreshold: 30
 
-  # -- Pod-level security context.
   podSecurityContext:
     runAsNonRoot: true
     runAsUser: 65532
@@ -170,8 +116,6 @@ server:
     fsGroup: 65532
     seccompProfile:
       type: RuntimeDefault
-
-  # -- Container-level security context.
   containerSecurityContext:
     allowPrivilegeEscalation: false
     capabilities:
@@ -179,143 +123,86 @@ server:
         - ALL
     readOnlyRootFilesystem: true
 
-  # -- Horizontal Pod Autoscaler configuration.
   autoscaling:
     enabled: false
     minReplicas: 1
     maxReplicas: 5
     targetCPUUtilizationPercentage: 80
-    # targetMemoryUtilizationPercentage: 80
-    # -- HPA scaling behavior.
     behavior: {}
-
-  # -- PodDisruptionBudget configuration.
   pdb:
     create: false
-    # -- Minimum number of pods available during disruptions.
     minAvailable: 1
-    # maxUnavailable: ""
-
-  # -- NetworkPolicy configuration.
   networkPolicy:
     enabled: false
-    # -- Additional custom ingress rules.
     ingress: []
-    # -- Additional custom egress rules.
     egress: []
-
-  # -- Prometheus ServiceMonitor configuration.
   serviceMonitor:
     enabled: false
-    # -- Override the namespace for the ServiceMonitor.
     namespace: ""
-    # -- Scrape interval.
     interval: 30s
-    # -- Scrape timeout.
     scrapeTimeout: 10s
-    # -- Additional labels for the ServiceMonitor.
     labels: {}
-    # -- Metric relabeling configs.
     metricRelabelings: []
-    # -- Relabeling configs.
     relabelings: []
 
-  # -- Node selector for pod assignment.
+  # Scheduling
   nodeSelector: {}
-  # -- Tolerations for pod assignment.
   tolerations: []
-  # -- Affinity rules for pod assignment.
   affinity: {}
-  # -- Topology spread constraints for pod assignment.
   topologySpreadConstraints: []
-  # -- Priority class name for pod scheduling.
   priorityClassName: ""
-  # -- Termination grace period in seconds (K8s default is 30s).
-  # Increase if tunnel connections need more time for graceful drain.
   terminationGracePeriodSeconds: 30
 
-  # -- Extra annotations added to pods.
+  # Pod extras / escape hatches
   podAnnotations: {}
-  # -- Extra labels added to pods.
   podLabels: {}
-
-  # -- Additional environment variables.
   env: []
-  # -- Additional environment variable sources (configMapRef, secretRef).
   extraEnvFrom: []
-  # -- Additional volumes.
   extraVolumes: []
-  # -- Additional volume mounts.
   extraVolumeMounts: []
-  # -- Additional sidecar containers.
   extraContainers: []
-  # -- Init containers.
   initContainers: []
 
-# =============================================================================
-# OtterScale Dashboard Configuration
-# =============================================================================
+# ── OtterScale Dashboard ──
 dashboard:
-  # -- Base external URL used to construct external-facing URLs
-  # (Keycloak realm URL, CORS allowed origins, server external URL, etc.).
-  # Required regardless of whether Istio or Ingress is enabled.
-  # E.g. "http://192.168.1.100", "https://otterscale.example.com"
+  # Base external URL used to build external-facing URLs (Keycloak realm URL,
+  # CORS origins, server external URL, …). Required.
   externalURL: ""
 
-  # -- Number of replicas. Ignored when autoscaling.enabled is true.
-  replicaCount: 1
-
+  replicaCount: 1  # ignored when autoscaling.enabled
   image:
     repository: ghcr.io/otterscale/dashboard
     # renovate: image=ghcr.io/otterscale/dashboard
-    tag: "v1.2.1"
+    tag: "v1.3.0-rc.1"
     pullPolicy: IfNotPresent
-
-  # -- Container ports.
   ports:
     http: 3000
 
-  # -- ServiceAccount configuration.
   serviceAccount:
-    # -- Create a dedicated ServiceAccount.
     create: true
-    # -- Override the ServiceAccount name. Defaults to dashboard fullname.
     name: ""
-    # -- Annotations added to the ServiceAccount.
     annotations: {}
-    # -- Automount API credentials into pods.
     automountServiceAccountToken: false
 
-  # -- Deployment revision history limit (number of old ReplicaSets to retain).
   revisionHistoryLimit: 3
-
-  # -- Deployment update strategy.
   updateStrategy:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 25%
       maxUnavailable: 25%
 
-  # -- Service configuration.
-  service:
-    # -- Kubernetes Service type: ClusterIP, NodePort, or LoadBalancer.
+  service:  # type: ClusterIP | NodePort | LoadBalancer
     type: ClusterIP
-    # -- Annotations added to the Service.
     annotations: {}
-    # -- Extra labels added to the Service.
     labels: {}
 
-  # -- Resource requests and limits.
   resources:
     requests:
       cpu: "100m"
       memory: "128Mi"
-    limits:
-      # -- CPU limit omitted by default to avoid throttling.
-      # cpu: "500m"
+    limits:  # CPU limit omitted by default to avoid throttling
       memory: "1024Mi"
 
-  # -- Liveness probe configuration.
   livenessProbe:
     enabled: true
     httpGet:
@@ -325,8 +212,6 @@ dashboard:
     periodSeconds: 15
     timeoutSeconds: 5
     failureThreshold: 3
-
-  # -- Readiness probe configuration.
   readinessProbe:
     enabled: true
     httpGet:
@@ -336,8 +221,6 @@ dashboard:
     periodSeconds: 10
     timeoutSeconds: 5
     failureThreshold: 3
-
-  # -- Startup probe configuration (disabled by default).
   startupProbe:
     enabled: false
     httpGet:
@@ -347,7 +230,6 @@ dashboard:
     periodSeconds: 10
     failureThreshold: 30
 
-  # -- Pod-level security context.
   podSecurityContext:
     runAsNonRoot: true
     runAsUser: 65532
@@ -355,8 +237,6 @@ dashboard:
     fsGroup: 65532
     seccompProfile:
       type: RuntimeDefault
-
-  # -- Container-level security context.
   containerSecurityContext:
     allowPrivilegeEscalation: false
     readOnlyRootFilesystem: true
@@ -364,27 +244,19 @@ dashboard:
       drop:
         - ALL
 
-  # -- Horizontal Pod Autoscaler configuration.
   autoscaling:
     enabled: false
     minReplicas: 1
     maxReplicas: 5
     targetCPUUtilizationPercentage: 80
-    # targetMemoryUtilizationPercentage: 80
     behavior: {}
-
-  # -- PodDisruptionBudget configuration.
   pdb:
     create: false
     minAvailable: 1
-
-  # -- NetworkPolicy configuration.
   networkPolicy:
     enabled: false
     ingress: []
     egress: []
-
-  # -- Prometheus ServiceMonitor configuration.
   serviceMonitor:
     enabled: false
     namespace: ""
@@ -394,50 +266,31 @@ dashboard:
     metricRelabelings: []
     relabelings: []
 
-  # -- Node selector for pod assignment.
+  # Scheduling
   nodeSelector: {}
-  # -- Tolerations for pod assignment.
   tolerations: []
-  # -- Affinity rules for pod assignment.
   affinity: {}
-  # -- Topology spread constraints for pod assignment.
   topologySpreadConstraints: []
-  # -- Priority class name for pod scheduling.
   priorityClassName: ""
-  # -- Termination grace period in seconds.
   terminationGracePeriodSeconds: 30
 
-  # -- Extra annotations added to pods.
+  # Pod extras / escape hatches
   podAnnotations: {}
-  # -- Extra labels added to pods.
   podLabels: {}
-
-  # -- Additional environment variables.
   env: []
-  # -- Additional environment variable sources.
   extraEnvFrom: []
-  # -- Additional volumes.
   extraVolumes: []
-  # -- Additional volume mounts.
   extraVolumeMounts: []
-  # -- Additional sidecar containers.
   extraContainers: []
-  # -- Init containers.
   initContainers: []
 
-# =============================================================================
-# Ingress Configuration (standard Kubernetes Ingress)
-# =============================================================================
+# ── Ingress (standard K8s Ingress; alternative to Envoy Gateway) ──
 ingress:
-  # -- Enable standard Kubernetes Ingress. Typically used as an alternative to Envoy Gateway.
   enabled: false
-  # -- IngressClass name (e.g. "nginx", "traefik").
   className: ""
-  # -- Annotations added to the Ingress resource.
   annotations:
     nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
     nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
-  # -- Ingress host rules.
   hosts:
     - host: otterscale.local
       paths:
@@ -451,81 +304,71 @@ ingress:
         - path: /auth/
           pathType: Prefix
           service: keycloak
-  # -- TLS configuration for the Ingress.
   tls: []
-  #  - secretName: otterscale-tls
-  #    hosts:
-  #      - otterscale.local
 
-# =============================================================================
-# Envoy Gateway Configuration
-# =============================================================================
+# ── Envoy Gateway (Gateway API) ──
 envoy:
-  # -- Enable Envoy Gateway integration (Gateway API).
   enabled: false
+  # GatewayClass backed by the Envoy Gateway controller (envoy-gateway-system).
+  gatewayClassName: "envoy-otterscale"
   httpRoute:
-    # -- Create a Gateway API HTTPRoute.
     enabled: true
-    # -- Hostnames for the HTTPRoute. Must be a subset of the Gateway listener hostnames.
-    # Leave empty to match all hostnames.
-    hostnames: []
-
-  # TLS configuration for Gateway.
+    hostnames: []  # empty = derive from dashboard.externalURL host
+  # TLS: enabled=true -> HTTPS (supply crt+key OR existingSecret).
+  #      enabled=false -> HTTP only via ip:port (no HTTPS listener / redirect /
+  #                       per-domain Harbor route).
   tls:
-    # -- Enable TLS termination at the Gateway.
     enabled: false
-    # -- Name of an existing Secret containing tls.crt and tls.key.
-    # Required when envoy.tls.enabled is true.
+    # crt+key (raw PEM): chart creates "<fullname>-tls" Secret in the Gateway ns.
+    crt: ""
+    key: ""
+    # OR an existing Secret — it MUST already exist in the Gateway namespace.
     existingSecret: ""
-
-  # Reference to an existing Gateway API Gateway resource.
+    redirectToHTTPS: true
   gateway:
-    # -- Name of the Gateway resource that HTTPRoute should attach to.
-    name: "gateway"
-    # -- Namespace of the Gateway resource.
+    create: true
+    name: "otterscale-gateway"
+    # Gateway / EnvoyProxy / chart-managed TLS Secret all live here (co-located
+    # so the HTTPS listener references the Secret without a ReferenceGrant).
     namespace: "envoy-gateway-system"
+    # Envoy data-plane Service fronting the Gateway.
+    service:
+      type: NodePort  # NodePort (ip:port) | LoadBalancer (domain)
+      # NodePorts used only when type is NodePort; omitted for LoadBalancer.
+      httpNodePort: 30080
+      httpsNodePort: 30443
+      # Used only when type is LoadBalancer and a controller honours it (MetalLB).
+      loadBalancerIP: ""
 
-# =============================================================================
-# Valkey Configuration (Dashboard session cache)
-# =============================================================================
+# ── Valkey (dashboard session cache) ──
 dashboard-valkey:
   enabled: true
-  # -- Valkey service port.
   port: 6379
-  # -- Pod labels for the Valkey deployment.
   podLabels: {}
   aclUsers:
     default:
       permissions: "~* &* +@all"
   password: ""
 
-# =============================================================================
-# Keycloak Configuration
-# =============================================================================
+# ── Keycloak (codecentric keycloakx subchart) ──
 keycloakx:
   enabled: true
   nameOverride: keycloak
-  # -- Pod labels for the Keycloak StatefulSet.
   podLabels: {}
-  # -- Keycloak realm name.
   realm: otterscale
   auth:
-    # -- Keycloak bootstrap admin username.
     adminUser: admin
     adminPassword: ""
   clients:
+    # The server also uses the dashboard client id to validate tokens.
     dashboard:
-      # -- Keycloak client ID for the dashboard (authorization code + PKCE flow).
-      # The server also uses this client ID to validate tokens.
       id: otterscale-dashboard
       secret: ""
     harbor:
-      # -- Keycloak client ID for Harbor OIDC integration.
       id: otterscale-harbor
       secret: ""
   http:
     relativePath: /auth/
-  # -- Keycloak HTTP service port (as exposed by the codecentric chart).
   service:
     port: 80
 
@@ -537,14 +380,12 @@ keycloakx:
       --import-realm \
       --http-port=8080 \
       --http-enabled=true \
-      --hostname-strict=false \
+      --proxy-headers=xforwarded \
       --spi-events-listener-jboss-logging-success-level=info \
       --spi-events-listener-jboss-logging-error-level=warn
 
-  # NOTE: extraEnvFrom and extraVolumes are tpl-evaluated by the keycloakx
-  # subchart in ITS OWN context. Use .Release.Name (shared across parent
-  # and subchart) rather than "otterscale.fullname" (which resolves
-  # differently in subchart context).
+  # NOTE: extraEnvFrom/extraVolumes are tpl-evaluated by the keycloakx subchart
+  # in ITS OWN context — use .Release.Name, not "otterscale.fullname".
   extraEnvFrom: |
     - configMapRef:
         name: {{ .Release.Name }}-{{ default "keycloakx" .Values.nameOverride }}-env
@@ -557,9 +398,8 @@ keycloakx:
     vendor: postgres
     database: keycloak
     username: keycloak
-    # -- Name of the Secret and headless Service for PostgreSQL.
-    # Must match the resources created by keycloak/postgres-*.yaml templates.
-    # These values are NOT tpl-evaluated by the keycloakx subchart.
+    # Must match the resources created by keycloak/postgres-*.yaml templates
+    # (these values are NOT tpl-evaluated by the subchart).
     existingSecret: otterscale-keycloak-postgres
     existingSecretKey: "postgres-password"
     hostname: otterscale-keycloak-postgres
@@ -573,7 +413,6 @@ keycloakx:
       storageClassName: "otterscale-local-path"
       accessMode: ReadWriteOnce
       size: 5Gi
-    # -- Resource requests and limits for the Keycloak PostgreSQL container.
     resources:
       requests:
         memory: "256Mi"
@@ -615,19 +454,13 @@ keycloakx:
     - name: theme-import-volume
       emptyDir: {}
 
-# =============================================================================
-# Harbor Configuration (Container Registry)
-# =============================================================================
-# Harbor is exposed via NodePort (HTTP 32180).
-# Docker push/pull:  docker login <host>:32180
-# harbor.externalURL must match the actual browser URL (scheme://IP:nodePort).
+# ── Harbor (container registry) ──
+# externalURL must match the browser URL (scheme://host:nodePort).
 harbor:
   enabled: true
   externalURL: "http://127.0.0.1:32180"
   harborAdminPassword: ""
-  # -- Name of the Secret storing Harbor admin password.
-  # The chart creates this Secret; Harbor subchart references it by name.
-  # Harbor does NOT tpl-evaluate this value, so it must be a literal string.
+  # Chart creates this Secret; Harbor references it by name (literal, not tpl).
   existingSecretAdminPassword: "otterscale-harbor-admin"
   existingSecretAdminPasswordKey: "HARBOR_ADMIN_PASSWORD"
 
@@ -636,8 +469,7 @@ harbor:
       - name: CONFIG_OVERWRITE_JSON
         valueFrom:
           secretKeyRef:
-            # Must match harbor.oidc.configSecretName
-            name: "otterscale-harbor-oidc-config"
+            name: "otterscale-harbor-oidc-config"  # must match harbor.oidc.configSecretName
             key: CONFIG_OVERWRITE_JSON
 
   expose:
@@ -677,7 +509,6 @@ harbor:
 
   database:
     type: internal
-
   redis:
     type: internal
 
@@ -687,6 +518,5 @@ harbor:
     autoOnboard: true
     groupsClaim: "groups"
     adminGroup: "harbor_admin"
-    # -- Name of the Secret containing Harbor OIDC config JSON.
     # Must match the name referenced in harbor.core.extraEnvVars.
     configSecretName: "otterscale-harbor-oidc-config"

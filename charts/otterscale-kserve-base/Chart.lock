@@ -6,4 +6,4 @@ dependencies:
   repository: oci://ghcr.io/kserve/charts
   version: v0.18.0
 digest: sha256:61f6cf363a303ef2f1fa6d250392394094d6a429f809e9d11f082d8689f280f6
-generated: "2026-04-30T09:59:01.392959109+08:00"
+generated: "2026-07-01T14:19:21.752149525+08:00"

@@ -26,7 +26,21 @@ hami:
     nvidiaNodeSelector:
       gpu: null
       otterscale.io/gpu: "true"
-  
+    nodeConfiguration:
+      config: |
+        {
+          "nodeconfig": [
+            {
+              "name": "your-node-name",
+              "operatingmode": "mig",
+              "filterdevices": {
+                "uuid": [],
+                "index": []
+              }
+            }
+          ]
+        }
+
   dra:
     enabled: false
 

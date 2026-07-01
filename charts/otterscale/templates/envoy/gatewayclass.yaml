@@ -1,0 +1,15 @@
+{{- if and .Values.envoy.enabled .Values.envoy.gateway.create }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: {{ .Values.envoy.gatewayClassName }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+  parametersRef:
+    group: gateway.envoyproxy.io
+    kind: EnvoyProxy
+    name: otterscale-envoyproxy
+    namespace: {{ include "otterscale.gateway.namespace" . }}
+{{- end }}

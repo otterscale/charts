@@ -564,7 +564,7 @@ spec:
         - --health-probe-bind-address=:8081
         command:
         - /manager
-        image: ghcr.io/otterscale/license-operator:v1.1.0
+        image: ghcr.io/otterscale/license-operator:v1.2.1
         livenessProbe:
           httpGet:
             path: /healthz
