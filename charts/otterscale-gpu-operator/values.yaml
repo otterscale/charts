@@ -10,6 +10,9 @@ gpu-operator:
     version: "580.126.20"
     upgradePolicy:
       autoUpgrade: false
+    usePrecompiled: true
+    repository: nvcr.io/nvidia
+    image: driver
 
   devicePlugin:
     enabled: false
@@ -37,6 +40,8 @@ gpu-operator:
   
   toolkit:
     env:
+    - name: CONTAINERD_CONFIG
+      value: /var/lib/rancher/rke2/agent/etc/containerd/config.toml
     - name: CONTAINERD_SOCKET
       value: /run/k3s/containerd/containerd.sock
     - name: CONTAINERD_RUNTIME_CLASS
