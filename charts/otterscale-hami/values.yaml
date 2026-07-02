@@ -11,6 +11,14 @@ hami:
       gpuSchedulerPolicy: binpack
     service:
       type: ClusterIP
+    kubeScheduler:
+      image:
+        registry: "registry.k8s.io"
+        repository: "kube-scheduler"
+    certManager:
+      enabled: true
+    patch: 
+      enabled: false
 
   devicePlugin:
     enabled: true
@@ -24,7 +32,6 @@ hami:
       type: ClusterIP
     runtimeClassName: "nvidia"
     nvidiaNodeSelector:
-      gpu: null
       otterscale.io/gpu: "true"
     nodeConfiguration:
       config: |
@@ -33,6 +40,7 @@ hami:
             {
               "name": "your-node-name",
               "operatingmode": "mig",
+              "migstrategy": "none",
               "filterdevices": {
                 "uuid": [],
                 "index": []
