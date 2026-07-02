@@ -15,10 +15,10 @@ hami:
       image:
         registry: "registry.k8s.io"
         repository: "kube-scheduler"
-        tag: "v1.35.5"
     certManager:
       enabled: true
-    patch: false
+    patch: 
+      enabled: false
 
   devicePlugin:
     enabled: true
@@ -32,7 +32,6 @@ hami:
       type: ClusterIP
     runtimeClassName: "nvidia"
     nvidiaNodeSelector:
-      gpu: null
       otterscale.io/gpu: "true"
     nodeConfiguration:
       config: |
