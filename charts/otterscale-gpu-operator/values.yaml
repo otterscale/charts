@@ -34,3 +34,13 @@ gpu-operator:
 
   migManager:
     enabled: false
+  
+  toolkit:
+    env:
+    - name: CONTAINERD_SOCKET
+      value: /run/k3s/containerd/containerd.sock
+    - name: CONTAINERD_RUNTIME_CLASS
+      value: nvidia
+    - name: CONTAINERD_SET_AS_DEFAULT
+      value: "true"
+  
