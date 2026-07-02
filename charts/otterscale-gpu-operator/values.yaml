@@ -34,3 +34,8 @@ gpu-operator:
 
   migManager:
     enabled: false
+  
+  toolkit:
+    env:
+      name: CONTAINERD_SOCKET
+      value: "/run/k3s/containerd/containerd.sock"
