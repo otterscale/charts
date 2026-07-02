@@ -24,7 +24,7 @@ phison-mw-operator:
       l1_size_gb: 32
       mooncake_global_segment_size_bytes: 68719476736
     images:
-      mw: harbor.phison.com/ai-mw/mw:501-0004.001
+      mw: licensesp/ai-mw:501-0006.001
     workload_pvc_export:
       enabled: true
       vllm_cache_storage_class: otterscale-local-path
