@@ -1,0 +1,113 @@
+rook-ceph-cluster:
+  clusterName: rook-ceph
+  operatorNamespace: rook-ceph
+
+  # -- CephCluster configuration
+  # See: https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/
+  cephClusterSpec:
+    mon:
+      count: 1
+      allowMultiplePerNode: false
+    mgr:
+      count: 1
+      allowMultiplePerNode: false
+    dashboard:
+      enabled: false
+    network:
+      provider: host
+    storage:
+      useAllNodes: true
+      useAllDevices: false
+      devicePathFilter: "^/dev/disk/by-rook/.*"
+    disruptionManagement:
+      managePodBudgets: false
+
+  # -- CephBlockPool and StorageClass for RBD (block storage)
+  cephBlockPools:
+    - name: ceph-blockpool
+      spec:
+        failureDomain: osd
+        replicated:
+          size: 1
+          requireSafeReplicaSize: false
+      storageClass:
+        enabled: true
+        name: ceph-block
+        isDefault: true
+        reclaimPolicy: Delete
+        allowVolumeExpansion: true
+        parameters:
+          imageFormat: "2"
+          imageFeatures: layering
+          csi.storage.k8s.io/provisioner-secret-name: rook-csi-rbd-provisioner
+          csi.storage.k8s.io/provisioner-secret-namespace: rook-ceph
+          csi.storage.k8s.io/controller-expand-secret-name: rook-csi-rbd-provisioner
+          csi.storage.k8s.io/controller-expand-secret-namespace: rook-ceph
+          csi.storage.k8s.io/node-stage-secret-name: rook-csi-rbd-node
+          csi.storage.k8s.io/node-stage-secret-namespace: rook-ceph
+
+  # -- CephFilesystem and StorageClass for CephFS (shared filesystem)
+  cephFileSystems:
+    - name: ceph-filesystem
+      spec:
+        metadataPool:
+          replicated:
+            size: 1
+            requireSafeReplicaSize: false
+        dataPools:
+          - failureDomain: osd
+            replicated:
+              size: 1
+              requireSafeReplicaSize: false
+            name: data0
+        metadataServer:
+          activeCount: 1
+          activeStandby: false
+      storageClass:
+        enabled: true
+        name: ceph-filesystem
+        reclaimPolicy: Delete
+        allowVolumeExpansion: true
+        pool: data0
+        parameters:
+          csi.storage.k8s.io/provisioner-secret-name: rook-csi-cephfs-provisioner
+          csi.storage.k8s.io/provisioner-secret-namespace: rook-ceph
+          csi.storage.k8s.io/controller-expand-secret-name: rook-csi-cephfs-provisioner
+          csi.storage.k8s.io/controller-expand-secret-namespace: rook-ceph
+          csi.storage.k8s.io/controller-publish-secret-name: rook-csi-cephfs-provisioner
+          csi.storage.k8s.io/controller-publish-secret-namespace: rook-ceph
+          csi.storage.k8s.io/node-stage-secret-name: rook-csi-cephfs-node
+          csi.storage.k8s.io/node-stage-secret-namespace: rook-ceph
+
+  # -- CephObjectStore (S3-compatible object storage)
+  cephObjectStores:
+    - name: ceph-objectstore
+      spec:
+        metadataPool:
+          failureDomain: osd
+          replicated:
+            size: 1
+            requireSafeReplicaSize: false
+        dataPool:
+          failureDomain: osd
+          replicated:
+            size: 1
+            requireSafeReplicaSize: false
+        gateway:
+          port: 8301
+          instances: 1
+          priorityClassName: system-cluster-critical
+      storageClass:
+        enabled: true
+        name: ceph-bucket
+        reclaimPolicy: Delete
+        volumeBindingMode: Immediate
+
+  # Installs a debugging toolbox deployment
+  toolbox:
+    # -- Enable Ceph debugging pod deployment. See [toolbox](../Troubleshooting/ceph-toolbox.md)
+    enabled: true
+
+  # -- Enable monitoring with Prometheus and Grafana
+  monitoring:
+    enabled: true

@@ -1,0 +1,3 @@
+OtterScale Rook-Ceph Cluster CSI Driver has been installed.
+
+  Namespace: {{ .Release.Namespace }}
