@@ -32,9 +32,11 @@ storage:
       tag: v0.0.28
       pullPolicy: IfNotPresent
     helperPod:
+      # Only needs a POSIX shell to run `mkdir -m 0777` / `rm -rf` (see
+      # templates/storage/provisioner.yaml) — any minimal shell image works.
       image:
-        repository: busybox
-        tag: "1.37"
+        repository: alpine
+        tag: "3.21"
         pullPolicy: IfNotPresent
 
 # ── OtterScale Server ──
@@ -392,8 +394,12 @@ keycloakx:
     - secretRef:
         name: {{ .Release.Name }}-{{ default "keycloakx" .Values.nameOverride }}-admin
 
+  # The subchart's built-in dbchecker init container defaults to busybox
+  # (docker.io/busybox) and shells out to `nc`. Disabled here in favor of a
+  # custom initContainer below that reuses the postgres image already pulled
+  # for the database itself and checks readiness with `pg_isready`.
   dbchecker:
-    enabled: true
+    enabled: false
   database:
     vendor: postgres
     database: keycloak
@@ -422,6 +428,18 @@ keycloakx:
         cpu: "500m"
 
   extraInitContainers: |
+    - name: dbchecker
+      image: {{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}
+      imagePullPolicy: {{ .Values.database.image.pullPolicy }}
+      command:
+        - sh
+        - -c
+        - |
+          echo "Waiting for Database to become ready..."
+          until pg_isready -h {{ .Values.database.hostname }} -p {{ .Values.database.port }}; do
+            sleep 2
+          done
+          echo "Database OK"
     - name: theme-provider
       image: ghcr.io/otterscale/keycloakify:1.2.5
       imagePullPolicy: IfNotPresent
