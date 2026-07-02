@@ -35,8 +35,8 @@ storage:
       # Only needs a POSIX shell to run `mkdir -m 0777` / `rm -rf` (see
       # templates/storage/provisioner.yaml) — any minimal shell image works.
       image:
-        repository: alpine
-        tag: "3.21"
+        repository: docker.io/library/debian
+        tag: bookworm-slim
         pullPolicy: IfNotPresent
 
 # ── OtterScale Server ──

@@ -15,6 +15,12 @@ kube-prometheus-stack:
             resources:
               requests:
                 storage: "40Gi"
+  prometheusOperator:
+    admissionWebhooks:
+      patch:
+        enabled: false
+      certManager:
+        enabled: true
 
   nodeExporter:
     enabled: true
