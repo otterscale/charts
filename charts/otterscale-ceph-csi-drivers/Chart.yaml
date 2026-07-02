@@ -20,11 +20,10 @@ keywords:
 type: application
 kubeVersion: ">=1.25.0-0"
 annotations:
-  module.otterscale.io/depends-on: "otterscale-rook-ceph,otterscale-rook-ceph-cluster,otterscale-envoy-gateway"
+  module.otterscale.io/depends-on: "otterscale-rook-ceph,otterscale-rook-ceph-cluster"
   module.otterscale.io/namespace: "rook-ceph"
   artifacthub.io/license: Apache-2.0
 dependencies:
   - name: ceph-csi-operator
-    version: 1.0.x
+    version: 1.0.1
     repository: https://ceph.github.io/ceph-csi-operator
- 
