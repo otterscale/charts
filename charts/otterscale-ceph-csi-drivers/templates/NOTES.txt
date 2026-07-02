@@ -1,1 +1,1 @@
-OtterScale Rook-Ceph CSI Driver
+OtterScale Ceph CSI Drivers
