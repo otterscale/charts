@@ -546,7 +546,7 @@ harborInit:
   enabled: true
   # Projects to create. public: "true" makes the project publicly readable.
   projects:
-    - name: "hci-public"
+    - name: "otterscale-charts"
       public: "true"
   image:
     repository: docker.io/library/debian
