@@ -1,0 +1,115 @@
+{{- if and .Values.harbor.enabled .Values.harborInit.enabled }}
+{{- $coreHost := printf "%s-harbor-core" .Release.Name -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "otterscale.fullname" . }}-harbor-init
+  namespace: {{ include "otterscale.namespace" . }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+    app.kubernetes.io/component: harbor-init
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 300
+  template:
+    metadata:
+      labels:
+        {{- include "otterscale.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: harbor-init
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: harbor-init
+          image: "{{ .Values.harborInit.image.repository }}:{{ .Values.harborInit.image.tag }}"
+          imagePullPolicy: {{ .Values.harborInit.image.pullPolicy }}
+          env:
+            - name: HARBOR_HOST
+              value: {{ $coreHost | quote }}
+            - name: HARBOR_PORT
+              value: "80"
+            - name: HARBOR_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.harbor.existingSecretAdminPassword | quote }}
+                  key: {{ .Values.harbor.existingSecretAdminPasswordKey | quote }}
+          command:
+            - bash
+            - -c
+            - |
+              set -eu
+
+              # Talk to the Harbor API over bash's built-in /dev/tcp so we need
+              # neither curl/wget (no extra binaries, no apt) nor root.
+              # HTTP only (Harbor core listens plain HTTP inside the cluster).
+
+              # http_request METHOD PATH EXTRA_HEADERS BODY -> echoes HTTP status code.
+              http_request() {
+                _method="$1"; _path="$2"; _headers="$3"; _body="$4"
+                exec 3<>"/dev/tcp/${HARBOR_HOST}/${HARBOR_PORT}" || { echo "000"; return 0; }
+                {
+                  printf '%s %s HTTP/1.1\r\n' "$_method" "$_path"
+                  printf 'Host: %s\r\n' "$HARBOR_HOST"
+                  printf 'Connection: close\r\n'
+                  [ -n "$_headers" ] && printf '%s' "$_headers"
+                  if [ -n "$_body" ]; then
+                    printf 'Content-Type: application/json\r\n'
+                    printf 'Content-Length: %d\r\n' "${#_body}"
+                  fi
+                  printf '\r\n'
+                  [ -n "$_body" ] && printf '%s' "$_body"
+                } >&3
+                # First response line looks like: "HTTP/1.1 201 Created"
+                read -r _status <&3 || _status=""
+                exec 3<&- 3>&- || true
+                set -- $_status
+                echo "${2:-000}"
+              }
+
+              echo "Waiting for Harbor API at ${HARBOR_HOST}:${HARBOR_PORT} ..."
+              deadline=$(( $(date +%s) + {{ .Values.harborInit.waitTimeoutSeconds }} ))
+              until [ "$(http_request GET /api/v2.0/health '' '')" = "200" ]; do
+                if [ "$(date +%s)" -ge "${deadline}" ]; then
+                  echo "Timed out waiting for Harbor to become healthy." >&2
+                  exit 1
+                fi
+                echo "Harbor not ready yet, retrying in 5s..."
+                sleep 5
+              done
+              echo "Harbor API is healthy."
+
+              auth=$(printf 'admin:%s' "${HARBOR_ADMIN_PASSWORD}" | base64 | tr -d '\n')
+              auth_header="Authorization: Basic ${auth}"$'\r\n'
+
+              create_project() {
+                name="$1"
+                public="$2"
+                payload="{\"project_name\":\"${name}\",\"metadata\":{\"public\":\"${public}\"}}"
+                code=$(http_request POST /api/v2.0/projects "${auth_header}" "${payload}")
+                case "${code}" in
+                  201) echo "Project '${name}' created (public=${public})." ;;
+                  409) echo "Project '${name}' already exists, skipping." ;;
+                  *)   echo "Failed to create project '${name}' (HTTP ${code})." >&2
+                       return 1 ;;
+                esac
+              }
+
+              {{- range .Values.harborInit.projects }}
+              create_project {{ .name | quote }} {{ .public | default "false" | quote }}
+              {{- end }}
+
+              echo "Harbor project initialization complete."
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65532
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            {{- toYaml .Values.harborInit.resources | nindent 12 }}
+{{- end }}
