@@ -1,6 +1,6 @@
 apiVersion: v2
 name: otterscale-hami
-version: 1.3.0-rc.4
+version: 1.3.0-rc.5
 # renovate: helm=hami registry=https://project-hami.github.io/HAMi/
 appVersion: "2.9.0"
 description: >-
@@ -24,10 +24,10 @@ annotations:
   module.otterscale.io/depends-on: "otterscale-gpu-operator"
   module.otterscale.io/namespace: "kube-system"
   module.otterscale.io/post-renderer: >-
-    kustomize[0].patches[0].target.kind=DaemonSet,
-    kustomize[0].patches[0].target.name=hami-device-plugin,
-    kustomize[0].patches[0].op=remove,
-    kustomize[0].patches[0].path=/spec/template/spec/nodeSelector/gpu
+    postRenderers[0].kustomize.patches[0].target.kind=DaemonSet,
+    postRenderers[0].kustomize.patches[0].target.name=hami-device-plugin,
+    postRenderers[0].kustomize.patches[0].patch[0].op=remove,
+    postRenderers[0].kustomize.patches[0].patch[0].path=/spec/template/spec/nodeSelector/gpu
   artifacthub.io/license: Apache-2.0
 dependencies:
   - name: hami
