@@ -538,3 +538,26 @@ harbor:
     adminGroup: "harbor_admin"
     # Must match the name referenced in harbor.core.extraEnvVars.
     configSecretName: "otterscale-harbor-oidc-config"
+
+# Post-install hook that pre-creates Harbor projects once Harbor is ready.
+# Runs as a post-install/post-upgrade Helm hook; each API call is idempotent
+# (an already-existing project is treated as success).
+harborInit:
+  enabled: true
+  # Projects to create. public: "true" makes the project publicly readable.
+  projects:
+    - name: "hci-public"
+      public: "true"
+  image:
+    repository: docker.io/library/debian
+    tag: "bookworm-slim"
+    pullPolicy: IfNotPresent
+  # Seconds to keep waiting for the Harbor API to become healthy before failing.
+  waitTimeoutSeconds: 600
+  resources:
+    requests:
+      cpu: 10m
+      memory: 16Mi
+    limits:
+      cpu: 100m
+      memory: 64Mi

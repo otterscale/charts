@@ -7,12 +7,12 @@ gpu-operator:
 
   driver:
     enabled: true
-    version: "580.126.20"
+    version: "580.159.04"
     upgradePolicy:
       autoUpgrade: false
     usePrecompiled: true
-    repository: nvcr.io/nvidia
-    image: driver
+    repository: ghcr.io
+    image: otterscale/nvidia-drive
 
   devicePlugin:
     enabled: false

@@ -1,0 +1,93 @@
+{{- if and .Values.harbor.enabled .Values.harborInit.enabled }}
+{{- $coreHost := printf "%s-harbor-core" .Release.Name -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "otterscale.fullname" . }}-harbor-init
+  namespace: {{ include "otterscale.namespace" . }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+    app.kubernetes.io/component: harbor-init
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 300
+  template:
+    metadata:
+      labels:
+        {{- include "otterscale.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: harbor-init
+    spec:
+      restartPolicy: OnFailure
+      volumes:
+        - name: tmp
+          emptyDir: {}
+      containers:
+        - name: harbor-init
+          image: "{{ .Values.harborInit.image.repository }}:{{ .Values.harborInit.image.tag }}"
+          imagePullPolicy: {{ .Values.harborInit.image.pullPolicy }}
+          env:
+            - name: HARBOR_URL
+              value: "http://{{ $coreHost }}"
+            - name: HARBOR_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.harbor.existingSecretAdminPassword | quote }}
+                  key: {{ .Values.harbor.existingSecretAdminPasswordKey | quote }}
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+
+              echo "Waiting for Harbor API at ${HARBOR_URL} ..."
+              deadline=$(( $(date +%s) + {{ .Values.harborInit.waitTimeoutSeconds }} ))
+              until curl -sf -o /dev/null "${HARBOR_URL}/api/v2.0/health"; do
+                if [ "$(date +%s)" -ge "${deadline}" ]; then
+                  echo "Timed out waiting for Harbor to become healthy." >&2
+                  exit 1
+                fi
+                echo "Harbor not ready yet, retrying in 5s..."
+                sleep 5
+              done
+              echo "Harbor API is healthy."
+
+              create_project() {
+                name="$1"
+                public="$2"
+                payload="{\"project_name\":\"${name}\",\"metadata\":{\"public\":\"${public}\"}}"
+                code=$(curl -s -o /tmp/resp -w "%{http_code}" \
+                  -u "admin:${HARBOR_ADMIN_PASSWORD}" \
+                  -X POST "${HARBOR_URL}/api/v2.0/projects" \
+                  -H "Content-Type: application/json" \
+                  -d "${payload}")
+                case "${code}" in
+                  201) echo "Project '${name}' created (public=${public})." ;;
+                  409) echo "Project '${name}' already exists, skipping." ;;
+                  *)   echo "Failed to create project '${name}' (HTTP ${code}):" >&2
+                       cat /tmp/resp >&2 || true
+                       return 1 ;;
+                esac
+              }
+
+              {{- range .Values.harborInit.projects }}
+              create_project {{ .name | quote }} {{ .public | default "false" | quote }}
+              {{- end }}
+
+              echo "Harbor project initialization complete."
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            {{- toYaml .Values.harborInit.resources | nindent 12 }}
+{{- end }}
