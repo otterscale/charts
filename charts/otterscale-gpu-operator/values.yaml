@@ -12,7 +12,7 @@ gpu-operator:
       autoUpgrade: false
     usePrecompiled: true
     repository: ghcr.io
-    image: otterscale/nvidia-drive
+    image: otterscale/nvidia-driver
 
   devicePlugin:
     enabled: false
