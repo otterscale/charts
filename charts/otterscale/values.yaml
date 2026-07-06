@@ -175,7 +175,7 @@ dashboard:
   image:
     repository: ghcr.io/otterscale/dashboard
     # renovate: image=ghcr.io/otterscale/dashboard
-    tag: "v1.3.0-rc.2"
+    tag: "v1.3.0-rc.3"
     pullPolicy: IfNotPresent
   ports:
     http: 3000
@@ -441,7 +441,7 @@ keycloakx:
           done
           echo "Database OK"
     - name: theme-provider
-      image: ghcr.io/otterscale/keycloakify:1.2.5
+      image: ghcr.io/otterscale/keycloakify:1.2.7
       imagePullPolicy: IfNotPresent
       command:
         - sh
