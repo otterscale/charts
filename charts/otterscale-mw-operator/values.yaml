@@ -40,8 +40,8 @@ phison-mw-operator:
       render_image: harbor.phison.com/ai-mw/mw:501-0007.002
       storage_initializer_image: kserve/storage-initializer:v0.18.0
       vllm_cache_storage_class: otterscale-local-path
-      s3_credentials_secret: models
-      s3_endpoint_host_port: 10.102.197.191:32080
+      s3_credentials_secret: models-kserve
+      s3_endpoint_host_port: rook-ceph-rgw-ceph-objectstore.rook-ceph.svc:8301
     daemonset:
       enabled: false
     mooncake:
