@@ -38,6 +38,9 @@ gpu-operator:
   migManager:
     enabled: false
   
+  nfd:
+    enabled: false
+
   toolkit:
     env:
     - name: CONTAINERD_CONFIG
@@ -48,4 +51,5 @@ gpu-operator:
       value: nvidia
     - name: CONTAINERD_SET_AS_DEFAULT
       value: "true"
-  
+    - name: SELINUX_ENABLED
+      value: "true"
