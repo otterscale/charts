@@ -6,6 +6,7 @@ ceph-csi-drivers:
         name: rook-csi-operator-image-set-configmap
       nodePlugin:
         priorityClassName: system-node-critical
+        enableSeLinuxHostMount: true
       controllerPlugin:
         priorityClassName: system-cluster-critical
 
