@@ -1,6 +1,6 @@
 dependencies:
 - name: phison-mw-operator
   repository: oci://cr-ext.phison.com/otterscale
-  version: 0.4.39-otterscale
-digest: sha256:51631585a805276634f929e08768ac7617fc8bf50c08f49a78d70de7d62a65cd
-generated: "2026-07-01T15:15:18.920269695+08:00"
+  version: 0.4.55-otterscale
+digest: sha256:dc3f9b0f092b684b0ab14d205859d247e53f8a0c6a390060b43a817ce5e8dfce
+generated: "2026-07-07T08:58:56.370593146Z"
