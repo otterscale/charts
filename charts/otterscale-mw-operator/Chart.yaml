@@ -23,7 +23,7 @@ annotations:
   module.otterscale.io/post-renderer: >-  
     postRenderers[0].kustomize.patches[0].target.group=serving.kserve.io,  
     postRenderers[0].kustomize.patches[0].target.version=v1alpha2,  
-    postRenderers[0].kustomize.patches[0].target.kind=LLMInferenceService,  
+    postRenderers[0].kustomize.patches[0].target.kind=LLMInferenceServiceConfig,  
     postRenderers[0].kustomize.patches[0].patch[0].op=add,  
     postRenderers[0].kustomize.patches[0].patch[0].path=/metadata/namespace,  
     postRenderers[0].kustomize.patches[0].patch[0].value=otterscale-system
