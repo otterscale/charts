@@ -1,7 +1,7 @@
 apiVersion: v2
 name: otterscale-mw-operator
-version: 1.3.0-rc.2
-appVersion: 0.4.39-otterscale
+version: 1.3.0
+appVersion: 0.4.55-otterscale
 description: Umbrella chart that wraps phison-mw-operator with OtterScale-flavored defaults
   (monitoring on, ai_gateway off, AI100=1, mw image pinned, workload PVC export on,
   Valkey-HA storage class pinned to otterscale-local-path).
@@ -22,5 +22,5 @@ annotations:
   module.otterscale.io/namespace: "phison-mw-operator"
 dependencies:
   - name: phison-mw-operator
-    version: 0.4.39-otterscale
+    version: 0.4.55-otterscale
     repository: oci://cr-ext.phison.com/otterscale
