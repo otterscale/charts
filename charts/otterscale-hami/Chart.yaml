@@ -25,7 +25,7 @@ annotations:
   module.otterscale.io/namespace: "kube-system"
   module.otterscale.io/post-renderer: >-
     postRenderers[0].kustomize.patches[0].target.kind=DaemonSet,
-    postRenderers[0].kustomize.patches[0].target.name=hami-device-plugin,
+    postRenderers[0].kustomize.patches[0].target.name=otterscale-hami-device-plugin,
     postRenderers[0].kustomize.patches[0].patch[0].op=remove,
     postRenderers[0].kustomize.patches[0].patch[0].path=/spec/template/spec/nodeSelector/gpu
   artifacthub.io/license: Apache-2.0
