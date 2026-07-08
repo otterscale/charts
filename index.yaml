@@ -5897,14 +5897,49 @@ entries:
         postRenderers[0].kustomize.patches[0].patch[0].op=remove, postRenderers[0].kustomize.patches[0].patch[0].path=/spec/template/spec/nodeSelector/gpu
     apiVersion: v2
     appVersion: 2.9.0
-    created: "2026-07-08T14:08:28.150045574Z"
+    created: "2026-07-08T14:13:05.673610974Z"
     dependencies:
     - name: hami
       repository: https://project-hami.github.io/HAMi/
       version: 2.9.0
     description: HAMI — GPU sharing (vGPU) with device split, memory/core scaling.
       Integrates with NVIDIA GPU Operator.
-    digest: 9ca119d2356ad71a8353332e2c53543b8825bdd7fe5027dd65fda89ccc5eff3c
+    digest: 5cb0fef856248c1b81a59a18cc28ec852554d341ba696a715ede146cfa107b3a
+    home: https://github.com/Project-HAMi/HAMi
+    icon: https://github.com/Project-HAMi.png
+    keywords:
+    - gpu
+    - vgpu
+    - hami
+    - sharing
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-hami
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-hami-1.3.0-rc.6/otterscale-hami-1.3.0-rc.6.tgz
+    version: 1.3.0-rc.6
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-gpu-operator
+      module.otterscale.io/namespace: kube-system
+      module.otterscale.io/post-renderer: postRenderers[0].kustomize.patches[0].target.kind=DaemonSet,
+        postRenderers[0].kustomize.patches[0].target.name=hami-device-plugin, postRenderers[0].kustomize.patches[0].patch[0].op=remove,
+        postRenderers[0].kustomize.patches[0].patch[0].path=/spec/template/spec/nodeSelector/gpu
+    apiVersion: v2
+    appVersion: 2.9.0
+    created: "2026-07-06T02:49:11.846174907Z"
+    dependencies:
+    - name: hami
+      repository: https://project-hami.github.io/HAMi/
+      version: 2.9.0
+    description: HAMI — GPU sharing (vGPU) with device split, memory/core scaling.
+      Integrates with NVIDIA GPU Operator.
+    digest: 0dc1af46590f49244acc1d6189e70bcaf169f7a028db5db11319421b6169a980
     home: https://github.com/Project-HAMi/HAMi
     icon: https://github.com/Project-HAMi.png
     keywords:
@@ -5928,18 +5963,18 @@ entries:
       module.otterscale.io/depends-on: otterscale-gpu-operator
       module.otterscale.io/namespace: kube-system
       module.otterscale.io/post-renderer: postRenderers[0].kustomize.patches[0].target.kind=DaemonSet,
-        postRenderers[0].kustomize.patches[0].target.name=hami-device-plugin, postRenderers[0].kustomize.patches[0].patch[0].op=remove,
-        postRenderers[0].kustomize.patches[0].patch[0].path=/spec/template/spec/nodeSelector/gpu
+        postRenderers[0].kustomize.patches[0].target.name=otterscale-hami-device-plugin,
+        postRenderers[0].kustomize.patches[0].patch[0].op=remove, postRenderers[0].kustomize.patches[0].patch[0].path=/spec/template/spec/nodeSelector/gpu
     apiVersion: v2
     appVersion: 2.9.0
-    created: "2026-07-06T02:49:11.846174907Z"
+    created: "2026-07-08T14:08:28.150045574Z"
     dependencies:
     - name: hami
       repository: https://project-hami.github.io/HAMi/
       version: 2.9.0
     description: HAMI — GPU sharing (vGPU) with device split, memory/core scaling.
       Integrates with NVIDIA GPU Operator.
-    digest: 0dc1af46590f49244acc1d6189e70bcaf169f7a028db5db11319421b6169a980
+    digest: 9ca119d2356ad71a8353332e2c53543b8825bdd7fe5027dd65fda89ccc5eff3c
     home: https://github.com/Project-HAMi/HAMi
     icon: https://github.com/Project-HAMi.png
     keywords:
@@ -11095,4 +11130,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-08T14:08:28.150886059Z"
+generated: "2026-07-08T14:13:05.674338592Z"
