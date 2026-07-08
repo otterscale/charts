@@ -1,5 +1,9 @@
 {{ .Files.Get "files/hci-gemma4-31b-hf-501-0007-config.yaml" }}
+---
 {{ .Files.Get "files/hci-gptoss-120b-32b-hf-501-0007-config.yaml" }}
+---
 {{ .Files.Get "files/hci-gptoss-20b-32b-hf-501-0007-config.yaml" }}
+---
 {{ .Files.Get "files/hci-qwen3-32b-hf-501-0007-config.yaml" }}
+---
 {{ .Files.Get "files/hci-qwen3.5-397b-hf-501-0007-config.yaml" }}
