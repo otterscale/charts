@@ -1,9 +1,9 @@
 apiVersion: serving.kserve.io/v1alpha2
 kind: LLMInferenceServiceConfig
 metadata:
-  name: gptoss-20b-mw-llmis-config
+  name: gemma-4-31b-it-mw-llmis-config
   annotations:
-    phison-mw.ai/served-model-name: "gpt-oss-20b"
+    phison-mw.ai/served-model-name: "gemma-4-31B-it"
     phison-mw.ai/epp-block-size: "32"
     phison-mw.ai/render-model-cache-size: "32Gi"
     phison-mw.ai/render-trust-remote-code: "true"
@@ -38,15 +38,14 @@ spec:
       - /mnt/models
       args:
       - --served-model-name
-      - gpt-oss-20b
+      - gemma-4-31B-it
       - --max-model-len
       - '65536'
       - --port
       - '8000'
       - --tensor-parallel-size
-      - '1'
+      - '2'
       - --disable-custom-all-reduce
-      - --enable-prefix-caching
       - --gpu-memory-utilization=0.9
       - --limit-mm-per-prompt
       - '{"image":0,"audio":0,"video":0}'
@@ -55,13 +54,14 @@ spec:
       - '32'
       - --prefix-caching-hash-algo
       - sha256_cbor
+      - --enable-prefix-caching
       - --kv-events-config
-      - '{"enable_kv_cache_events":true,"publisher":"zmq","endpoint":"tcp://*:5557","topic":"kv@$(POD_IP):8000@gpt-oss-20b"}'
+      - '{"enable_kv_cache_events":true,"publisher":"zmq","endpoint":"tcp://*:5557","topic":"kv@$(POD_IP):8000@gemma-4-31B-it"}'
       - --kv-transfer-config
       - '{"kv_connector":"LMCacheMPConnector","kv_role":"kv_both","kv_connector_extra_config":{"lmcache.mp.host":"tcp://127.0.0.1","lmcache.mp.port":5757}}'
       env:
       - name: SERVED_MODEL_NAME
-        value: "gpt-oss-20b"
+        value: "gemma-4-31B-it"
       - name: VLLM_LOGGING_LEVEL
         value: INFO
       - name: FLASHINFER_DISABLE_VERSION_CHECK
@@ -128,18 +128,13 @@ spec:
       resources:
         limits:
           cpu: "8"
-          # TP=1: weights live in GPU (gpumem 90k); host RSS is only CUDA
-          # context + Python + transient load buffers (~10-20Gi peak). The
-          # LMCache L1 (20Gi in /dev/shm) is cgroup-charged to lmcache-server,
-          # NOT here — so main does not need to budget for it. ResourceQuota
-          # charges limits.memory; 40Gi leaves headroom while freeing quota.
-          memory: 40Gi
-          nvidia.com/gpu: 1
+          memory: 128Gi
+          nvidia.com/gpu: 2
           nvidia.com/gpumem: "90k"
         requests:
           cpu: "4"
-          memory: 16Gi
-          nvidia.com/gpu: 1
+          memory: 32Gi
+          nvidia.com/gpu: 2
           nvidia.com/gpumem: "90k"
     - image: harbor.phison.com/ai-mw/mw:501-0007.002-vuc
       imagePullPolicy: IfNotPresent
@@ -174,11 +169,11 @@ spec:
       - name: LMCACHE_HTTP_PORT
         value: '8088'
       - name: LMCACHE_CHUNK_SIZE
-        value: '32'
+        value: '256'
       - name: LMCACHE_HASH_ALGORITHM
         value: sha256_cbor
       - name: LMCACHE_L1_SIZE_GB
-        value: '20'
+        value: '50'
       - name: LMCACHE_EVICTION_POLICY
         value: LRU
       - name: LMCACHE_L2_STORE_POLICY
@@ -200,8 +195,7 @@ spec:
       - name: PROMETHEUS_MULTIPROC_DIR
         value: /tmp/lmcache_prometheus
       # L1 cache lives in /dev/shm (emptyDir medium:Memory) which counts against this
-      # container's memory cgroup. limit must exceed L1 size (20Gi) + process
-      # overhead — 28Gi keeps ~8Gi headroom above the 20Gi L1.
+      # container's memory cgroup. limit must exceed L1 size (50Gi) + process overhead.
       resources:
         requests:
           cpu: '1'
@@ -209,7 +203,7 @@ spec:
           phison.com/ai100: 1
         limits:
           cpu: '4'
-          memory: 28Gi
+          memory: 64Gi
           phison.com/ai100: 1
       securityContext:
         runAsNonRoot: false
@@ -245,11 +239,11 @@ spec:
     volumes:
     - name: local-disk
       persistentVolumeClaim:
-        claimName: gptoss-20b-mw-local-disk-pvc
+        claimName: gemma-4-31b-it-mw-local-disk-pvc
     - name: host-dev-shm
       emptyDir:
         medium: Memory
-        sizeLimit: 24Gi
+        sizeLimit: 55Gi
     # KServe presets inject emptyDir volume "model-cache"; use a distinct name for PVC.
     - name: lmcache-prometheus
       emptyDir: {}
@@ -274,7 +268,7 @@ spec:
           targetPorts:
           - number: 8000
       template:
-        serviceAccountName: gptoss-20b-mw-epp-sa
+        serviceAccountName: gemma-4-31b-it-mw-epp-sa
         affinity:
           nodeAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
@@ -359,7 +353,7 @@ spec:
         volumes:
         - name: endpoint-picker-config
           configMap:
-            name: gptoss-20b-mw-endpoint-picker-config
+            name: gemma-4-31b-it-mw-endpoint-picker-config
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         terminationGracePeriodSeconds: 30
