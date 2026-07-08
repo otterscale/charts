@@ -5893,6 +5893,41 @@ entries:
       module.otterscale.io/depends-on: otterscale-gpu-operator
       module.otterscale.io/namespace: kube-system
       module.otterscale.io/post-renderer: postRenderers[0].kustomize.patches[0].target.kind=DaemonSet,
+        postRenderers[0].kustomize.patches[0].target.name=otterscale-hami-device-plugin,
+        postRenderers[0].kustomize.patches[0].patch[0].op=remove, postRenderers[0].kustomize.patches[0].patch[0].path=/spec/template/spec/nodeSelector/gpu
+    apiVersion: v2
+    appVersion: 2.9.0
+    created: "2026-07-08T14:08:28.150045574Z"
+    dependencies:
+    - name: hami
+      repository: https://project-hami.github.io/HAMi/
+      version: 2.9.0
+    description: HAMI — GPU sharing (vGPU) with device split, memory/core scaling.
+      Integrates with NVIDIA GPU Operator.
+    digest: 9ca119d2356ad71a8353332e2c53543b8825bdd7fe5027dd65fda89ccc5eff3c
+    home: https://github.com/Project-HAMi/HAMi
+    icon: https://github.com/Project-HAMi.png
+    keywords:
+    - gpu
+    - vgpu
+    - hami
+    - sharing
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-hami
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-hami-1.3.0-rc.5/otterscale-hami-1.3.0-rc.5.tgz
+    version: 1.3.0-rc.5
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-gpu-operator
+      module.otterscale.io/namespace: kube-system
+      module.otterscale.io/post-renderer: postRenderers[0].kustomize.patches[0].target.kind=DaemonSet,
         postRenderers[0].kustomize.patches[0].target.name=hami-device-plugin, postRenderers[0].kustomize.patches[0].patch[0].op=remove,
         postRenderers[0].kustomize.patches[0].patch[0].path=/spec/template/spec/nodeSelector/gpu
     apiVersion: v2
@@ -11060,4 +11095,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-08T07:00:03.61543018Z"
+generated: "2026-07-08T14:08:28.150886059Z"
