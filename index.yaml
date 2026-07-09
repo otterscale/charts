@@ -227,6 +227,67 @@ entries:
       artifacthub.io/license: Apache-2.0
     apiVersion: v2
     appVersion: SXHR0103T-0000
+    created: "2026-07-09T11:20:17.614921804Z"
+    dependencies:
+    - condition: keycloakx.enabled
+      name: keycloakx
+      repository: https://codecentric.github.io/helm-charts
+      version: 7.2.x
+    - alias: dashboard-valkey
+      condition: dashboard-valkey.enabled
+      name: valkey
+      repository: https://valkey.io/valkey-helm/
+      version: 0.9.x
+    - condition: harbor.enabled
+      name: harbor
+      repository: https://helm.goharbor.io
+      version: 1.19.x
+    - name: common
+      repository: oci://registry-1.docker.io/bitnamicharts
+      tags:
+      - bitnami-common
+      version: 2.x.x
+    description: OtterScale - A unified platform for simplified compute, storage,
+      and networking
+    digest: 753476a94b3fbdd35cc5bf67c4fcee7092b3942215716e681d8aa7b8621edf1c
+    home: https://otterscale.github.io
+    icon: https://github.com/otterscale.png
+    keywords:
+    - otterscale
+    - kubernetes
+    - helm
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: terry_wu@phison.com
+      name: Yi-Lin Wu
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale
+    sources:
+    - https://github.com/otterscale/otterscale
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-1.3.0-rc.9/otterscale-1.3.0-rc.9.tgz
+    version: 1.3.0-rc.9
+  - annotations:
+      artifacthub.io/changes: |
+        - kind: added
+          description: ServiceAccount, HPA, PDB, NetworkPolicy, ServiceMonitor templates
+        - kind: added
+          description: Standard Kubernetes Ingress support
+        - kind: added
+          description: values.schema.json for input validation
+        - kind: added
+          description: NOTES.txt post-install instructions
+        - kind: added
+          description: Helm test templates for connectivity verification
+        - kind: changed
+          description: Template directory reorganization by component
+        - kind: changed
+          description: Full parameterization of resources, probes, security contexts, and service types
+      artifacthub.io/license: Apache-2.0
+    apiVersion: v2
+    appVersion: SXHR0103T-0000
     created: "2026-07-09T07:58:01.833320105Z"
     dependencies:
     - condition: keycloakx.enabled
@@ -9415,6 +9476,37 @@ entries:
       module.otterscale.io/post-renderer: postRenderers[0].kustomize.patches[0].target.group=serving.kserve.io,   postRenderers[0].kustomize.patches[0].target.version=v1alpha2,   postRenderers[0].kustomize.patches[0].target.kind=LLMInferenceServiceConfig,   postRenderers[0].kustomize.patches[0].patch[0].op=add,   postRenderers[0].kustomize.patches[0].patch[0].path=/metadata/namespace,   postRenderers[0].kustomize.patches[0].patch[0].value=otterscale-system
     apiVersion: v2
     appVersion: 0.4.55-otterscale
+    created: "2026-07-09T11:20:17.788340203Z"
+    dependencies:
+    - name: phison-mw-operator
+      repository: oci://cr-ext.phison.com/otterscale
+      version: 0.4.55-otterscale
+    description: Umbrella chart that wraps phison-mw-operator with OtterScale-flavored
+      defaults (monitoring on, ai_gateway off, AI100=1, mw image pinned, workload
+      PVC export on, Valkey-HA storage class pinned to otterscale-local-path).
+    digest: d45366354fe849be510543a0752e8e76f48db7f91c8e8147baca929c855e3607
+    keywords:
+    - llm
+    - kvcache
+    - mooncake
+    - lmcache
+    - otterscale
+    kubeVersion: '>= 1.30.0-0'
+    maintainers:
+    - email: george_wu@phison.com
+      name: george_wu
+    name: otterscale-mw-operator
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-mw-operator-1.3.3-rc.2/otterscale-mw-operator-1.3.3-rc.2.tgz
+    version: 1.3.3-rc.2
+  - annotations:
+      module.otterscale.io/namespace: phison-mw-operator
+      module.otterscale.io/post-renderer: postRenderers[0].kustomize.patches[0].target.group=serving.kserve.io,   postRenderers[0].kustomize.patches[0].target.version=v1alpha2,   postRenderers[0].kustomize.patches[0].target.kind=LLMInferenceServiceConfig,   postRenderers[0].kustomize.patches[0].patch[0].op=add,   postRenderers[0].kustomize.patches[0].patch[0].path=/metadata/namespace,   postRenderers[0].kustomize.patches[0].patch[0].value=otterscale-system
+    apiVersion: v2
+    appVersion: 0.4.55-otterscale
     created: "2026-07-08T14:56:06.039681976Z"
     dependencies:
     - name: phison-mw-operator
@@ -11253,4 +11345,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-09T07:58:01.834260938Z"
+generated: "2026-07-09T11:20:17.78886898Z"
