@@ -9,6 +9,9 @@ metadata:
     phison-mw.ai/render-trust-remote-code: "true"
 spec:
   replicas: 1
+  model:
+    name: gpt-oss-120b
+    uri: hf://openai/gpt-oss-120b
   storageInitializer:
     enabled: true
   template:

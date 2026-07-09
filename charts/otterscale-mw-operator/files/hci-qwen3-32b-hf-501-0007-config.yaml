@@ -10,6 +10,9 @@ metadata:
     phison-mw.ai/render-trust-remote-code: "true"
 spec:
   replicas: 1
+  model:
+    name: Qwen3-32B-AWQ
+    uri: hf://Qwen/Qwen3-32B-AWQ
   storageInitializer:
     enabled: true
   template:
