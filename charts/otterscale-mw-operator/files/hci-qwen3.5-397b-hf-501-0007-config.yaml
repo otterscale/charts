@@ -10,6 +10,9 @@ metadata:
     phison-mw.ai/render-trust-remote-code: "true"
 spec:
   replicas: 1
+  model:
+    name: Qwen35-397B-A17B-NVFP4
+    uri: hf://nvidia/Qwen3.5-397B-A17B-NVFP4
   storageInitializer:
     enabled: true
   template:

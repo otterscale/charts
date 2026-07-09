@@ -9,6 +9,9 @@ metadata:
     phison-mw.ai/render-trust-remote-code: "true"
 spec:
   replicas: 1
+  model:
+    name: Gemma-4-31B-it
+    uri: hf://google/gemma-4-31B-it
   storageInitializer:
     enabled: true
   template:
