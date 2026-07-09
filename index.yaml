@@ -6016,6 +6016,43 @@ entries:
       module.otterscale.io/namespace: kube-system
       module.otterscale.io/post-renderer: postRenderers[0].kustomize.patches[0].target.kind=DaemonSet,
         postRenderers[0].kustomize.patches[0].target.name=otterscale-hami-device-plugin,
+        postRenderers[0].kustomize.patches[0].patch[0].op=remove, postRenderers[0].kustomize.patches[0].patch[0].path=/spec/template/spec/nodeSelector/gpu,
+        postRenderers[0].kustomize.patches[0].patch[1].op=add, postRenderers[0].kustomize.patches[0].patch[1].path=/spec/template/spec/containers/1/securityContext/seLinuxOptions,
+        postRenderers[0].kustomize.patches[0].patch[1].value.type=spc_t
+    apiVersion: v2
+    appVersion: 2.9.0
+    created: "2026-07-09T13:24:34.772148473Z"
+    dependencies:
+    - name: hami
+      repository: https://project-hami.github.io/HAMi/
+      version: 2.9.0
+    description: HAMI — GPU sharing (vGPU) with device split, memory/core scaling.
+      Integrates with NVIDIA GPU Operator.
+    digest: 3136b12c9cf68603ef9db623560815931c8a064191d75287f9a74a36896383c6
+    home: https://github.com/Project-HAMi/HAMi
+    icon: https://github.com/Project-HAMi.png
+    keywords:
+    - gpu
+    - vgpu
+    - hami
+    - sharing
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-hami
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-hami-1.3.0-rc.7/otterscale-hami-1.3.0-rc.7.tgz
+    version: 1.3.0-rc.7
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-gpu-operator
+      module.otterscale.io/namespace: kube-system
+      module.otterscale.io/post-renderer: postRenderers[0].kustomize.patches[0].target.kind=DaemonSet,
+        postRenderers[0].kustomize.patches[0].target.name=otterscale-hami-device-plugin,
         postRenderers[0].kustomize.patches[0].patch[0].op=remove, postRenderers[0].kustomize.patches[0].patch[0].path=/spec/template/spec/nodeSelector/gpu
     apiVersion: v2
     appVersion: 2.9.0
@@ -10050,6 +10087,37 @@ entries:
   otterscale-prometheus:
   - annotations:
       artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-rook-ceph-cluster
+      module.otterscale.io/namespace: monitoring
+    apiVersion: v2
+    appVersion: 87.4.0
+    created: "2026-07-09T13:24:35.004054086Z"
+    dependencies:
+    - name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 87.4.0
+    description: kube-prometheus-stack — Prometheus, Alertmanager, Node Exporter.
+      Grafana disabled; persistent storage with remote-write receiver.
+    digest: 684d82c812cacefcc25f51c9e5d893601307a89fdf7d428c59b605ef9b9e157b
+    home: https://github.com/prometheus-community/helm-charts
+    icon: https://github.com/prometheus.png
+    keywords:
+    - prometheus
+    - monitoring
+    - alertmanager
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-prometheus
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-prometheus-1.3.0-rc.3/otterscale-prometheus-1.3.0-rc.3.tgz
+    version: 1.3.0-rc.3
+  - annotations:
+      artifacthub.io/license: Apache-2.0
       module.otterscale.io/namespace: monitoring
     apiVersion: v2
     appVersion: 87.4.0
@@ -11345,4 +11413,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-09T11:20:17.78886898Z"
+generated: "2026-07-09T13:24:35.004693252Z"
