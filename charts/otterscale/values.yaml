@@ -50,7 +50,7 @@ server:
   image:
     repository: ghcr.io/otterscale/otterscale
     # renovate: image=ghcr.io/otterscale/otterscale
-    tag: "v1.3.0-rc.3"
+    tag: "v1.3.0"
     pullPolicy: IfNotPresent
   ports:
     http: 8299
@@ -175,7 +175,7 @@ dashboard:
   image:
     repository: ghcr.io/otterscale/dashboard
     # renovate: image=ghcr.io/otterscale/dashboard
-    tag: "v1.3.0-rc.7"
+    tag: "v1.3.0"
     pullPolicy: IfNotPresent
   ports:
     http: 3000
