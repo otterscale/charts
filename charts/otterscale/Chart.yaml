@@ -44,7 +44,7 @@ dependencies:
     repository: "https://valkey.io/valkey-helm/"
     name: valkey
     alias: dashboard-valkey
-    version: 0.9.x
+    version: 0.10.x
   - condition: harbor.enabled
     repository: "https://helm.goharbor.io"
     name: harbor
