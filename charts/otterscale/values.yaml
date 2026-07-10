@@ -26,10 +26,10 @@ storage:
     enabled: false
     path: /opt/otterscale/storage
     storageClassName: otterscale-local-path
-    reclaimPolicy: Retain  # Retain or Delete
+    reclaimPolicy: Retain # Retain or Delete
     image:
       repository: rancher/local-path-provisioner
-      tag: v0.0.28
+      tag: v0.0.36
       pullPolicy: IfNotPresent
     helperPod:
       # Only needs a POSIX shell to run `mkdir -m 0777` / `rm -rf` (see
@@ -46,7 +46,7 @@ server:
   externalURL: ""
   externalTunnelURL: ""
 
-  replicaCount: 1  # ignored when autoscaling.enabled
+  replicaCount: 1 # ignored when autoscaling.enabled
   image:
     repository: ghcr.io/otterscale/otterscale
     # renovate: image=ghcr.io/otterscale/otterscale
@@ -69,7 +69,7 @@ server:
       maxSurge: 25%
       maxUnavailable: 25%
 
-  service:  # type: ClusterIP | NodePort | LoadBalancer
+  service: # type: ClusterIP | NodePort | LoadBalancer
     type: ClusterIP
     nodePort: ""
     annotations: {}
@@ -84,7 +84,7 @@ server:
     requests:
       cpu: "500m"
       memory: "512Mi"
-    limits:  # CPU limit omitted by default to avoid throttling
+    limits: # CPU limit omitted by default to avoid throttling
       memory: "1024Mi"
 
   livenessProbe:
@@ -171,7 +171,7 @@ dashboard:
   # CORS origins, server external URL, …). Required.
   externalURL: ""
 
-  replicaCount: 1  # ignored when autoscaling.enabled
+  replicaCount: 1 # ignored when autoscaling.enabled
   image:
     repository: ghcr.io/otterscale/dashboard
     # renovate: image=ghcr.io/otterscale/dashboard
@@ -193,7 +193,7 @@ dashboard:
       maxSurge: 25%
       maxUnavailable: 25%
 
-  service:  # type: ClusterIP | NodePort | LoadBalancer
+  service: # type: ClusterIP | NodePort | LoadBalancer
     type: ClusterIP
     annotations: {}
     labels: {}
@@ -202,7 +202,7 @@ dashboard:
     requests:
       cpu: "100m"
       memory: "128Mi"
-    limits:  # CPU limit omitted by default to avoid throttling
+    limits: # CPU limit omitted by default to avoid throttling
       memory: "1024Mi"
 
   livenessProbe:
@@ -315,7 +315,7 @@ envoy:
   gatewayClassName: "envoy-otterscale"
   httpRoute:
     enabled: true
-    hostnames: []  # empty = derive from dashboard.externalURL host
+    hostnames: [] # empty = derive from dashboard.externalURL host
   # TLS: enabled=true -> HTTPS (supply crt+key OR existingSecret).
   #      enabled=false -> HTTP only via ip:port (no HTTPS listener / redirect /
   #                       per-domain Harbor route).
@@ -335,7 +335,7 @@ envoy:
     namespace: "envoy-gateway-system"
     # Envoy data-plane Service fronting the Gateway.
     service:
-      type: NodePort  # NodePort (ip:port) | LoadBalancer (domain)
+      type: NodePort # NodePort (ip:port) | LoadBalancer (domain)
       # NodePorts used only when type is NodePort; omitted for LoadBalancer.
       httpNodePort: 30080
       httpsNodePort: 30443
@@ -487,7 +487,7 @@ harbor:
       - name: CONFIG_OVERWRITE_JSON
         valueFrom:
           secretKeyRef:
-            name: "otterscale-harbor-oidc-config"  # must match harbor.oidc.configSecretName
+            name: "otterscale-harbor-oidc-config" # must match harbor.oidc.configSecretName
             key: CONFIG_OVERWRITE_JSON
 
   expose:
