@@ -29,7 +29,7 @@ storage:
     reclaimPolicy: Retain  # Retain or Delete
     image:
       repository: rancher/local-path-provisioner
-      tag: v0.0.28
+      tag: v0.0.36
       pullPolicy: IfNotPresent
     helperPod:
       # Only needs a POSIX shell to run `mkdir -m 0777` / `rm -rf` (see
