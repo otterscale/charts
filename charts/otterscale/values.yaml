@@ -482,13 +482,39 @@ harbor:
   existingSecretAdminPassword: "otterscale-harbor-admin"
   existingSecretAdminPasswordKey: "HARBOR_ADMIN_PASSWORD"
 
+  nginx:
+    image:
+      tag: v2.15.2
+
+  portal:
+    image:
+      tag: v2.15.2
+
   core:
+    image:
+      tag: v2.15.2
     extraEnvVars:
       - name: CONFIG_OVERWRITE_JSON
         valueFrom:
           secretKeyRef:
             name: "otterscale-harbor-oidc-config" # must match harbor.oidc.configSecretName
             key: CONFIG_OVERWRITE_JSON
+
+  jobservice:
+    image:
+      tag: v2.15.2
+
+  registry:
+    registry:
+      image:
+        tag: v2.15.2
+    controller:
+      image:
+        tag: v2.15.2
+
+  trivy:
+    image:
+      tag: v2.15.2
 
   expose:
     type: nodePort
@@ -526,9 +552,18 @@ harbor:
         size: 5Gi
 
   database:
-    type: internal
+    internal:
+      image:
+        tag: v2.15.2
+
   redis:
-    type: internal
+    internal:
+      image:
+        tag: v2.15.2
+
+  exporter:
+    image:
+      tag: v2.15.2
 
   oidc:
     enabled: true
