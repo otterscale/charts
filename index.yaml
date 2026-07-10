@@ -10089,6 +10089,38 @@ entries:
       artifacthub.io/license: Apache-2.0
       module.otterscale.io/depends-on: otterscale-rook-ceph-cluster
       module.otterscale.io/namespace: monitoring
+      module.otterscale.io/remediation: "3"
+    apiVersion: v2
+    appVersion: 87.4.0
+    created: "2026-07-10T05:11:45.875490159Z"
+    dependencies:
+    - name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 87.4.0
+    description: kube-prometheus-stack — Prometheus, Alertmanager, Node Exporter.
+      Grafana disabled; persistent storage with remote-write receiver.
+    digest: 69d4408c83634fc9b995e2e8b65be40c8d8e85b5ee7ee5602cf4a56d297c5ed1
+    home: https://github.com/prometheus-community/helm-charts
+    icon: https://github.com/prometheus.png
+    keywords:
+    - prometheus
+    - monitoring
+    - alertmanager
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-prometheus
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-prometheus-1.3.0-rc.4/otterscale-prometheus-1.3.0-rc.4.tgz
+    version: 1.3.0-rc.4
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-rook-ceph-cluster
+      module.otterscale.io/namespace: monitoring
     apiVersion: v2
     appVersion: 87.4.0
     created: "2026-07-09T13:24:35.004054086Z"
@@ -11413,4 +11445,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-09T13:24:35.004693252Z"
+generated: "2026-07-10T05:11:45.875938497Z"
