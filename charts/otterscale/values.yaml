@@ -26,10 +26,10 @@ storage:
     enabled: false
     path: /opt/otterscale/storage
     storageClassName: otterscale-local-path
-    reclaimPolicy: Retain  # Retain or Delete
+    reclaimPolicy: Retain # Retain or Delete
     image:
       repository: rancher/local-path-provisioner
-      tag: v0.0.28
+      tag: v0.0.36
       pullPolicy: IfNotPresent
     helperPod:
       # Only needs a POSIX shell to run `mkdir -m 0777` / `rm -rf` (see
@@ -46,11 +46,11 @@ server:
   externalURL: ""
   externalTunnelURL: ""
 
-  replicaCount: 1  # ignored when autoscaling.enabled
+  replicaCount: 1 # ignored when autoscaling.enabled
   image:
     repository: ghcr.io/otterscale/otterscale
     # renovate: image=ghcr.io/otterscale/otterscale
-    tag: "v1.3.0-rc.3"
+    tag: "v1.3.0"
     pullPolicy: IfNotPresent
   ports:
     http: 8299
@@ -69,7 +69,7 @@ server:
       maxSurge: 25%
       maxUnavailable: 25%
 
-  service:  # type: ClusterIP | NodePort | LoadBalancer
+  service: # type: ClusterIP | NodePort | LoadBalancer
     type: ClusterIP
     nodePort: ""
     annotations: {}
@@ -84,7 +84,7 @@ server:
     requests:
       cpu: "500m"
       memory: "512Mi"
-    limits:  # CPU limit omitted by default to avoid throttling
+    limits: # CPU limit omitted by default to avoid throttling
       memory: "1024Mi"
 
   livenessProbe:
@@ -171,11 +171,11 @@ dashboard:
   # CORS origins, server external URL, …). Required.
   externalURL: ""
 
-  replicaCount: 1  # ignored when autoscaling.enabled
+  replicaCount: 1 # ignored when autoscaling.enabled
   image:
     repository: ghcr.io/otterscale/dashboard
     # renovate: image=ghcr.io/otterscale/dashboard
-    tag: "v1.3.0-rc.7"
+    tag: "v1.3.0"
     pullPolicy: IfNotPresent
   ports:
     http: 3000
@@ -193,7 +193,7 @@ dashboard:
       maxSurge: 25%
       maxUnavailable: 25%
 
-  service:  # type: ClusterIP | NodePort | LoadBalancer
+  service: # type: ClusterIP | NodePort | LoadBalancer
     type: ClusterIP
     annotations: {}
     labels: {}
@@ -202,7 +202,7 @@ dashboard:
     requests:
       cpu: "100m"
       memory: "128Mi"
-    limits:  # CPU limit omitted by default to avoid throttling
+    limits: # CPU limit omitted by default to avoid throttling
       memory: "1024Mi"
 
   livenessProbe:
@@ -315,7 +315,7 @@ envoy:
   gatewayClassName: "envoy-otterscale"
   httpRoute:
     enabled: true
-    hostnames: []  # empty = derive from dashboard.externalURL host
+    hostnames: [] # empty = derive from dashboard.externalURL host
   # TLS: enabled=true -> HTTPS (supply crt+key OR existingSecret).
   #      enabled=false -> HTTP only via ip:port (no HTTPS listener / redirect /
   #                       per-domain Harbor route).
@@ -335,7 +335,7 @@ envoy:
     namespace: "envoy-gateway-system"
     # Envoy data-plane Service fronting the Gateway.
     service:
-      type: NodePort  # NodePort (ip:port) | LoadBalancer (domain)
+      type: NodePort # NodePort (ip:port) | LoadBalancer (domain)
       # NodePorts used only when type is NodePort; omitted for LoadBalancer.
       httpNodePort: 30080
       httpsNodePort: 30443
@@ -482,13 +482,39 @@ harbor:
   existingSecretAdminPassword: "otterscale-harbor-admin"
   existingSecretAdminPasswordKey: "HARBOR_ADMIN_PASSWORD"
 
+  nginx:
+    image:
+      tag: v2.15.2
+
+  portal:
+    image:
+      tag: v2.15.2
+
   core:
+    image:
+      tag: v2.15.2
     extraEnvVars:
       - name: CONFIG_OVERWRITE_JSON
         valueFrom:
           secretKeyRef:
-            name: "otterscale-harbor-oidc-config"  # must match harbor.oidc.configSecretName
+            name: "otterscale-harbor-oidc-config" # must match harbor.oidc.configSecretName
             key: CONFIG_OVERWRITE_JSON
+
+  jobservice:
+    image:
+      tag: v2.15.2
+
+  registry:
+    registry:
+      image:
+        tag: v2.15.2
+    controller:
+      image:
+        tag: v2.15.2
+
+  trivy:
+    image:
+      tag: v2.15.2
 
   expose:
     type: nodePort
@@ -526,9 +552,18 @@ harbor:
         size: 5Gi
 
   database:
-    type: internal
+    internal:
+      image:
+        tag: v2.15.2
+
   redis:
-    type: internal
+    internal:
+      image:
+        tag: v2.15.2
+
+  exporter:
+    image:
+      tag: v2.15.2
 
   oidc:
     enabled: true

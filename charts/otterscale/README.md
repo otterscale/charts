@@ -35,14 +35,14 @@ A unified platform for simplified compute, storage, and networking.
 
 ```bash
 # Download the example values (Envoy Gateway, HTTP via IP:port)
-curl -o envoy-values.yaml https://raw.githubusercontent.com/otterscale/charts/refs/tags/otterscale-1.2.1-rc.2/charts/otterscale/examples/envoy-values.yaml
+curl -o envoy-values.yaml https://raw.githubusercontent.com/otterscale/charts/refs/tags/otterscale-1.3.0/charts/otterscale/examples/envoy-values.yaml
 
 helm repo add otterscale https://otterscale.github.io/charts
 helm repo update
 
 helm upgrade --install otterscale otterscale/otterscale \
   -n otterscale-system --create-namespace \
-  --version 1.2.1-rc.2 \
+  --version 1.3.0 \
   -f envoy-values.yaml
 ```
 
@@ -56,11 +56,11 @@ To serve OtterScale and Harbor over HTTPS on your own domains, use the
 walkthrough.
 
 ```bash
-curl -o envoy-values-domain-name.yaml https://raw.githubusercontent.com/otterscale/charts/refs/tags/otterscale-1.2.1-rc.2/charts/otterscale/examples/envoy-values-domain-name.yaml
+curl -o envoy-values-domain-name.yaml https://raw.githubusercontent.com/otterscale/charts/refs/tags/otterscale-1.3.0/charts/otterscale/examples/envoy-values-domain-name.yaml
 
 helm upgrade --install otterscale otterscale/otterscale \
   -n otterscale-system --create-namespace \
-  --version 1.2.1-rc.2 \
+  --version 1.3.0 \
   -f envoy-values-domain-name.yaml
 ```
 
@@ -114,8 +114,7 @@ http://<ip>:32180/        -> Harbor (its own NodePort)
 
 ### TLS / HTTPS with custom domains
 
-Set `envoy.tls.enabled: true` to add an HTTPS listener (port 443, NodePort
-30443) and serve OtterScale and Harbor on separate domains. The chart then also
+Set `envoy.tls.enabled: true` to add an HTTPS listener (port 443, NodePort 30443) and serve OtterScale and Harbor on separate domains. The chart then also
 generates a Harbor `HTTPRoute` and an HTTP→HTTPS 301 redirect. See
 [`examples/envoy-values-domain-name.yaml`](examples/envoy-values-domain-name.yaml):
 
@@ -143,7 +142,7 @@ envoy:
   tls:
     enabled: true
     redirectToHTTPS: true
-    existingSecret: "phison-new-2026"   # OR provide crt/key below
+    existingSecret: "phison-new-2026" # OR provide crt/key below
     # crt: |
     #   -----BEGIN CERTIFICATE-----
     #   ...
@@ -154,10 +153,10 @@ envoy:
 
 The certificate can be supplied two ways:
 
-| Option | How | Notes |
-| ------ | --- | ----- |
-| **Existing Secret** | `envoy.tls.existingSecret: <name>` | The `kubernetes.io/tls` Secret **must already exist in the Gateway namespace** (`envoy.gateway.namespace`, default `envoy-gateway-system`). |
-| **Inline cert** | `envoy.tls.crt` + `envoy.tls.key` (raw PEM) | The chart creates the Secret for you in the Gateway namespace. Takes priority over `existingSecret`. |
+| Option              | How                                         | Notes                                                                                                                                       |
+| ------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Existing Secret** | `envoy.tls.existingSecret: <name>`          | The `kubernetes.io/tls` Secret **must already exist in the Gateway namespace** (`envoy.gateway.namespace`, default `envoy-gateway-system`). |
+| **Inline cert**     | `envoy.tls.crt` + `envoy.tls.key` (raw PEM) | The chart creates the Secret for you in the Gateway namespace. Takes priority over `existingSecret`.                                        |
 
 **Before installing the HTTPS variant:**
 
@@ -225,29 +224,29 @@ server:
 
 ### Server
 
-| Parameter                          | Description                                    | Default                         |
-| ---------------------------------- | ---------------------------------------------- | ------------------------------- |
-| `server.externalURL`               | Override server external URL for clients       | `""`                            |
-| `server.externalTunnelURL`         | Override server external tunnel URL for agents | `""`                            |
-| `server.replicaCount`              | Number of replicas                             | `1`                             |
-| `server.image.repository`          | Server image repository                        | `ghcr.io/otterscale/otterscale` |
-| `server.image.tag`                 | Image tag                                      | `""`                            |
-| `server.ports.http`                | HTTP API port                                  | `8299`                          |
-| `server.ports.tunnel`              | Tunnel port                                    | `8300`                          |
-| `server.service.type`              | HTTP Service type                              | `ClusterIP`                     |
-| `server.service.nodePort`          | NodePort for HTTP (when `service.type` NodePort) | `""`                          |
-| `server.tunnelService.type`        | Tunnel Service type                            | `ClusterIP`                     |
-| `server.tunnelService.nodePort`    | NodePort for tunnel                            | `""`                            |
-| `server.revisionHistoryLimit`      | ReplicaSet revision history limit              | `3`                             |
-| `server.resources.requests.cpu`    | CPU request                                    | `500m`                          |
-| `server.resources.requests.memory` | Memory request                                 | `512Mi`                         |
-| `server.resources.limits.memory`   | Memory limit                                   | `1024Mi`                        |
-| `server.autoscaling.enabled`       | Enable HPA                                     | `false`                         |
-| `server.autoscaling.minReplicas`   | Minimum replicas                               | `1`                             |
-| `server.autoscaling.maxReplicas`   | Maximum replicas                               | `5`                             |
-| `server.pdb.create`                | Create PodDisruptionBudget                     | `false`                         |
-| `server.networkPolicy.enabled`     | Create NetworkPolicy                           | `false`                         |
-| `server.serviceMonitor.enabled`    | Create Prometheus ServiceMonitor               | `false`                         |
+| Parameter                          | Description                                      | Default                         |
+| ---------------------------------- | ------------------------------------------------ | ------------------------------- |
+| `server.externalURL`               | Override server external URL for clients         | `""`                            |
+| `server.externalTunnelURL`         | Override server external tunnel URL for agents   | `""`                            |
+| `server.replicaCount`              | Number of replicas                               | `1`                             |
+| `server.image.repository`          | Server image repository                          | `ghcr.io/otterscale/otterscale` |
+| `server.image.tag`                 | Image tag                                        | `""`                            |
+| `server.ports.http`                | HTTP API port                                    | `8299`                          |
+| `server.ports.tunnel`              | Tunnel port                                      | `8300`                          |
+| `server.service.type`              | HTTP Service type                                | `ClusterIP`                     |
+| `server.service.nodePort`          | NodePort for HTTP (when `service.type` NodePort) | `""`                            |
+| `server.tunnelService.type`        | Tunnel Service type                              | `ClusterIP`                     |
+| `server.tunnelService.nodePort`    | NodePort for tunnel                              | `""`                            |
+| `server.revisionHistoryLimit`      | ReplicaSet revision history limit                | `3`                             |
+| `server.resources.requests.cpu`    | CPU request                                      | `500m`                          |
+| `server.resources.requests.memory` | Memory request                                   | `512Mi`                         |
+| `server.resources.limits.memory`   | Memory limit                                     | `1024Mi`                        |
+| `server.autoscaling.enabled`       | Enable HPA                                       | `false`                         |
+| `server.autoscaling.minReplicas`   | Minimum replicas                                 | `1`                             |
+| `server.autoscaling.maxReplicas`   | Maximum replicas                                 | `5`                             |
+| `server.pdb.create`                | Create PodDisruptionBudget                       | `false`                         |
+| `server.networkPolicy.enabled`     | Create NetworkPolicy                             | `false`                         |
+| `server.serviceMonitor.enabled`    | Create Prometheus ServiceMonitor                 | `false`                         |
 
 ### Dashboard
 
@@ -284,20 +283,20 @@ server:
 > the [Gateway API](https://gateway-api.sigs.k8s.io/) CRDs and the controller in
 > `envoy-gateway-system`).
 
-| Parameter                     | Description                                                                 | Default                  |
-| ----------------------------- | --------------------------------------------------------------------------- | ------------------------ |
-| `envoy.enabled`               | Enable Envoy Gateway integration                                            | `false`                  |
-| `envoy.gatewayClassName`      | GatewayClass name backed by the Envoy Gateway controller                    | `"eg"`                   |
-| `envoy.httpRoute.enabled`     | Create the OtterScale HTTPRoute                                             | `true`                   |
-| `envoy.httpRoute.hostnames`   | Override HTTPRoute hostnames (defaults to the `externalURL` host when TLS on) | `[]`                     |
-| `envoy.tls.enabled`           | Add an HTTPS listener (TLS termination at the Gateway)                       | `false`                  |
-| `envoy.tls.crt`               | PEM certificate; chart creates the TLS Secret (raw PEM, not base64)         | `""`                     |
-| `envoy.tls.key`               | PEM private key paired with `envoy.tls.crt`                                  | `""`                     |
-| `envoy.tls.existingSecret`    | Reference an existing TLS Secret (must be in the Gateway namespace)         | `""`                     |
-| `envoy.tls.redirectToHTTPS`   | Add an HTTP→HTTPS 301 redirect HTTPRoute                                     | `true`                   |
-| `envoy.gateway.create`        | Let the chart create the Gateway / GatewayClass / EnvoyProxy                | `true`                   |
-| `envoy.gateway.name`          | Gateway resource name                                                        | `"otterscale"`           |
-| `envoy.gateway.namespace`     | Namespace for the Gateway, EnvoyProxy and chart-managed TLS Secret          | `"envoy-gateway-system"` |
+| Parameter                   | Description                                                                   | Default                  |
+| --------------------------- | ----------------------------------------------------------------------------- | ------------------------ |
+| `envoy.enabled`             | Enable Envoy Gateway integration                                              | `false`                  |
+| `envoy.gatewayClassName`    | GatewayClass name backed by the Envoy Gateway controller                      | `"eg"`                   |
+| `envoy.httpRoute.enabled`   | Create the OtterScale HTTPRoute                                               | `true`                   |
+| `envoy.httpRoute.hostnames` | Override HTTPRoute hostnames (defaults to the `externalURL` host when TLS on) | `[]`                     |
+| `envoy.tls.enabled`         | Add an HTTPS listener (TLS termination at the Gateway)                        | `false`                  |
+| `envoy.tls.crt`             | PEM certificate; chart creates the TLS Secret (raw PEM, not base64)           | `""`                     |
+| `envoy.tls.key`             | PEM private key paired with `envoy.tls.crt`                                   | `""`                     |
+| `envoy.tls.existingSecret`  | Reference an existing TLS Secret (must be in the Gateway namespace)           | `""`                     |
+| `envoy.tls.redirectToHTTPS` | Add an HTTP→HTTPS 301 redirect HTTPRoute                                      | `true`                   |
+| `envoy.gateway.create`      | Let the chart create the Gateway / GatewayClass / EnvoyProxy                  | `true`                   |
+| `envoy.gateway.name`        | Gateway resource name                                                         | `"otterscale"`           |
+| `envoy.gateway.namespace`   | Namespace for the Gateway, EnvoyProxy and chart-managed TLS Secret            | `"envoy-gateway-system"` |
 
 ### Keycloak
 
