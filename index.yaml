@@ -4322,6 +4322,30 @@ entries:
   - annotations:
       module.otterscale.io/namespace: cache-operator-system
     apiVersion: v2
+    appVersion: 1.0.3
+    created: "2026-07-12T13:13:00.478633126Z"
+    dependencies:
+    - name: cache-operator
+      repository: oci://cr-ext.phison.com/otterscale
+      version: 1.0.3
+    description: Otterscale cache operator chart.
+    digest: 96ca38f71b400e1a73d25d7afa1fa6dba5f38f9220e15574da4053a83be393cc
+    home: https://otterscale.github.io
+    keywords:
+    - otterscale
+    - cache
+    maintainers:
+    - email: shawn_tsai@phison.com
+      name: Shawn Tsai
+    name: otterscale-cache-operator
+    sources:
+    - https://github.com/otterscale/charts
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-cache-operator-1.3.0/otterscale-cache-operator-1.3.0.tgz
+    version: 1.3.0
+  - annotations:
+      module.otterscale.io/namespace: cache-operator-system
+    apiVersion: v2
     appVersion: 1.0.2
     created: "2026-07-01T07:43:27.905991968Z"
     dependencies:
@@ -12172,4 +12196,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-10T15:18:12.554868956Z"
+generated: "2026-07-12T13:13:00.479429383Z"
