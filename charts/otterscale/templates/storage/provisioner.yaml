@@ -122,7 +122,6 @@ data:
     metadata:
       name: helper-pod
     spec:
-      serviceAccountName: {{ include "otterscale.fullname" . }}-local-path-sa
       priorityClassName: system-node-critical
       tolerations:
         - key: node.kubernetes.io/disk-pressure
