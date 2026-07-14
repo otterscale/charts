@@ -10131,6 +10131,37 @@ entries:
       module.otterscale.io/post-renderer: postRenderers[0].kustomize.patches[0].target.group=serving.kserve.io,   postRenderers[0].kustomize.patches[0].target.version=v1alpha2,   postRenderers[0].kustomize.patches[0].target.kind=LLMInferenceServiceConfig,   postRenderers[0].kustomize.patches[0].patch[0].op=add,   postRenderers[0].kustomize.patches[0].patch[0].path=/metadata/namespace,   postRenderers[0].kustomize.patches[0].patch[0].value=otterscale-system
     apiVersion: v2
     appVersion: 0.4.55-otterscale
+    created: "2026-07-14T03:49:37.086789516Z"
+    dependencies:
+    - name: phison-mw-operator
+      repository: oci://cr-ext.phison.com/otterscale
+      version: 0.4.55-otterscale
+    description: Umbrella chart that wraps phison-mw-operator with OtterScale-flavored
+      defaults (monitoring on, ai_gateway off, AI100=1, mw image pinned, workload
+      PVC export on, Valkey-HA storage class pinned to otterscale-local-path).
+    digest: 1cd4c64aaaf2d8ee5e2ece5a6f23d4e13048f12b834f18cce461f599aff6cd6c
+    keywords:
+    - llm
+    - kvcache
+    - mooncake
+    - lmcache
+    - otterscale
+    kubeVersion: '>= 1.30.0-0'
+    maintainers:
+    - email: george_wu@phison.com
+      name: george_wu
+    name: otterscale-mw-operator
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-mw-operator-1.3.4/otterscale-mw-operator-1.3.4.tgz
+    version: 1.3.4
+  - annotations:
+      module.otterscale.io/namespace: phison-mw-operator
+      module.otterscale.io/post-renderer: postRenderers[0].kustomize.patches[0].target.group=serving.kserve.io,   postRenderers[0].kustomize.patches[0].target.version=v1alpha2,   postRenderers[0].kustomize.patches[0].target.kind=LLMInferenceServiceConfig,   postRenderers[0].kustomize.patches[0].patch[0].op=add,   postRenderers[0].kustomize.patches[0].patch[0].path=/metadata/namespace,   postRenderers[0].kustomize.patches[0].patch[0].value=otterscale-system
+    apiVersion: v2
+    appVersion: 0.4.55-otterscale
     created: "2026-07-10T15:18:11.728784873Z"
     dependencies:
     - name: phison-mw-operator
@@ -12217,4 +12248,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-13T04:53:29.44136576Z"
+generated: "2026-07-14T03:49:37.087264199Z"
