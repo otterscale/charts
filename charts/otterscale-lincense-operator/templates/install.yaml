@@ -180,7 +180,7 @@ spec:
                 description: Number of currently authorized nodes.
                 type: integer
               bindingRefreshedAt:
-                description: Timestamp of the last successful binding.json refresh.
+                description: Timestamp of the last successful binding.jwt refresh.
                 format: date-time
                 type: string
               clusterFingerprintOK:
