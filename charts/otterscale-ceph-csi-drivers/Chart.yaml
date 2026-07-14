@@ -1,0 +1,25 @@
+apiVersion: v2
+name: otterscale-ceph-csi-drivers
+version: 1.3.0
+appVersion: "1.0.4"
+description: A Helm chart for Ceph CSI drivers
+icon: https://github.com/ceph.png
+sources:
+  - https://github.com/otterscale/charts
+maintainers:
+  - name: Chung-Hsuan Tsai
+    email: paul_tsai@phison.com
+keywords:
+  - ceph
+  - storage
+  - csi
+type: application
+kubeVersion: ">=1.25.0-0"
+annotations:
+  module.otterscale.io/depends-on: "otterscale-rook-ceph"
+  module.otterscale.io/namespace: "rook-ceph"
+  artifacthub.io/license: Apache-2.0
+dependencies:
+  - name: ceph-csi-drivers
+    version: 1.0.4
+    repository: https://ceph.github.io/ceph-csi-operator

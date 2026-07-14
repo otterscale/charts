@@ -7,9 +7,12 @@ gpu-operator:
 
   driver:
     enabled: true
-    version: "580.126.20"
+    version: "580.159.04"
     upgradePolicy:
       autoUpgrade: false
+    usePrecompiled: true
+    repository: ghcr.io
+    image: otterscale/nvidia-driver
 
   devicePlugin:
     enabled: false
@@ -31,3 +34,22 @@ gpu-operator:
 
   vgpuDeviceManager:
     enabled: false
+
+  migManager:
+    enabled: false
+  
+  nfd:
+    enabled: false
+
+  toolkit:
+    env:
+    - name: CONTAINERD_CONFIG
+      value: /var/lib/rancher/rke2/agent/etc/containerd/config.toml
+    - name: CONTAINERD_SOCKET
+      value: /run/k3s/containerd/containerd.sock
+    - name: CONTAINERD_RUNTIME_CLASS
+      value: nvidia
+    - name: CONTAINERD_SET_AS_DEFAULT
+      value: "true"
+    - name: SELINUX_ENABLED
+      value: "true"

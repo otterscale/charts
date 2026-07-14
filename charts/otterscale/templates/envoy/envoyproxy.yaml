@@ -1,0 +1,45 @@
+{{- if and .Values.envoy.enabled .Values.envoy.gateway.create }}
+{{- $svc := .Values.envoy.gateway.service }}
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: otterscale-envoyproxy
+  namespace: {{ include "otterscale.gateway.namespace" . }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+spec:
+  logging:
+    level:
+      default: warn
+  mergeGateways: true
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        type: {{ $svc.type }}
+        {{- if eq $svc.type "NodePort" }}
+        patch:
+          type: StrategicMerge
+          value:
+            spec:
+              ports:
+                - name: http
+                  port: 80
+                  protocol: TCP
+                  targetPort: 10080
+                  nodePort: {{ $svc.httpNodePort }}
+                {{- if .Values.envoy.tls.enabled }}
+                - name: https-otterscale
+                  port: 443
+                  protocol: TCP
+                  targetPort: 10443
+                  nodePort: {{ $svc.httpsNodePort }}
+                {{- end }}
+        {{- else if and (eq $svc.type "LoadBalancer") $svc.loadBalancerIP }}
+        patch:
+          type: StrategicMerge
+          value:
+            spec:
+              loadBalancerIP: {{ $svc.loadBalancerIP | quote }}
+        {{- end }}
+{{- end }}

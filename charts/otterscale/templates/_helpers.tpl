@@ -59,12 +59,49 @@ app.kubernetes.io/name: {{ include "otterscale.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
+{{/*
+Name of the TLS Secret the Gateway HTTPS listener references.
+  - crt + key set     : a kubernetes.io/tls Secret this chart creates.
+  - existingSecret set : a Secret the user created out-of-band (in the Gateway ns).
+*/}}
 {{- define "otterscale.tls.secretName" -}}
-{{- .Values.envoy.tls.existingSecret | required "envoy.tls.existingSecret must be set when envoy.tls.enabled is true" -}}
+{{- if and .Values.envoy.tls.crt .Values.envoy.tls.key -}}
+  {{- printf "%s-tls" (include "otterscale.fullname" .) -}}
+{{- else if .Values.envoy.tls.existingSecret -}}
+  {{- .Values.envoy.tls.existingSecret -}}
+{{- else -}}
+  {{- required "envoy.tls: set crt+key (chart creates the Secret) or existingSecret when envoy.tls.enabled is true" "" -}}
+{{- end -}}
 {{- end }}
 
 {{- define "otterscale.gatewayRef" -}}
 {{- .Values.envoy.gateway.name | required "envoy.gateway.name must be set when envoy is enabled" -}}
+{{- end -}}
+
+{{/*
+Namespace the Gateway, EnvoyProxy and the chart-managed TLS Secret/Certificate
+live in (default: envoy-gateway-system). HTTPRoutes stay in the release
+namespace and attach cross-namespace, so the Gateway listeners use
+allowedRoutes.from: All. Co-locating the TLS Secret with the Gateway avoids
+needing a ReferenceGrant for the HTTPS listener's certificateRef.
+*/}}
+{{- define "otterscale.gateway.namespace" -}}
+{{- .Values.envoy.gateway.namespace | default (include "otterscale.namespace" .) -}}
+{{- end -}}
+
+{{/*
+Gateway listener sectionName an HTTPRoute should attach to.
+HTTPS when TLS is enabled, otherwise HTTP.
+*/}}
+{{- define "otterscale.gateway.sectionName" -}}
+{{- if .Values.envoy.tls.enabled -}}https{{- else -}}http{{- end -}}
+{{- end -}}
+
+{{/*
+External host for the OtterScale dashboard (scheme + port stripped).
+*/}}
+{{- define "otterscale.harbor.host" -}}
+{{- (splitList "://" .Values.harbor.externalURL) | last | trimSuffix "/" | splitList ":" | first -}}
 {{- end -}}
 
 {{/*

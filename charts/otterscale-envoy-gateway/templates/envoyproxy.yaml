@@ -21,7 +21,7 @@ spec:
           value:
             spec:
               ports:
-                - name: http-otterscale
+                - name: http
                   port: 80
                   protocol: TCP
                   targetPort: 10080
