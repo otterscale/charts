@@ -1,18 +1,18 @@
-
 apiVersion: serving.kserve.io/v1alpha2
 kind: LLMInferenceServiceConfig
 metadata:
-  name: qwen35-397b-mw-llmis-config
+  name: qwen36-35b-mw-llmis-config
+  namespace: u7sr7s
   annotations:
-    phison-mw.ai/served-model-name: "qwen35-397b-mw"
-    phison-mw.ai/epp-block-size: "2096"
-    phison-mw.ai/render-model-cache-size: "260Gi"
+    phison-mw.ai/served-model-name: "qwen36-35b-mw"
+    phison-mw.ai/epp-block-size: "1056"
     phison-mw.ai/render-trust-remote-code: "true"
+    phison-mw.ai/render-model-cache-size: "130Gi"
 spec:
   replicas: 1
   model:
-    name: Qwen35-397B-A17B-NVFP4
-    uri: hf://nvidia/Qwen3.5-397B-A17B-NVFP4
+    name: Qwen3.6-35B-Instruct
+    uri: hf://nvidia/Qwen3.6-35B-Instruct
   storageInitializer:
     enabled: true
   template:
@@ -42,14 +42,13 @@ spec:
       - /mnt/models
       args:
       - --served-model-name
-      - 'qwen35-397b-mw'
+      - 'qwen36-35b-mw'
       - --max-model-len
-      - '262144'
+      - '130000'
       - --port
       - '8000'
-      # qwen3.5-397b is MoE — use expert parallel (official NVFP4 recipe), not PP.
       - --tensor-parallel-size
-      - '4'
+      - '2'
       - --enable-expert-parallel
       - --language-model-only
       - --reasoning-parser
@@ -59,22 +58,20 @@ spec:
       # Mamba/GDN hybrid model: align mode is mandatory; snapshots GDN state at block boundaries.
       - --mamba-cache-mode
       - align
-      # Mamba-hybrid + LMCache: block_size <= max-num-batched-tokens < 2*block_size.
-      # vLLM forces attention block_size=2096 (mamba page size, TP=4; confirmed in
-      # startup log "Setting attention block size to 2096 tokens"); cannot override via
-      # --block-size. 4191 is the largest value < 2*2096 (=4192) for max prefill batching.
       - --max-num-batched-tokens
-      - '4191'
+      - '2111'
       - --enable-chunked-prefill
       - --max-cudagraph-capture-size
-      - '256'
-      - --gpu-memory-utilization=0.85
+      - '64'
+      - --gpu-memory-utilization=0.90
       - --limit-mm-per-prompt
       - '{"image":0,"audio":0,"video":0}'
       - --disable-uvicorn-access-log
       - --prefix-caching-hash-algo
       - sha256_cbor
       - --disable-custom-all-reduce
+      - --moe-backend
+      - marlin
       - --mm-encoder-tp-mode
       - data
       - --mm-processor-cache-type
@@ -96,9 +93,8 @@ spec:
       - '{"enable_thinking":false}'
       - --uvicorn-log-level
       - 'info'
-
       - --kv-events-config
-      - '{"enable_kv_cache_events":true,"publisher":"zmq","endpoint":"tcp://*:5557","topic":"kv@$(POD_IP):8000@qwen35-397b-mw"}'
+      - '{"enable_kv_cache_events":true,"publisher":"zmq","endpoint":"tcp://*:5557","topic":"kv@$(POD_IP):8000@qwen36-35b-mw"}'
       # LMCache v0.4.7+: LMCacheMPConnector implements SupportsHMA, so vLLM keeps HMA
       # enabled automatically. No --no-disable-hybrid-kv-cache-manager needed.
       # In-pod lmcache-server sidecar at localhost:5757 (chunk_size=2096 = vLLM block_size).
@@ -106,13 +102,17 @@ spec:
       - '{"kv_connector":"LMCacheMPConnector","kv_role":"kv_both","kv_connector_extra_config":{"lmcache.mp.host":"tcp://127.0.0.1","lmcache.mp.port":5757}}'
       env:
       - name: SERVED_MODEL_NAME
-        value: "qwen35-397b-mw"
+        value: "qwen36-35b-mw"
       - name: VLLM_LOGGING_LEVEL
         value: INFO
       - name: FLASHINFER_DISABLE_VERSION_CHECK
         value: '1'
       - name: CUDA_DISABLE_CONTROL
         value: 'true'
+      - name: NCCL_P2P_DISABLE
+        value: '1'
+      - name: NCCL_IB_DISABLE
+        value: '1'
       - name: NCCL_CUMEM_HOST_ENABLE
         value: '0'
       - name: LMCACHE_LOG_LEVEL
@@ -174,12 +174,12 @@ spec:
         limits:
           cpu: "8"
           memory: 128Gi
-          nvidia.com/gpu: 4
+          nvidia.com/gpu: 2
           nvidia.com/gpumem: "90k"
         requests:
           cpu: "4"
           memory: 32Gi
-          nvidia.com/gpu: 4
+          nvidia.com/gpu: 2
           nvidia.com/gpumem: "90k"
     - image: harbor.phison.com/ai-mw/mw:501-0007.002-vuc
       imagePullPolicy: IfNotPresent
@@ -207,6 +207,10 @@ spec:
             fieldPath: status.podIP
       # port values mirror the CLI --port / --http-port flags for any library-level
       # observability that still reads these env vars.
+      - name: NCCL_P2P_DISABLE
+        value: '1'
+      - name: NCCL_IB_DISABLE
+        value: '1'
       - name: PYTHONHASHSEED
         value: '0'
       - name: LMCACHE_PORT
@@ -214,7 +218,7 @@ spec:
       - name: LMCACHE_HTTP_PORT
         value: '8088'
       - name: LMCACHE_CHUNK_SIZE
-        value: '2096'
+        value: '1056'
       - name: LMCACHE_HASH_ALGORITHM
         value: sha256_cbor
       - name: LMCACHE_L1_SIZE_GB
@@ -288,7 +292,7 @@ spec:
     volumes:
     - name: local-disk
       persistentVolumeClaim:
-        claimName: qwen35-397b-mw-local-disk-pvc
+        claimName: qwen36-35b-mw-local-disk-pvc
     - name: host-dev-shm
       emptyDir:
         medium: Memory
@@ -317,7 +321,7 @@ spec:
           targetPorts:
           - number: 8000
       template:
-        serviceAccountName: qwen35-397b-mw-epp-sa
+        serviceAccountName: qwen36-35b-mw-epp-sa
         affinity:
           nodeAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
@@ -402,7 +406,7 @@ spec:
         volumes:
         - name: endpoint-picker-config
           configMap:
-            name: qwen35-397b-mw-endpoint-picker-config
+            name: qwen36-35b-mw-endpoint-picker-config
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         terminationGracePeriodSeconds: 30

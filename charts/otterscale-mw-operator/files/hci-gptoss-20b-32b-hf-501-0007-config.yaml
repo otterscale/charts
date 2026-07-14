@@ -28,7 +28,7 @@ spec:
               values:
               - "true"
     containers:
-    - image: harbor.phison.com/ai-mw/mw:501-0007.002
+    - image: harbor.phison.com/ai-mw/mw:501-0007.002-vuc
       imagePullPolicy: IfNotPresent
       name: main
       ports:

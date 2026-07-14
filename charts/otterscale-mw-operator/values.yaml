@@ -10,11 +10,10 @@
 #   --set cache-tier.workload.create_s3_sa=false
 #   --set cache-tier.workload.epp_mode=render
 #   --set cache-tier.workload.render_image=harbor.phison.com/ai-mw/mw:501-0007.002
-#   --set cache-tier.workload.storage_initializer_image=kserve/storage-initializer:v0.18.0
 #   --set cache-tier.workload.vllm_cache_storage_class=otterscale-local-path
 #   --set cache-tier.workload.s3_credentials_secret=models
 #   --set cache-tier.workload.s3_endpoint_host_port=10.102.197.191:32080
-#   --set valkey-ha.global.storageClass=otterscale-local-path
+#   --set valkey-ha.global.storageClass=ceph-block
 #   --set cache-tier.daemonset.enabled=false
 #   --set cache-tier.mooncake.enabled=false
 phison-mw-operator:
@@ -38,9 +37,8 @@ phison-mw-operator:
       create_s3_sa: false
       epp_mode: render
       render_image: harbor.phison.com/ai-mw/mw:501-0007.002
-      storage_initializer_image: kserve/storage-initializer:v0.18.0
       vllm_cache_storage_class: otterscale-local-path
-      s3_credentials_secret: models-kserve
+      s3_credentials_secret: models
       s3_endpoint_host_port: rook-ceph-rgw-ceph-objectstore.rook-ceph.svc:8301
     daemonset:
       enabled: false
@@ -49,4 +47,4 @@ phison-mw-operator:
 
   valkey-ha:
     global:
-      storageClass: otterscale-local-path
+      storageClass: ceph-block
