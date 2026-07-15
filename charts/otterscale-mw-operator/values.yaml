@@ -5,12 +5,11 @@
 #   --set cache-tier.lmcache.l1_size_gb=32
 #   --set cache-tier.lmcache.mooncake_global_segment_size_bytes=34359738368
 #   --set cache-tier.lmcache.mooncake_local_disk_size_bytes=68719476736
-#   --set cache-tier.images.mw=harbor.phison.com/ai-mw/mw:501-0007.002
+#   --set cache-tier.images.mw=harbor.phison.com/ai-mw/mw:501-0007.002-vuc
 #   --set cache-tier.workload.enabled=true
 #   --set cache-tier.workload.create_s3_sa=false
 #   --set cache-tier.workload.epp_mode=render
-#   --set cache-tier.workload.render_image=harbor.phison.com/ai-mw/mw:501-0007.002
-#   --set cache-tier.workload.vllm_cache_storage_class=otterscale-local-path
+#   --set cache-tier.workload.render_image=harbor.phison.com/ai-mw/mw:501-0007.002-vuc
 #   --set cache-tier.workload.s3_credentials_secret=models
 #   --set cache-tier.workload.s3_endpoint_host_port=10.102.197.191:32080
 #   --set valkey-ha.global.storageClass=ceph-block
@@ -31,13 +30,12 @@ phison-mw-operator:
       mooncake_global_segment_size_bytes: 34359738368
       mooncake_local_disk_size_bytes: 68719476736
     images:
-      mw: harbor.phison.com/ai-mw/mw:501-0007.002
+      mw: harbor.phison.com/ai-mw/mw:501-0007.002-vuc
     workload:
       enabled: true
       create_s3_sa: false
       epp_mode: render
-      render_image: harbor.phison.com/ai-mw/mw:501-0007.002
-      vllm_cache_storage_class: otterscale-local-path
+      render_image: harbor.phison.com/ai-mw/mw:501-0007.002-vuc
       s3_credentials_secret: models
       s3_endpoint_host_port: rook-ceph-rgw-ceph-objectstore.rook-ceph.svc:8301
     daemonset:
