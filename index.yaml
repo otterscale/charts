@@ -10209,6 +10209,38 @@ entries:
     version: 0.1.0
   otterscale-mw-operator:
   - annotations:
+      module.otterscale.io/depends-on: otterscale-kserve-base,otterscale-prometheus
+      module.otterscale.io/namespace: phison-mw-operator
+      module.otterscale.io/post-renderer: postRenderers[0].kustomize.patches[0].target.group=serving.kserve.io,   postRenderers[0].kustomize.patches[0].target.version=v1alpha2,   postRenderers[0].kustomize.patches[0].target.kind=LLMInferenceServiceConfig,   postRenderers[0].kustomize.patches[0].patch[0].op=add,   postRenderers[0].kustomize.patches[0].patch[0].path=/metadata/namespace,   postRenderers[0].kustomize.patches[0].patch[0].value=otterscale-system
+    apiVersion: v2
+    appVersion: 0.4.56-otterscale
+    created: "2026-07-15T16:33:35.211451465Z"
+    dependencies:
+    - name: phison-mw-operator
+      repository: oci://cr-ext.phison.com/otterscale
+      version: 0.4.56-otterscale
+    description: Umbrella chart that wraps phison-mw-operator with OtterScale-flavored
+      defaults (monitoring on, ai_gateway off, AI100=1, mw image pinned, workload
+      PVC export on, Valkey-HA storage class pinned to otterscale-local-path).
+    digest: e335e6d2ad6f7f4961e47f51b811d38e7d800946fd8157244aec60c30ee87e60
+    keywords:
+    - llm
+    - kvcache
+    - mooncake
+    - lmcache
+    - otterscale
+    kubeVersion: '>= 1.30.0-0'
+    maintainers:
+    - email: george_wu@phison.com
+      name: george_wu
+    name: otterscale-mw-operator
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-mw-operator-1.3.6/otterscale-mw-operator-1.3.6.tgz
+    version: 1.3.6
+  - annotations:
       module.otterscale.io/namespace: phison-mw-operator
       module.otterscale.io/post-renderer: postRenderers[0].kustomize.patches[0].target.group=serving.kserve.io,   postRenderers[0].kustomize.patches[0].target.version=v1alpha2,   postRenderers[0].kustomize.patches[0].target.kind=LLMInferenceServiceConfig,   postRenderers[0].kustomize.patches[0].patch[0].op=add,   postRenderers[0].kustomize.patches[0].patch[0].path=/metadata/namespace,   postRenderers[0].kustomize.patches[0].patch[0].value=otterscale-system
     apiVersion: v2
@@ -12361,4 +12393,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-15T10:29:46.11820585Z"
+generated: "2026-07-15T16:33:35.212164696Z"
