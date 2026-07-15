@@ -34,7 +34,9 @@ ee:
 
 envoy:
   enabled: true
-
+  gateway:
+    service:
+      type: ClusterIP
   tls:
     enabled: true
     redirectToHTTPS: true
