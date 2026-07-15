@@ -1,13 +1,14 @@
-# OtterScale chart values.
-# Top-level keys (server, dashboard, storage, ingress, envoy) drive this chart's
-# own templates; keycloakx, dashboard-valkey and harbor are passed through to
-# their respective subcharts.
+# OtterScale chart values. server/dashboard/storage/ingress/envoy drive this
+# chart's templates; keycloakx, dashboard-valkey and harbor pass through to
+# subcharts. "INTERNAL WIRING" blocks are chart-managed — do not edit.
+# resources: {} = chart defaults (defined in the component's template).
 
 # ── Global ──
 global:
   imageRegistry: ""
   imagePullSecrets: []
   storageClass: "otterscale-local-path"
+  nodeSelector: {}
 
 # Namespace for all chart resources (pass --namespace to match).
 namespace: "otterscale-system"
@@ -32,8 +33,7 @@ storage:
       tag: v0.0.36
       pullPolicy: IfNotPresent
     helperPod:
-      # Only needs a POSIX shell to run `mkdir -m 0777` / `rm -rf` (see
-      # templates/storage/provisioner.yaml) — any minimal shell image works.
+      # Any minimal image with a POSIX shell works.
       image:
         repository: docker.io/library/debian
         tag: bookworm-slim
@@ -41,8 +41,7 @@ storage:
 
 # ── OtterScale Server ──
 server:
-  # Advertised endpoints. Empty = auto-derive from dashboard.externalURL
-  # (+ nodePort if set).
+  # Empty = derive from dashboard.externalURL (+ nodePort if set).
   externalURL: ""
   externalTunnelURL: ""
 
@@ -80,12 +79,7 @@ server:
     annotations: {}
     labels: {}
 
-  resources:
-    requests:
-      cpu: "500m"
-      memory: "512Mi"
-    limits: # CPU limit omitted by default to avoid throttling
-      memory: "1024Mi"
+  resources: {}
 
   livenessProbe:
     enabled: true
@@ -167,8 +161,7 @@ server:
 
 # ── OtterScale Dashboard ──
 dashboard:
-  # Base external URL used to build external-facing URLs (Keycloak realm URL,
-  # CORS origins, server external URL, …). Required.
+  # Browser-facing base URL (drives Keycloak realm URL, CORS, redirects). Required.
   externalURL: ""
 
   replicaCount: 1 # ignored when autoscaling.enabled
@@ -198,12 +191,7 @@ dashboard:
     annotations: {}
     labels: {}
 
-  resources:
-    requests:
-      cpu: "100m"
-      memory: "128Mi"
-    limits: # CPU limit omitted by default to avoid throttling
-      memory: "1024Mi"
+  resources: {}
 
   livenessProbe:
     enabled: true
@@ -316,31 +304,23 @@ envoy:
   httpRoute:
     enabled: true
     hostnames: [] # empty = derive from dashboard.externalURL host
-  # TLS: enabled=true -> HTTPS (supply crt+key OR existingSecret).
-  #      enabled=false -> HTTP only via ip:port (no HTTPS listener / redirect /
-  #                       per-domain Harbor route).
+  # TLS on: supply crt+key (raw PEM) OR existingSecret (must already exist in
+  # the Gateway namespace). TLS off: HTTP only via ip:port.
   tls:
     enabled: false
-    # crt+key (raw PEM): chart creates "<fullname>-tls" Secret in the Gateway ns.
     crt: ""
     key: ""
-    # OR an existing Secret — it MUST already exist in the Gateway namespace.
     existingSecret: ""
     redirectToHTTPS: true
   gateway:
     create: true
     name: "otterscale-gateway"
-    # Gateway / EnvoyProxy / chart-managed TLS Secret all live here (co-located
-    # so the HTTPS listener references the Secret without a ReferenceGrant).
     namespace: "envoy-gateway-system"
-    # Envoy data-plane Service fronting the Gateway.
     service:
       type: NodePort # NodePort (ip:port) | LoadBalancer (domain)
-      # NodePorts used only when type is NodePort; omitted for LoadBalancer.
       httpNodePort: 30080
       httpsNodePort: 30443
-      # Used only when type is LoadBalancer and a controller honours it (MetalLB).
-      loadBalancerIP: ""
+      loadBalancerIP: "" # LoadBalancer only (e.g. MetalLB)
 
 # ── Valkey (dashboard session cache) ──
 dashboard-valkey:
@@ -374,6 +354,9 @@ keycloakx:
   service:
     port: 80
 
+  # ── INTERNAL WIRING (do not edit; from here to end of keycloakx block) ──
+  # Ties the subchart to this chart's templates; strings are tpl'd in the
+  # SUBCHART context. Tunable exceptions: database.persistence / .resources.
   command:
     - /bin/sh
     - -c
@@ -386,26 +369,19 @@ keycloakx:
       --spi-events-listener-jboss-logging-success-level=info \
       --spi-events-listener-jboss-logging-error-level=warn
 
-  # NOTE: extraEnvFrom/extraVolumes are tpl-evaluated by the keycloakx subchart
-  # in ITS OWN context — use .Release.Name, not "otterscale.fullname".
   extraEnvFrom: |
     - configMapRef:
         name: {{ .Release.Name }}-{{ default "keycloakx" .Values.nameOverride }}-env
     - secretRef:
         name: {{ .Release.Name }}-{{ default "keycloakx" .Values.nameOverride }}-admin
 
-  # The subchart's built-in dbchecker init container defaults to busybox
-  # (docker.io/busybox) and shells out to `nc`. Disabled here in favor of a
-  # custom initContainer below that reuses the postgres image already pulled
-  # for the database itself and checks readiness with `pg_isready`.
   dbchecker:
     enabled: false
   database:
     vendor: postgres
     database: keycloak
     username: keycloak
-    # Must match the resources created by keycloak/postgres-*.yaml templates
-    # (these values are NOT tpl-evaluated by the subchart).
+    # Must match keycloak/postgres-*.yaml (not tpl-evaluated by the subchart).
     existingSecret: otterscale-keycloak-postgres
     existingSecretKey: "postgres-password"
     hostname: otterscale-keycloak-postgres
@@ -419,13 +395,7 @@ keycloakx:
       storageClassName: "otterscale-local-path"
       accessMode: ReadWriteOnce
       size: 5Gi
-    resources:
-      requests:
-        memory: "256Mi"
-        cpu: "250m"
-      limits:
-        memory: "512Mi"
-        cpu: "500m"
+    resources: {}
 
   extraInitContainers: |
     - name: dbchecker
@@ -472,13 +442,35 @@ keycloakx:
     - name: theme-import-volume
       emptyDir: {}
 
+# ── Keycloak init/sync hooks ──
+# Propagate dashboard.externalURL / harbor.externalURL changes into the live
+# realm (--import-realm only seeds it once) and restart Keycloak when the
+# OIDC issuer (KC_HOSTNAME) changes.
+keycloakInit:
+  enabled: true
+  image:
+    # Empty = keycloakx subchart image (kcadm matches server version).
+    repository: ""
+    tag: ""
+    pullPolicy: IfNotPresent
+  waitTimeoutSeconds: 600
+  resources: {}
+
+  envRefresh:
+    enabled: true
+    image:
+      repository: docker.io/curlimages/curl
+      tag: "8.14.1"
+      pullPolicy: IfNotPresent
+    resources: {}
+
 # ── Harbor (container registry) ──
 # externalURL must match the browser URL (scheme://host:nodePort).
 harbor:
   enabled: true
   externalURL: "http://127.0.0.1:32180"
   harborAdminPassword: ""
-  # Chart creates this Secret; Harbor references it by name (literal, not tpl).
+  # INTERNAL WIRING (do not edit): Secret created by harbor/admin-secret.yaml.
   existingSecretAdminPassword: "otterscale-harbor-admin"
   existingSecretAdminPasswordKey: "HARBOR_ADMIN_PASSWORD"
 
@@ -493,11 +485,12 @@ harbor:
   core:
     image:
       tag: v2.15.2
+    # INTERNAL WIRING (do not edit): name must match harbor.oidc.configSecretName.
     extraEnvVars:
       - name: CONFIG_OVERWRITE_JSON
         valueFrom:
           secretKeyRef:
-            name: "otterscale-harbor-oidc-config" # must match harbor.oidc.configSecretName
+            name: "otterscale-harbor-oidc-config"
             key: CONFIG_OVERWRITE_JSON
 
   jobservice:
@@ -575,12 +568,10 @@ harbor:
     # Must match the name referenced in harbor.core.extraEnvVars.
     configSecretName: "otterscale-harbor-oidc-config"
 
-# Post-install hook that pre-creates Harbor projects once Harbor is ready.
-# Runs as a post-install/post-upgrade Helm hook; each API call is idempotent
-# (an already-existing project is treated as success).
+# ── Harbor init hook ──
+# Pre-creates Harbor projects once Harbor is ready (idempotent).
 harborInit:
   enabled: true
-  # Projects to create. public: "true" makes the project publicly readable.
   projects:
     - name: "modules"
       public: "true"
@@ -590,12 +581,5 @@ harborInit:
     repository: docker.io/library/debian
     tag: "bookworm-slim"
     pullPolicy: IfNotPresent
-  # Seconds to keep waiting for the Harbor API to become healthy before failing.
   waitTimeoutSeconds: 600
-  resources:
-    requests:
-      cpu: 10m
-      memory: 16Mi
-    limits:
-      cpu: 100m
-      memory: 64Mi
+  resources: {}

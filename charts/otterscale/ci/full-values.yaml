@@ -6,8 +6,6 @@ global:
   imagePullSecrets:
     - name: regcred
 
-externalURL: "https://10.0.0.1"
-
 envoy:
   enabled: true
   gateway:
@@ -47,9 +45,10 @@ server:
       eks.amazonaws.com/role-arn: "arn:aws:iam::role/otterscale"
   service:
     type: NodePort
-    nodePorts:
-      http: 30299
-      tunnel: 30300
+    nodePort: "30299"
+  tunnelService:
+    type: NodePort
+    nodePort: "30300"
   autoscaling:
     enabled: true
     minReplicas: 2
@@ -88,6 +87,7 @@ server:
           app.kubernetes.io/component: backend
 
 dashboard:
+  externalURL: "https://10.0.0.1"
   replicaCount: 2
   serviceAccount:
     create: true

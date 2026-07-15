@@ -34,9 +34,7 @@ ee:
 
 envoy:
   enabled: true
-  gateway:
-    service:
-      type: LoadBalancer
+
   tls:
     enabled: true
     redirectToHTTPS: true

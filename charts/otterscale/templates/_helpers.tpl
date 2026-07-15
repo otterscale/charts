@@ -328,6 +328,36 @@ Usage: {{ include "otterscale.image" (dict "imageRoot" .Values.server.image "glo
 {{- end -}}
 
 {{/*
+Merged pod nodeSelector: global.nodeSelector overlaid with a component-level
+map (component keys win). Returns "" when both are empty.
+Usage:
+  {{- with include "otterscale.podNodeSelector" (dict "local" .Values.server.nodeSelector "context" $) }}
+  nodeSelector:
+    {{- . | nindent 8 }}
+  {{- end }}
+*/}}
+{{- define "otterscale.podNodeSelector" -}}
+{{- $global := ((.context.Values.global | default dict).nodeSelector) | default dict -}}
+{{- $merged := mergeOverwrite (deepCopy $global) (.local | default dict) -}}
+{{- if $merged -}}
+{{- toYaml $merged -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Image for the keycloakInit sync Job. Defaults to the keycloakx subchart's
+merged image values (so kcadm.sh always matches the server version and follows
+any keycloakx.image override); keycloakInit.image.* takes precedence.
+*/}}
+{{- define "otterscale.keycloakInit.image" -}}
+{{- $kc := .Subcharts.keycloakx.Values.image -}}
+{{- $imageRoot := dict
+      "repository" (.Values.keycloakInit.image.repository | default $kc.repository)
+      "tag" (.Values.keycloakInit.image.tag | default $kc.tag | default .Subcharts.keycloakx.Chart.AppVersion) -}}
+{{- include "otterscale.image" (dict "imageRoot" $imageRoot "global" .Values.global "chart" .Chart) -}}
+{{- end -}}
+
+{{/*
 Render the dashboard image reference.
 When ee.enabled is true, the repository is switched to its "-ee" variant
 (e.g. ghcr.io/otterscale/dashboard → ghcr.io/otterscale/dashboard-ee).

@@ -98,10 +98,16 @@ spec:
             periodSeconds: {{ .Values.server.startupProbe.periodSeconds }}
             failureThreshold: {{ .Values.server.startupProbe.failureThreshold }}
           {{- end }}
-          {{- with .Values.server.resources }}
           resources:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+            {{- if .Values.server.resources }}
+            {{- toYaml .Values.server.resources | nindent 12 }}
+            {{- else }}
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits: # no CPU limit by default (avoids throttling)
+              memory: 1024Mi
+            {{- end }}
           volumeMounts:
             - name: tmp
               mountPath: /tmp
@@ -117,9 +123,9 @@ spec:
         {{- with .Values.server.extraVolumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
-      {{- with .Values.server.nodeSelector }}
+      {{- with include "otterscale.podNodeSelector" (dict "local" .Values.server.nodeSelector "context" $) }}
       nodeSelector:
-        {{- toYaml . | nindent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}
       {{- with .Values.server.affinity }}
       affinity:

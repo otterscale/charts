@@ -153,6 +153,10 @@ spec:
         app.kubernetes.io/component: local-path-provisioner
     spec:
       serviceAccountName: {{ include "otterscale.fullname" . }}-local-path-sa
+      {{- with include "otterscale.podNodeSelector" (dict "context" $) }}
+      nodeSelector:
+        {{- . | nindent 8 }}
+      {{- end }}
       containers:
         - name: local-path-provisioner
           image: "{{ .Values.storage.localPath.image.repository }}:{{ .Values.storage.localPath.image.tag }}"
