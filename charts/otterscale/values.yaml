@@ -438,7 +438,7 @@ keycloakx:
   extraVolumes: |
     - name: realm-import-volume
       secret:
-        secretName: {{ .Release.Name }}-otterscale-realm
+        secretName: {{ .Release.Name }}-realm
     - name: theme-import-volume
       emptyDir: {}
 
