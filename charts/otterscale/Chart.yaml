@@ -49,8 +49,3 @@ dependencies:
     repository: "https://helm.goharbor.io"
     name: harbor
     version: 1.19.x
-  - name: common
-    repository: oci://registry-1.docker.io/bitnamicharts
-    tags:
-      - bitnami-common
-    version: 2.x.x

@@ -8,17 +8,9 @@ Access via Envoy Gateway:
   API:          {{ include "otterscale.externalURL" . }}/api/
   Keycloak:     {{ include "otterscale.externalURL" . }}{{ .Values.keycloakx.http.relativePath }}
 
-{{- else if .Values.ingress.enabled }}
-
-Access via Ingress:
-  {{- range .Values.ingress.hosts }}
-  Host: {{ .host }}
-  {{- end }}
-
 {{- else }}
 
-Access via NodePort:
-  Server API:   http://<NODE_IP>:{{ .Values.server.service.nodePort | default .Values.server.ports.http }}
+Access without a gateway (envoy.enabled=false):
   Dashboard:    kubectl port-forward -n {{ include "otterscale.namespace" . }} svc/{{ include "otterscale.dashboard.fullname" . }} {{ .Values.dashboard.ports.http }}:{{ .Values.dashboard.ports.http }}
 
 {{- end }}

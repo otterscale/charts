@@ -1,4 +1,4 @@
-{{- if and .Values.envoy.enabled .Values.envoy.httpRoute.enabled .Values.envoy.tls.enabled .Values.envoy.tls.redirectToHTTPS }}
+{{- if and .Values.envoy.enabled .Values.envoy.tls.enabled .Values.envoy.tls.redirectToHTTPS }}
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:

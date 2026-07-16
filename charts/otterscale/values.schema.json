@@ -7,7 +7,6 @@
       "properties": {
         "imageRegistry": { "type": "string" },
         "imagePullSecrets": { "type": "array" },
-        "storageClass": { "type": "string" },
         "nodeSelector": { "type": "object", "description": "nodeSelector applied to every pod rendered by this chart (not subchart pods); component-level entries win on conflict." }
       }
     },
@@ -168,16 +167,6 @@
         "terminationGracePeriodSeconds": { "type": "integer", "minimum": 0 }
       }
     },
-    "ingress": {
-      "type": "object",
-      "properties": {
-        "enabled": { "type": "boolean" },
-        "className": { "type": "string" },
-        "annotations": { "type": "object" },
-        "hosts": { "type": "array" },
-        "tls": { "type": "array" }
-      }
-    },
     "envoy": {
       "type": "object",
       "properties": {
@@ -186,7 +175,6 @@
         "httpRoute": {
           "type": "object",
           "properties": {
-            "enabled": { "type": "boolean" },
             "hostnames": { "type": "array", "items": { "type": "string" } }
           }
         },

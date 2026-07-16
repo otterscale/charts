@@ -1,13 +1,12 @@
-# OtterScale chart values. server/dashboard/storage/ingress/envoy drive this
-# chart's templates; keycloakx, dashboard-valkey and harbor pass through to
-# subcharts. "INTERNAL WIRING" blocks are chart-managed — do not edit.
+# OtterScale chart values. server/dashboard/storage/envoy drive this chart's
+# templates; keycloakx, dashboard-valkey and harbor pass through to subcharts.
+# "INTERNAL WIRING" blocks are chart-managed — do not edit.
 # resources: {} = chart defaults (defined in the component's template).
 
 # ── Global ──
 global:
   imageRegistry: ""
   imagePullSecrets: []
-  storageClass: "otterscale-local-path"
   nodeSelector: {}
 
 # Namespace for all chart resources (pass --namespace to match).
@@ -41,7 +40,7 @@ storage:
 
 # ── OtterScale Server ──
 server:
-  # Empty = derive from dashboard.externalURL (+ nodePort if set).
+  # Empty = derive from dashboard.externalURL.
   externalURL: ""
   externalTunnelURL: ""
 
@@ -70,7 +69,6 @@ server:
 
   service: # type: ClusterIP | NodePort | LoadBalancer
     type: ClusterIP
-    nodePort: ""
     annotations: {}
     labels: {}
   tunnelService:
@@ -274,35 +272,12 @@ dashboard:
   extraContainers: []
   initContainers: []
 
-# ── Ingress (standard K8s Ingress; alternative to Envoy Gateway) ──
-ingress:
-  enabled: false
-  className: ""
-  annotations:
-    nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
-    nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
-  hosts:
-    - host: otterscale.local
-      paths:
-        - path: /
-          pathType: Prefix
-          service: dashboard
-        - path: /api/
-          pathType: Prefix
-          service: server
-          rewrite: true
-        - path: /auth/
-          pathType: Prefix
-          service: keycloak
-  tls: []
-
 # ── Envoy Gateway (Gateway API) ──
 envoy:
   enabled: false
   # GatewayClass backed by the Envoy Gateway controller (envoy-gateway-system).
   gatewayClassName: "envoy-otterscale"
   httpRoute:
-    enabled: true
     hostnames: [] # empty = derive from dashboard.externalURL host
   # TLS on: supply crt+key (raw PEM) OR existingSecret (must already exist in
   # the Gateway namespace). TLS off: HTTP only via ip:port.

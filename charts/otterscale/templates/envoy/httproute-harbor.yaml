@@ -2,7 +2,7 @@
 Host-based Harbor route only applies in the HTTPS/domain scenario. In the
 HTTP-only (ip:port) scenario Harbor is reached via its own NodePort instead.
 */ -}}
-{{- if and .Values.envoy.enabled .Values.envoy.httpRoute.enabled .Values.harbor.enabled .Values.envoy.tls.enabled }}
+{{- if and .Values.envoy.enabled .Values.harbor.enabled .Values.envoy.tls.enabled }}
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:

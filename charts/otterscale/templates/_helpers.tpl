@@ -127,16 +127,10 @@ Extract host from externalURL (e.g. "https://example.com" → "example.com").
 
 {{/*
 Server external URL advertised to clients.
-Priority: server.externalURL > auto-derive from nodePort > externalURL.
+Priority: server.externalURL > externalURL.
 */}}
 {{- define "otterscale.server.externalURL" -}}
-{{- if .Values.server.externalURL -}}
-  {{- .Values.server.externalURL -}}
-{{- else if .Values.server.service.nodePort -}}
-  {{- printf "%s://%s:%v" (include "otterscale.scheme" .) (include "otterscale.host" .) .Values.server.service.nodePort -}}
-{{- else -}}
-  {{- include "otterscale.externalURL" . -}}
-{{- end -}}
+{{- .Values.server.externalURL | default (include "otterscale.externalURL" .) -}}
 {{- end -}}
 
 {{/*
@@ -174,6 +168,54 @@ Keycloak internal service FQDN.
 */}}
 {{- define "otterscale.keycloakx.serviceName" -}}
 {{- printf "%s-http" (include "otterscale.keycloakx.fullname" .) -}}
+{{- end -}}
+
+{{/*
+Keycloak bootstrap admin password.
+Priority: keycloakx.auth.adminPassword > existing Secret (survives upgrades) > random.
+*/}}
+{{- define "otterscale.keycloakx.adminPassword" -}}
+{{- if not (index .Values "_cachedKeycloakAdminPassword" | default "") -}}
+  {{- $secretName := printf "%s-admin" (include "otterscale.keycloakx.fullname" .) -}}
+  {{- $secretKey := "KC_BOOTSTRAP_ADMIN_PASSWORD" -}}
+  {{- $value := "" -}}
+  {{- if .Values.keycloakx.auth.adminPassword -}}
+    {{- $value = .Values.keycloakx.auth.adminPassword -}}
+  {{- else -}}
+    {{- $existingSecret := (lookup "v1" "Secret" (include "otterscale.namespace" .) $secretName) -}}
+    {{- if and $existingSecret (hasKey $existingSecret.data $secretKey) -}}
+      {{- $value = index $existingSecret.data $secretKey | b64dec -}}
+    {{- else -}}
+      {{- $value = randAlphaNum 10 -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $_ := set .Values "_cachedKeycloakAdminPassword" $value -}}
+{{- end -}}
+{{- index .Values "_cachedKeycloakAdminPassword" -}}
+{{- end -}}
+
+{{/*
+Keycloak postgres password.
+Priority: keycloakx.database.password > existing Secret (survives upgrades) > random.
+*/}}
+{{- define "otterscale.keycloakx.postgresPassword" -}}
+{{- if not (index .Values "_cachedKeycloakPostgresPassword" | default "") -}}
+  {{- $secretName := .Values.keycloakx.database.existingSecret -}}
+  {{- $secretKey := "postgres-password" -}}
+  {{- $value := "" -}}
+  {{- if .Values.keycloakx.database.password -}}
+    {{- $value = .Values.keycloakx.database.password -}}
+  {{- else -}}
+    {{- $existingSecret := (lookup "v1" "Secret" (include "otterscale.namespace" .) $secretName) -}}
+    {{- if and $existingSecret (hasKey $existingSecret.data $secretKey) -}}
+      {{- $value = index $existingSecret.data $secretKey | b64dec -}}
+    {{- else -}}
+      {{- $value = randAlphaNum 10 -}}
+    {{- end -}}
+  {{- end -}}
+  {{- $_ := set .Values "_cachedKeycloakPostgresPassword" $value -}}
+{{- end -}}
+{{- index .Values "_cachedKeycloakPostgresPassword" -}}
 {{- end -}}
 
 {{- define "otterscale.keycloakx.dashboardClientSecret" -}}
