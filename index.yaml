@@ -12373,6 +12373,17 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/snapshot-controller-0.1.0/snapshot-controller-0.1.0.tgz
     version: 0.1.0
+  template:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2026-07-16T13:06:27.593038637Z"
+    description: A Helm chart for Kubernetes
+    digest: bdb96b97caff6d25abbfc4a81ee1a105e369b4f0b9b7253690402e76ea0e0d28
+    name: template
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/template-0.1.0/template-0.1.0.tgz
+    version: 0.1.0
   ubuntu:
   - apiVersion: v2
     appVersion: "24.04"
@@ -12425,4 +12436,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-16T08:40:29.693395856Z"
+generated: "2026-07-16T13:06:27.593755786Z"
