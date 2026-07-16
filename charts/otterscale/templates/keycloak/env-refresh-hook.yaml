@@ -1,19 +1,25 @@
 {{- if and .Values.keycloakx.enabled .Values.keycloakInit.enabled .Values.keycloakInit.envRefresh.enabled }}
 {{- /*
-Checksum of the KC_HOSTNAME inputs (see keycloak/env-configmap.yaml). Stamped
-onto the StatefulSet pod template: pods roll only when the checksum changes.
+Checksum of the KC_HOSTNAME inputs (see keycloak/env-configmap.yaml).
+Two Jobs share one script:
+  - baseline (post-install): record the checksum on the StatefulSet OBJECT
+    metadata only — pod template untouched, so first boot is never restarted.
+  - refresh (post-upgrade/rollback): server-side compare via JSON-Patch "test";
+    unchanged = no-op, changed = stamp the pod template -> rolling restart.
 */ -}}
 {{- $checksum := printf "%s%s" (include "otterscale.externalURL" .) (.Values.keycloakx.http.relativePath | trimSuffix "/") | sha256sum -}}
+{{- range $mode := list "baseline" "refresh" }}
+---
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ include "otterscale.fullname" . }}-keycloak-env-refresh
-  namespace: {{ include "otterscale.namespace" . }}
+  name: {{ include "otterscale.fullname" $ }}-keycloak-env-{{ $mode }}
+  namespace: {{ include "otterscale.namespace" $ }}
   labels:
-    {{- include "otterscale.labels" . | nindent 4 }}
+    {{- include "otterscale.labels" $ | nindent 4 }}
     app.kubernetes.io/component: keycloak-init
   annotations:
-    "helm.sh/hook": post-upgrade,post-rollback
+    "helm.sh/hook": {{ if eq $mode "baseline" }}post-install{{ else }}post-upgrade,post-rollback{{ end }}
     "helm.sh/hook-weight": "1"
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
 spec:
@@ -22,25 +28,27 @@ spec:
   template:
     metadata:
       labels:
-        {{- include "otterscale.selectorLabels" . | nindent 8 }}
+        {{- include "otterscale.selectorLabels" $ | nindent 8 }}
         app.kubernetes.io/component: keycloak-init
     spec:
       restartPolicy: OnFailure
-      serviceAccountName: {{ include "otterscale.fullname" . }}-keycloak-init
+      serviceAccountName: {{ include "otterscale.fullname" $ }}-keycloak-init
       automountServiceAccountToken: true
       {{- with include "otterscale.podNodeSelector" (dict "context" $) }}
       nodeSelector:
         {{- . | nindent 8 }}
       {{- end }}
       containers:
-        - name: env-refresh
-          image: {{ include "otterscale.image" (dict "imageRoot" .Values.keycloakInit.envRefresh.image "global" .Values.global "chart" .Chart) | quote }}
-          imagePullPolicy: {{ .Values.keycloakInit.envRefresh.image.pullPolicy }}
+        - name: env-{{ $mode }}
+          image: {{ include "otterscale.image" (dict "imageRoot" $.Values.keycloakInit.envRefresh.image "global" $.Values.global "chart" $.Chart) | quote }}
+          imagePullPolicy: {{ $.Values.keycloakInit.envRefresh.image.pullPolicy }}
           env:
+            - name: MODE
+              value: {{ $mode | quote }}
             - name: STS_NAME
-              value: {{ include "otterscale.keycloakx.fullname" . | quote }}
+              value: {{ include "otterscale.keycloakx.fullname" $ | quote }}
             - name: STS_NAMESPACE
-              value: {{ include "otterscale.namespace" . | quote }}
+              value: {{ include "otterscale.namespace" $ | quote }}
             - name: CHECKSUM
               value: {{ $checksum | quote }}
           command:
@@ -52,21 +60,51 @@ spec:
               SA=/var/run/secrets/kubernetes.io/serviceaccount
               TOKEN=$(cat "${SA}/token")
               URL="https://kubernetes.default.svc/apis/apps/v1/namespaces/${STS_NAMESPACE}/statefulsets/${STS_NAME}"
-              BODY='{"spec":{"template":{"metadata":{"annotations":{"otterscale.io/kc-hostname-checksum":"'"${CHECKSUM}"'"}}}}}'
+              ANNOT="otterscale.io/kc-hostname-checksum"
 
-              status=$(curl -sS -o /tmp/response.json -w '%{http_code}' \
-                --cacert "${SA}/ca.crt" \
-                -H "Authorization: Bearer ${TOKEN}" \
-                -H "Content-Type: application/strategic-merge-patch+json" \
-                -X PATCH "${URL}" -d "${BODY}")
+              patch() {
+                # patch CONTENT_TYPE BODY -> echoes HTTP status
+                curl -sS -o /tmp/response.json -w '%{http_code}' \
+                  --cacert "${SA}/ca.crt" \
+                  -H "Authorization: Bearer ${TOKEN}" \
+                  -H "Content-Type: $1" \
+                  -X PATCH "${URL}" -d "$2"
+              }
 
+              if [ "${MODE}" = "baseline" ]; then
+                # Object-level metadata only: never touches the pod template,
+                # so the pods booting right after install are left alone.
+                body='{"metadata":{"annotations":{"'"${ANNOT}"'":"'"${CHECKSUM}"'"}}}'
+                status=$(patch "application/strategic-merge-patch+json" "${body}")
+                if [ "${status}" != "200" ]; then
+                  echo "Failed to record baseline on StatefulSet '${STS_NAME}' (HTTP ${status}):" >&2
+                  cat /tmp/response.json >&2
+                  exit 1
+                fi
+                echo "Baseline KC_HOSTNAME checksum ${CHECKSUM} recorded (no restart)."
+                exit 0
+              fi
+
+              # Server-side compare: JSON-Patch "test" succeeds (200) only when
+              # the recorded checksum equals the desired one.
+              test_op='[{"op":"test","path":"/metadata/annotations/otterscale.io~1kc-hostname-checksum","value":"'"${CHECKSUM}"'"}]'
+              status=$(patch "application/json-patch+json" "${test_op}")
+              if [ "${status}" = "200" ]; then
+                echo "KC_HOSTNAME checksum unchanged (${CHECKSUM}); Keycloak keeps running."
+                exit 0
+              fi
+
+              # Changed (or never recorded): stamp object + pod template.
+              # The pod-template change triggers a rolling restart so Keycloak
+              # picks up the new OIDC issuer.
+              body='{"metadata":{"annotations":{"'"${ANNOT}"'":"'"${CHECKSUM}"'"}},"spec":{"template":{"metadata":{"annotations":{"'"${ANNOT}"'":"'"${CHECKSUM}"'"}}}}}'
+              status=$(patch "application/strategic-merge-patch+json" "${body}")
               if [ "${status}" != "200" ]; then
                 echo "Failed to patch StatefulSet '${STS_NAME}' (HTTP ${status}):" >&2
                 cat /tmp/response.json >&2
                 exit 1
               fi
-              echo "StatefulSet '${STS_NAME}' stamped with KC_HOSTNAME checksum ${CHECKSUM}."
-              echo "Keycloak pods restart only if the checksum changed."
+              echo "KC_HOSTNAME changed -> stamped ${CHECKSUM}; Keycloak is rolling to pick up the new issuer."
           securityContext:
             runAsNonRoot: true
             runAsUser: 100
@@ -79,8 +117,8 @@ spec:
             - name: tmp
               mountPath: /tmp
           resources:
-            {{- if .Values.keycloakInit.envRefresh.resources }}
-            {{- toYaml .Values.keycloakInit.envRefresh.resources | nindent 12 }}
+            {{- if $.Values.keycloakInit.envRefresh.resources }}
+            {{- toYaml $.Values.keycloakInit.envRefresh.resources | nindent 12 }}
             {{- else }}
             requests:
               cpu: 10m
@@ -92,4 +130,5 @@ spec:
       volumes:
         - name: tmp
           emptyDir: {}
+{{- end }}
 {{- end }}
