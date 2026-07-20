@@ -1,25 +1,24 @@
 #!/bin/sh
-# Emits otterscale.io/aidaptiv=true for the NFD local source when the LVM
-# volume group "vg_aidaptiv" exists on the host. POSIX sh (Alpine-friendly).
-# Reads host sysfs via SYS_ROOT (e.g. /host/sys); no block device is opened.
+# Emits otterscale.io/aidaptiv=true for the NFD local source when the LVM volume
+# group "vg_aidaptiv" is defined on the host — detected even when no logical
+# volume is active. POSIX sh (Alpine-friendly).
+#
+# vgs(8) must read the PVs, so it runs against the host: inside the pod via the
+# host mount namespace (nsenter -t 1 -m, needs a privileged pod with hostPID);
+# on a plain host it falls back to vgs on PATH (run with sudo).
 
 set -eu
 
-SYS_ROOT="${SYS_ROOT:-/sys}"
+VG="vg_aidaptiv"
 
-# LVM logical volumes show up as dm-* devices whose dm/name is "<vg>-<lv>"
-# ("vg_aidaptiv" has no hyphen, so the prefix is literal).
-for _d in "${SYS_ROOT}/block/dm-"*/; do
-  [ -r "${_d}dm/name" ] || continue
-  case "$(cat "${_d}dm/name" 2>/dev/null)" in
-    vg_aidaptiv-*)
-      echo "otterscale.io/aidaptiv=true"
-      exit 0
-      ;;
-  esac
-done
+vg_names() {
+  if command -v nsenter >/dev/null 2>&1 && nsenter -t 1 -m -- vgs --version >/dev/null 2>&1; then
+    nsenter -t 1 -m -- vgs --noheadings -o vg_name 2>/dev/null
+  elif command -v vgs >/dev/null 2>&1; then
+    vgs --noheadings -o vg_name 2>/dev/null
+  fi
+}
 
-# Fallback: vgs(8) if installed — catches a VG with no active logical volumes.
-if command -v vgs >/dev/null 2>&1 && vgs --noheadings -o vg_name 2>/dev/null | grep -Fqw vg_aidaptiv; then
+if vg_names | grep -Fqw "$VG"; then
   echo "otterscale.io/aidaptiv=true"
 fi
