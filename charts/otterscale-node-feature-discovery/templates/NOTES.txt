@@ -6,7 +6,7 @@ OtterScale Node Feature Discovery has been installed.
   - node-feature-discovery (subchart): nfd-master and nfd-worker
   {{- if .Values.featureWriter.enabled }}
   - feature-writer DaemonSet: refreshes
-      /etc/kubernetes/node-feature-discovery/features.d/{{ .Values.featureWriter.featureFileName }}
+      /etc/kubernetes/node-feature-discovery/features.d/{{ .Values.featureWriter.volumeGroupFeatureFileName }}
     every {{ .Values.featureWriter.intervalSeconds }}s for the NFD local source.
   {{- end }}
 

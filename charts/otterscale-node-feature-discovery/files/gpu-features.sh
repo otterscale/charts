@@ -3,6 +3,7 @@
 # Scans PCI devices via host sysfs for NVIDIA GPUs (vendor 0x10de, class 0x03xx).
 # Outputs:
 #   otterscale.io/gpu-count=<total>
+#   otterscale.io/gpu=true                       (only when at least one GPU is present)
 #   otterscale.io/gpu-pci-<device_id>=<count>   (one line per unique PCI device ID)
 #
 # Requires SYS_ROOT to be set to host sysfs mount point (e.g. /host/sys).
@@ -53,6 +54,8 @@ done
 echo "otterscale.io/gpu-count=${total}"
 
 [ "${total}" -gt 0 ] || exit 0
+
+echo "otterscale.io/gpu=true"
 
 # Count per device ID and emit one label per unique ID.
 printf '%s' "${TMP_IDS}" | grep -v '^$' | sort | uniq -c | while read -r count did; do
