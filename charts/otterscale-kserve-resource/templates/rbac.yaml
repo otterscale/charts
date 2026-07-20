@@ -39,7 +39,6 @@ rules:
     resources:
       - llminferenceserviceconfigs
       - llminferenceservices
-      - localmodelnamespacecaches
     verbs:
       - "*"
   - apiGroups:
@@ -47,7 +46,6 @@ rules:
     resources:
       - llminferenceserviceconfigs/status
       - llminferenceservices/status
-      - localmodelnamespacecaches/status
     verbs:
       - get
 ---
@@ -63,7 +61,6 @@ rules:
     resources:
       - llminferenceserviceconfigs
       - llminferenceservices
-      - localmodelnamespacecaches
     verbs:
       - create
       - delete
@@ -77,7 +74,6 @@ rules:
     resources:
       - llminferenceserviceconfigs/status
       - llminferenceservices/status
-      - localmodelnamespacecaches/status
     verbs:
       - get
 ---
@@ -93,7 +89,6 @@ rules:
     resources:
       - llminferenceserviceconfigs
       - llminferenceservices
-      - localmodelnamespacecaches
     verbs:
       - get
       - list
@@ -103,6 +98,5 @@ rules:
     resources:
       - llminferenceserviceconfigs/status
       - llminferenceservices/status
-      - localmodelnamespacecaches/status
     verbs:
       - get
