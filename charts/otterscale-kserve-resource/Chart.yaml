@@ -1,6 +1,6 @@
 apiVersion: v2
 name: otterscale-kserve-resource
-version: 1.4.0-rc.0
+version: 1.4.0-rc.1
 # renovate: helm=kserve registry=oci://ghcr.io/kserve/charts
 appVersion: "v0.20.0-rc0"
 description: >-
@@ -26,6 +26,6 @@ dependencies:
     version: v0.20.0-rc0
     repository: oci://ghcr.io/kserve/charts
 annotations:
-  module.otterscale.io/depends-on: "otterscale-prometheus,otterscale-envoy-gateway,otterscale-leader-worker-set,otterscale-kserve-base,otterscale-kserve-crd"
+  module.otterscale.io/depends-on: "otterscale-prometheus,otterscale-envoy-gateway,otterscale-leader-worker-set,otterscale-kserve-base"
   module.otterscale.io/namespace: "kserve"
   artifacthub.io/license: Apache-2.0
