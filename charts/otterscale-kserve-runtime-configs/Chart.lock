@@ -1,6 +1,6 @@
 dependencies:
 - name: kserve-runtime-configs
   repository: oci://ghcr.io/kserve/charts
-  version: v0.18.0
-digest: sha256:d1bf14c6d06de4b44d5e6e0405ba56a9b5cdc6f3987214711cf87af462612299
-generated: "2026-07-01T14:20:25.049664498+08:00"
+  version: v0.20.0-rc0
+digest: sha256:38f02c1541d9ad9506622b76ebff8de60ec680da39ed866c1c7e7e26fbc19c64
+generated: "2026-07-20T14:52:05.506290927+08:00"
