@@ -102,10 +102,16 @@ spec:
             periodSeconds: {{ .Values.dashboard.startupProbe.periodSeconds }}
             failureThreshold: {{ .Values.dashboard.startupProbe.failureThreshold }}
           {{- end }}
-          {{- with .Values.dashboard.resources }}
           resources:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+            {{- if .Values.dashboard.resources }}
+            {{- toYaml .Values.dashboard.resources | nindent 12 }}
+            {{- else }}
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits: # no CPU limit by default (avoids throttling)
+              memory: 1024Mi
+            {{- end }}
           {{- with .Values.dashboard.extraVolumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}
@@ -117,9 +123,9 @@ spec:
       volumes:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.dashboard.nodeSelector }}
+      {{- with include "otterscale.podNodeSelector" (dict "local" .Values.dashboard.nodeSelector "context" $) }}
       nodeSelector:
-        {{- toYaml . | nindent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}
       {{- with .Values.dashboard.affinity }}
       affinity:

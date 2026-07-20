@@ -22,6 +22,10 @@ spec:
         app.kubernetes.io/component: harbor-init
     spec:
       restartPolicy: OnFailure
+      {{- with include "otterscale.podNodeSelector" (dict "context" $) }}
+      nodeSelector:
+        {{- . | nindent 8 }}
+      {{- end }}
       containers:
         - name: harbor-init
           image: "{{ .Values.harborInit.image.repository }}:{{ .Values.harborInit.image.tag }}"
@@ -111,5 +115,14 @@ spec:
               drop:
                 - ALL
           resources:
+            {{- if .Values.harborInit.resources }}
             {{- toYaml .Values.harborInit.resources | nindent 12 }}
+            {{- else }}
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+            {{- end }}
 {{- end }}

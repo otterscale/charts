@@ -21,6 +21,10 @@ spec:
         app.kubernetes.io/component: local-path-mkdir
     spec:
       restartPolicy: OnFailure
+      {{- with include "otterscale.podNodeSelector" (dict "context" $) }}
+      nodeSelector:
+        {{- . | nindent 8 }}
+      {{- end }}
       volumes:
         - name: host-storage
           hostPath:

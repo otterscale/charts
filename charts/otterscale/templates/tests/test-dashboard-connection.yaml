@@ -10,6 +10,10 @@ metadata:
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
 spec:
   restartPolicy: Never
+  {{- with include "otterscale.podNodeSelector" (dict "context" $) }}
+  nodeSelector:
+    {{- . | nindent 4 }}
+  {{- end }}
   securityContext:
     runAsNonRoot: true
     runAsUser: 65534

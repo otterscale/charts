@@ -22,6 +22,10 @@ spec:
       annotations:
         checksum/secret: {{ include (print $.Template.BasePath "/keycloak/postgres-secret.yaml") . | sha256sum }}
     spec:
+      {{- with include "otterscale.podNodeSelector" (dict "context" $) }}
+      nodeSelector:
+        {{- . | nindent 8 }}
+      {{- end }}
       securityContext:
         runAsNonRoot: true
         runAsUser: 999
@@ -83,10 +87,17 @@ spec:
             periodSeconds: 5
             timeoutSeconds: 10
             failureThreshold: 3
-          {{- with .Values.keycloakx.database.resources }}
           resources:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+            {{- if .Values.keycloakx.database.resources }}
+            {{- toYaml .Values.keycloakx.database.resources | nindent 12 }}
+            {{- else }}
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            {{- end }}
       volumes:
         - name: postgres-data
         {{- if .Values.keycloakx.database.persistence.enabled }}

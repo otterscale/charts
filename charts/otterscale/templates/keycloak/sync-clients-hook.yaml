@@ -1,0 +1,146 @@
+{{- if and .Values.keycloakx.enabled .Values.keycloakInit.enabled }}
+{{- $adminSecret := printf "%s-admin" (include "otterscale.keycloakx.fullname" .) -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "otterscale.fullname" . }}-keycloak-sync
+  namespace: {{ include "otterscale.namespace" . }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+    app.kubernetes.io/component: keycloak-init
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade,post-rollback
+    "helm.sh/hook-weight": "2"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 300
+  template:
+    metadata:
+      labels:
+        {{- include "otterscale.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: keycloak-init
+    spec:
+      restartPolicy: OnFailure
+      automountServiceAccountToken: false
+      {{- with include "otterscale.podNodeSelector" (dict "context" $) }}
+      nodeSelector:
+        {{- . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: keycloak-sync
+          image: {{ include "otterscale.keycloakInit.image" . | quote }}
+          imagePullPolicy: {{ .Values.keycloakInit.image.pullPolicy }}
+          env:
+            # kcadm.sh writes its session config to ~/.keycloak.
+            - name: HOME
+              value: /tmp
+            - name: KC_SERVER
+              value: "http://{{ include "otterscale.keycloakx.serviceName" . }}:{{ .Values.keycloakx.service.port }}{{ .Values.keycloakx.http.relativePath | trimSuffix "/" }}"
+            - name: KC_REALM
+              value: {{ .Values.keycloakx.realm | quote }}
+            - name: KC_ADMIN_USER
+              value: {{ .Values.keycloakx.auth.adminUser | quote }}
+            - name: KC_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $adminSecret | quote }}
+                  key: KC_BOOTSTRAP_ADMIN_PASSWORD
+            - name: DASHBOARD_CLIENT_ID
+              value: {{ .Values.keycloakx.clients.dashboard.id | quote }}
+            - name: DASHBOARD_URL
+              value: {{ include "otterscale.externalURL" . | quote }}
+            {{- if .Values.harbor.enabled }}
+            - name: HARBOR_CLIENT_ID
+              value: {{ .Values.keycloakx.clients.harbor.id | quote }}
+            - name: HARBOR_URL
+              value: {{ .Values.harbor.externalURL | trimSuffix "/" | quote }}
+            {{- end }}
+            - name: WAIT_TIMEOUT
+              value: {{ .Values.keycloakInit.waitTimeoutSeconds | quote }}
+          command:
+            - bash
+            - -c
+            - |
+              set -eu
+
+              # JVM user.home comes from /etc/passwd (/opt/keycloak), which is
+              # read-only here — point the kcadm session config at /tmp instead.
+              kcadm() { /opt/keycloak/bin/kcadm.sh "$@" --config /tmp/kcadm.config; }
+
+              echo "Waiting for Keycloak at ${KC_SERVER} ..."
+              deadline=$(( $(date +%s) + WAIT_TIMEOUT ))
+              until out=$(kcadm config credentials --server "${KC_SERVER}" --realm master \
+                      --user "${KC_ADMIN_USER}" --password "${KC_ADMIN_PASSWORD}" 2>&1); do
+                if [ "$(date +%s)" -ge "${deadline}" ]; then
+                  echo "Timed out waiting for Keycloak admin login. Last kcadm error:" >&2
+                  echo "${out}" >&2
+                  echo "Hint: if the admin password was changed inside Keycloak, the" >&2
+                  echo "password in Secret '{{ $adminSecret }}' no longer matches it." >&2
+                  exit 1
+                fi
+                echo "Keycloak login not ready ($(echo "${out}" | tail -n 1)), retrying in 5s..."
+                sleep 5
+              done
+              echo "Logged in to Keycloak."
+
+              until out=$(kcadm get "realms/${KC_REALM}" --fields realm 2>&1); do
+                if [ "$(date +%s)" -ge "${deadline}" ]; then
+                  echo "Timed out waiting for realm '${KC_REALM}'. Last kcadm error:" >&2
+                  echo "${out}" >&2
+                  exit 1
+                fi
+                echo "Realm '${KC_REALM}' not imported yet, retrying in 5s..."
+                sleep 5
+              done
+              echo "Realm '${KC_REALM}' is present."
+
+              # sync_client CLIENT_ID REDIRECT_BASE_URL WEB_ORIGIN
+              # kcadm update merges into current state: only these fields change.
+              sync_client() {
+                client_id="$1"; redirect_base="$2"; web_origin="$3"
+                cid=$(kcadm get clients -r "${KC_REALM}" -q "clientId=${client_id}" \
+                        --fields id --format csv --noquotes)
+                if [ -z "${cid}" ]; then
+                  echo "Client '${client_id}' not found in realm '${KC_REALM}'." >&2
+                  return 1
+                fi
+                kcadm update "clients/${cid}" -r "${KC_REALM}" \
+                  -s "redirectUris=[\"${redirect_base}/*\"]" \
+                  -s "webOrigins=[\"${web_origin}\"]" \
+                  -s "attributes.\"post.logout.redirect.uris\"=\"${redirect_base}/*\""
+                echo "Client '${client_id}': redirectUris/logout -> ${redirect_base}/*, webOrigins -> ${web_origin}"
+              }
+
+              sync_client "${DASHBOARD_CLIENT_ID}" "${DASHBOARD_URL}" "${DASHBOARD_URL}"
+              {{- if .Values.harbor.enabled }}
+              sync_client "${HARBOR_CLIENT_ID}" "${HARBOR_URL}" "${DASHBOARD_URL}"
+              {{- end }}
+
+              echo "Keycloak client URL sync complete."
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            {{- if .Values.keycloakInit.resources }}
+            {{- toYaml .Values.keycloakInit.resources | nindent 12 }}
+            {{- else }}
+            requests: # kcadm runs a JVM
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 512Mi
+            {{- end }}
+      volumes:
+        - name: tmp
+          emptyDir: {}
+{{- end }}

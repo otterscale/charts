@@ -9,7 +9,7 @@ A unified platform for simplified compute, storage, and networking.
 
 - Kubernetes >= 1.25.0
 - Helm >= 3.10.0
-- (Optional) NGINX Ingress Controller or Envoy Gateway
+- (Optional) Envoy Gateway
 
 **Components:**
 
@@ -66,10 +66,10 @@ helm upgrade --install otterscale otterscale/otterscale \
 
 ## Networking Modes
 
-OtterScale supports three mutually exclusive ways to expose the platform:
-**Envoy Gateway** (recommended), **Ingress**, and plain **NodePort**.
-`dashboard.externalURL` is always required — every external-facing URL (OIDC
-issuer, CORS origins, server/tunnel URLs) is derived from it.
+OtterScale is exposed through **Envoy Gateway** (path-based routing via the
+Gateway API). `dashboard.externalURL` is always required — every
+external-facing URL (OIDC issuer, CORS origins, server/tunnel URLs) is derived
+from it.
 
 ### Envoy Gateway (recommended)
 
@@ -176,30 +176,6 @@ The certificate can be supplied two ways:
 > Keycloak relative path so the OIDC issuer always matches what the server and
 > dashboard expect — no manual Keycloak hostname tuning is required.
 
-### Ingress
-
-Standard Kubernetes Ingress (e.g. NGINX). See
-[`examples/ingress-values.yaml`](examples/ingress-values.yaml) and the
-[Ingress parameters](#ingress).
-
-### NodePort only
-
-Expose the server Service directly without a gateway:
-
-```yaml
-dashboard:
-  externalURL: "http://192.168.1.100:30299"
-
-server:
-  externalURL: "http://192.168.1.100:30299/api/"
-  service:
-    type: NodePort
-    nodePort: "30299"
-  tunnelService:
-    type: NodePort
-    nodePort: "30300"
-```
-
 ## Parameters
 
 ### Global
@@ -208,7 +184,7 @@ server:
 | ------------------------- | -------------------------------------- | ------- |
 | `global.imageRegistry`    | Override image registry for all images | `""`    |
 | `global.imagePullSecrets` | Global image pull secrets              | `[]`    |
-| `global.storageClass`     | Default StorageClass for all PVCs      | `""`    |
+| `global.nodeSelector`     | nodeSelector for every chart-rendered pod (subchart pods excluded; component-level entries win) | `{}` |
 | `nameOverride`            | Override chart name in resource names  | `""`    |
 | `fullnameOverride`        | Override full resource name prefix     | `""`    |
 
@@ -234,7 +210,6 @@ server:
 | `server.ports.http`                | HTTP API port                                    | `8299`                          |
 | `server.ports.tunnel`              | Tunnel port                                      | `8300`                          |
 | `server.service.type`              | HTTP Service type                                | `ClusterIP`                     |
-| `server.service.nodePort`          | NodePort for HTTP (when `service.type` NodePort) | `""`                            |
 | `server.tunnelService.type`        | Tunnel Service type                              | `ClusterIP`                     |
 | `server.tunnelService.nodePort`    | NodePort for tunnel                              | `""`                            |
 | `server.revisionHistoryLimit`      | ReplicaSet revision history limit                | `3`                             |
@@ -266,17 +241,6 @@ server:
 | `dashboard.networkPolicy.enabled`     | Create NetworkPolicy                                      | `false`                        |
 | `dashboard.serviceMonitor.enabled`    | Create Prometheus ServiceMonitor                          | `false`                        |
 
-### Ingress
-
-| Parameter                         | Description                         | Default                        |
-| --------------------------------- | ----------------------------------- | ------------------------------ |
-| `ingress.enabled`                 | Enable Kubernetes Ingress           | `false`                        |
-| `ingress.className`               | IngressClass name                   | `""`                           |
-| `ingress.annotations`             | Ingress annotations                 | `{}`                           |
-| `ingress.hosts`                   | Host routing rules                  | See [values.yaml](values.yaml) |
-| `ingress.hosts[].paths[].rewrite` | Strip path prefix before forwarding | `false`                        |
-| `ingress.tls`                     | TLS configuration                   | `[]`                           |
-
 ### Envoy Gateway (Gateway API)
 
 > **Prerequisites:** Envoy Gateway must be installed in the cluster (it provides
@@ -287,7 +251,6 @@ server:
 | --------------------------- | ----------------------------------------------------------------------------- | ------------------------ |
 | `envoy.enabled`             | Enable Envoy Gateway integration                                              | `false`                  |
 | `envoy.gatewayClassName`    | GatewayClass name backed by the Envoy Gateway controller                      | `"eg"`                   |
-| `envoy.httpRoute.enabled`   | Create the OtterScale HTTPRoute                                               | `true`                   |
 | `envoy.httpRoute.hostnames` | Override HTTPRoute hostnames (defaults to the `externalURL` host when TLS on) | `[]`                     |
 | `envoy.tls.enabled`         | Add an HTTPS listener (TLS termination at the Gateway)                        | `false`                  |
 | `envoy.tls.crt`             | PEM certificate; chart creates the TLS Secret (raw PEM, not base64)           | `""`                     |

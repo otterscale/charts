@@ -36,7 +36,7 @@ envoy:
   enabled: true
   gateway:
     service:
-      type: LoadBalancer
+      type: ClusterIP
   tls:
     enabled: true
     redirectToHTTPS: true
