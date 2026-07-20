@@ -1,0 +1,6 @@
+dependencies:
+- name: topolvm
+  repository: https://topolvm.github.io/topolvm
+  version: 17.0.0
+digest: sha256:100f3c06f198dff665aaf8cc92684d89f49fb76076ebea8079ad653c395e9681
+generated: "2026-07-20T15:13:07.650309857+08:00"

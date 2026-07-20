@@ -36,5 +36,4 @@ featureWriter:
   podLabels: {}
   securityContext:
     runAsUser: 0
-    runAsGroup: 0
-    runAsNonRoot: false
+    privileged: true

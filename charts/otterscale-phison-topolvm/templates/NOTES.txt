@@ -1,0 +1,25 @@
+OtterScale TopoLVM has been installed.
+
+  Namespace: {{ .Release.Namespace }}
+
+  Prerequisites:
+  - otterscale-node-feature-discovery must be installed first
+    (labels nodes exposing the vg_aidaptiv volume group with
+     otterscale.io/aidaptiv=true)
+
+  Components:
+  - TopoLVM Controller (CSI provisioner, {{ .Values.topolvm.controller.replicaCount }} replicas)
+  - TopoLVM Node plugin + lvmd (DaemonSet)
+
+  Storage:
+  {{- range .Values.topolvm.lvmd.deviceClasses }}
+  - Device class {{ .name }} → volume group {{ index . "volume-group" }}
+  {{- end }}
+  {{- range .Values.topolvm.storageClasses }}
+  - StorageClass: {{ .name }} ({{ .storageClass.fsType }})
+  {{- end }}
+
+  Verify:
+  - kubectl get pods -n {{ .Release.Namespace }}
+  - kubectl get storageclass
+  - kubectl get nodes -l otterscale.io/aidaptiv=true
