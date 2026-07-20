@@ -1,0 +1,60 @@
+topolvm:
+  image:
+    repository: ghcr.io/otterscale/phison-topolvm
+    reference: 0.1.0
+
+  lvmd:
+    managed: true
+
+    deviceClasses:
+      - name: aidaptiv
+        volume-group: vg_aidaptiv
+        default: true
+
+    additionalLVMDYamlContent:
+      nvme-check-command:
+        - /shared/Sails
+        - support_inference
+
+    nodeSelector:
+      otterscale.io/aidaptiv: "true"
+
+    volumeMounts:
+      - name: lvmd-socket-dir
+        mountPath: /run/topolvm
+      - name: nvme-check
+        mountPath: /shared
+
+    additionalVolumes:
+      - name: nvme-check
+        emptyDir: {}
+
+    env:
+      - name: LD_LIBRARY_PATH
+        value: /shared/lib
+
+    initContainers:
+      - name: nvme-check-provider
+        image: ghcr.io/otterscale/phison-sails:0.2.0
+        securityContext:
+          runAsUser: 0
+        volumeMounts:
+          - name: nvme-check
+            mountPath: /shared
+
+  node:
+    nodeSelector:
+      otterscale.io/aidaptiv: "true"
+
+  controller:
+    replicaCount: 2
+
+  storageClasses:
+    - name: aidaptiv-cache
+      storageClass:
+        fsType: xfs
+        isDefaultClass: false
+        volumeBindingMode: WaitForFirstConsumer
+        allowVolumeExpansion: true
+        additionalParameters:
+          "topolvm.io/device-class": "aidaptiv"
