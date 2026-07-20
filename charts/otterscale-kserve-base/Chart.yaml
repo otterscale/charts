@@ -1,8 +1,8 @@
 apiVersion: v2
 name: otterscale-kserve-base
-version: 1.3.0
+version: 1.4.0-rc.0
 # renovate: helm=kserve registry=oci://ghcr.io/kserve/charts
-appVersion: "v0.18.0"
+appVersion: "v0.20.0-rc0"
 description: >-
   KServe LLMInferenceService CRDs — Custom Resource Definitions for KServe LLM inference.
   Deploys CRDs only.
@@ -22,10 +22,7 @@ type: application
 kubeVersion: ">=1.32.0-0"
 dependencies:
   - name: kserve-llmisvc-crd
-    version: v0.18.0
-    repository: oci://ghcr.io/kserve/charts
-  - name: kserve-localmodel-crd
-    version: v0.18.0
+    version: v0.20.0-rc0
     repository: oci://ghcr.io/kserve/charts
 annotations:
   module.otterscale.io/namespace: "kserve"
