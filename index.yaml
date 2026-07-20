@@ -10046,6 +10046,36 @@ entries:
       module.otterscale.io/namespace: node-feature-discovery
     apiVersion: v2
     appVersion: 0.18.3
+    created: "2026-07-20T07:28:20.623521234Z"
+    dependencies:
+    - name: node-feature-discovery
+      repository: oci://registry.k8s.io/nfd/charts
+      version: 0.18.3
+    description: Wraps upstream node-feature-discovery (Helm dependency) plus a DaemonSet
+      that runs a host script to refresh NFD local feature files under features.d.
+    digest: e3ce7e5ded1b44849e6fea7fb3931ada7d80b4171eb068b0d83eac8c92e66f5c
+    home: https://github.com/kubernetes-sigs/node-feature-discovery
+    icon: https://kubernetes-sigs.github.io/node-feature-discovery/v0.18/assets/images/nfd/favicon.svg
+    keywords:
+    - node-feature-discovery
+    - nfd
+    - labels
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-node-feature-discovery
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-node-feature-discovery-1.3.2/otterscale-node-feature-discovery-1.3.2.tgz
+    version: 1.3.2
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: node-feature-discovery
+    apiVersion: v2
+    appVersion: 0.18.3
     created: "2026-07-20T06:46:46.28599409Z"
     dependencies:
     - name: node-feature-discovery
@@ -10431,6 +10461,39 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/otterscale-node-feature-discovery-0.1.0/otterscale-node-feature-discovery-0.1.0.tgz
     version: 0.1.0
+  otterscale-phison-topolvm:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-node-feature-discovery
+      module.otterscale.io/namespace: phison-topolvm-system
+    apiVersion: v2
+    appVersion: 0.1.0
+    created: "2026-07-20T07:28:20.787369064Z"
+    dependencies:
+    - name: topolvm
+      repository: https://topolvm.github.io/topolvm
+      version: 17.0.0
+    description: TopoLVM — CSI driver for dynamic LVM logical volume provisioning.
+      Manages the vg_aidaptiv volume group with topology-aware scheduling.
+    digest: fcef0abf1c1814a4bc3f9be23509857599af679f206843d643681b4140a31057
+    home: https://github.com/otterscale/topolvm
+    icon: https://www.phison.com/wp-content/uploads/2025/11/Phison-Favicon-512-150x150.png
+    keywords:
+    - topolvm
+    - lvm
+    - csi
+    - storage
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-phison-topolvm
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-phison-topolvm-1.4.0-rc.1/otterscale-phison-topolvm-1.4.0-rc.1.tgz
+    version: 1.4.0-rc.1
   otterscale-prometheus:
   - annotations:
       artifacthub.io/license: Apache-2.0
@@ -11668,4 +11731,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-20T07:11:59.520030999Z"
+generated: "2026-07-20T07:28:20.787824811Z"
