@@ -5221,6 +5221,37 @@ entries:
       artifacthub.io/license: Apache-2.0
       module.otterscale.io/namespace: envoy-ai-gateway-system
     apiVersion: v2
+    appVersion: 1.0.0
+    created: "2026-07-20T08:58:46.758508142Z"
+    dependencies:
+    - name: ai-gateway-crds-helm
+      repository: oci://docker.io/envoyproxy
+      version: 1.0.0
+    description: Envoy AI Gateway CRDs — Custom Resource Definitions for AI-specific
+      routing on top of Envoy Gateway. Deploys CRDs only.
+    digest: d525e7266c2f3a1988a0bc30796cec6d81f585e141273ed2377ceff547dfd6b9
+    home: https://aigateway.envoyproxy.io
+    icon: https://github.com/envoyproxy.png
+    keywords:
+    - envoy
+    - ai-gateway
+    - inference
+    - llm
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-envoy-ai-gateway-base
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-envoy-ai-gateway-base-1.4.0-rc.0/otterscale-envoy-ai-gateway-base-1.4.0-rc.0.tgz
+    version: 1.4.0-rc.0
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: envoy-ai-gateway-system
+    apiVersion: v2
     appVersion: 0.5.0
     created: "2026-07-10T15:18:09.357491215Z"
     dependencies:
@@ -11731,4 +11762,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-20T07:28:20.787824811Z"
+generated: "2026-07-20T08:58:46.758973503Z"
