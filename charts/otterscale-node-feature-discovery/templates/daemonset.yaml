@@ -23,6 +23,7 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
+      hostPID: true
       serviceAccountName: {{ include "otterscale-nfd.fullname" . }}-feature-writer
       {{- with .Values.featureWriter.priorityClassName }}
       priorityClassName: {{ . }}
@@ -50,16 +51,6 @@ spec:
           env:
             - name: SYS_ROOT
               value: /host/sys
-            - name: DEV_ROOT
-              value: /host/dev
-            # Host /proc/mounts: mounted FS only (see disk-features.sh).
-            - name: PROC_ROOT
-              value: /host
-            # Host /run/udev/data: ID_FS_TYPE, ID_PART_TABLE_TYPE (PTTYPE) for probed disks (no block read).
-            - name: RUN_ROOT
-              value: /host/run
-            - name: DATA_DISK_INCLUDE_NBD
-              value: {{ if .Values.featureWriter.dataDiskIncludeNbd }}"1"{{ else }}"0"{{ end }}
           command:
             - /bin/sh
             - -c
@@ -67,17 +58,17 @@ spec:
             - |
               set -eu
               OUT_DIR="/etc/kubernetes/node-feature-discovery/features.d"
-              DISK_TMP="${OUT_DIR}/.{{ .Values.featureWriter.featureFileName }}.tmp"
-              DISK_FINAL="${OUT_DIR}/{{ .Values.featureWriter.featureFileName }}"
+              VG_TMP="${OUT_DIR}/.{{ .Values.featureWriter.volumeGroupFeatureFileName }}.tmp"
+              VG_FINAL="${OUT_DIR}/{{ .Values.featureWriter.volumeGroupFeatureFileName }}"
               GPU_TMP="${OUT_DIR}/.{{ .Values.featureWriter.gpuFeatureFileName }}.tmp"
               GPU_FINAL="${OUT_DIR}/{{ .Values.featureWriter.gpuFeatureFileName }}"
               INTERVAL={{ .Values.featureWriter.intervalSeconds | int }}
               mkdir -p "${OUT_DIR}"
               while true; do
-                if /bin/sh /scripts/disk-features.sh > "${DISK_TMP}"; then
-                  mv -f "${DISK_TMP}" "${DISK_FINAL}"
+                if /bin/sh /scripts/volume-group-features.sh > "${VG_TMP}"; then
+                  mv -f "${VG_TMP}" "${VG_FINAL}"
                 else
-                  rm -f "${DISK_TMP}"
+                  rm -f "${VG_TMP}"
                 fi
                 if /bin/sh /scripts/gpu-features.sh > "${GPU_TMP}"; then
                   mv -f "${GPU_TMP}" "${GPU_FINAL}"
@@ -92,16 +83,7 @@ spec:
             - name: host-sys
               mountPath: /host/sys
               readOnly: true
-            - name: host-dev
-              mountPath: /host/dev
-              readOnly: true
-            - name: host-proc
-              mountPath: /host/proc
-              readOnly: true
-            - name: host-run
-              mountPath: /host/run
-              readOnly: true
-            - name: disk-script
+            - name: feature-scripts
               mountPath: /scripts
               readOnly: true
       volumes:
@@ -113,20 +95,8 @@ spec:
           hostPath:
             path: /sys
             type: Directory
-        - name: host-dev
-          hostPath:
-            path: /dev
-            type: Directory
-        - name: host-proc
-          hostPath:
-            path: /proc
-            type: Directory
-        - name: host-run
-          hostPath:
-            path: /run
-            type: Directory
-        - name: disk-script
+        - name: feature-scripts
           configMap:
-            name: {{ include "otterscale-nfd.fullname" . }}-disk-script
+            name: {{ include "otterscale-nfd.fullname" . }}-feature-scripts
             defaultMode: 0444
 {{- end }}

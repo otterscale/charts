@@ -3,8 +3,6 @@ kserve-llmisvc-resources:
     controller:
       llmisvc:
         enabled: true
-    localmodel:
-      enabled: true
 
 envoyProxy:
   # LoadBalancer / ClusterIP / NodePort

@@ -10,20 +10,18 @@ node-feature-discovery:
       core:
         sleepInterval: 60s
 
-# DaemonSet: runs disk-features.sh on each node and atomically refreshes a file under
+# DaemonSet: runs the feature scripts on each node and atomically refreshes files under
 # /etc/kubernetes/node-feature-discovery/features.d/ for the NFD local source.
 featureWriter:
   enabled: true
-  # Official slim image: /bin/sh (dash), coreutils, util-linux (blockdev fallback).
+  # Official slim image: /bin/sh (dash), coreutils, util-linux.
   image:
     repository: debian
     tag: bookworm-slim
   imagePullPolicy: IfNotPresent
   intervalSeconds: 60
-  featureFileName: otterscale-disk-features
+  volumeGroupFeatureFileName: otterscale-volume-group-features
   gpuFeatureFileName: otterscale-gpu-features
-  # Script only publishes "data disk" candidates: excludes loop, ram, zram, dm-*, fd*, and nbd* by default.
-  dataDiskIncludeNbd: false
   resources:
     requests:
       cpu: 10m
@@ -38,5 +36,4 @@ featureWriter:
   podLabels: {}
   securityContext:
     runAsUser: 0
-    runAsGroup: 0
-    runAsNonRoot: false
+    privileged: true
