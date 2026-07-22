@@ -4,6 +4,9 @@ metadata:
   name: kserve-envoyproxy
   namespace: {{ .Release.Namespace }}
 spec:
+  filterOrder:
+    - name: envoy.filters.http.ext_authz
+      after: envoy.filters.http.jwt_authn
   provider:
     type: Kubernetes
     kubernetes:
