@@ -19,24 +19,49 @@ fullnameOverride: ""
 ee:
   enabled: false
 
-# ── Storage ──
-# localPath.enabled deploys rancher/local-path-provisioner + a StorageClass.
-storage:
-  localPath:
-    enabled: false
-    path: /opt/otterscale/storage
-    storageClassName: otterscale-local-path
+# ── Storage (Longhorn subchart) ──
+# Node prerequisites (every node): open-iscsi installed + iscsid running;
+# NFSv4 client (nfs-common / nfs-utils) for RWX volumes.
+longhorn:
+  enabled: false
+  persistence:
+    defaultClass: false
+    defaultFsType: ext4
+    defaultClassReplicaCount: 2
+    defaultDataLocality: best-effort
     reclaimPolicy: Retain # Retain or Delete
-    image:
-      repository: rancher/local-path-provisioner
-      tag: v0.0.36
-      pullPolicy: IfNotPresent
-    helperPod:
-      # Any minimal image with a POSIX shell works.
-      image:
-        repository: docker.io/library/debian
-        tag: bookworm-slim
-        pullPolicy: IfNotPresent
+  defaultSettings:
+    defaultDataPath: /opt/otterscale/storage
+
+    ## Data integrity
+    snapshotDataIntegrity: fast-check
+    fastReplicaRebuildEnabled: true
+    autoSalvage: true
+
+    ## Scheduling and Space Safety
+    storageOverProvisioningPercentage: 100
+    storageMinimalAvailablePercentage: 10
+    replicaSoftAntiAffinity: false
+    disableSchedulingOnCordonedNode: true
+
+    ## Maintenance
+    nodeDrainPolicy: block-if-contains-last-replica
+    autoDeletePodWhenVolumeDetachedUnexpectedly: true
+    nodeDownPodDeletionPolicy: delete-both-statefulset-and-deployment-pod
+    replicaReplenishmentWaitInterval: 600
+    concurrentReplicaRebuildPerNodeLimit: 2
+    replicaAutoBalance: best-effort
+    autoCleanupSystemGeneratedSnapshot: true
+    snapshotMaxCount: 50
+    deletingConfirmationFlag: false
+
+    ## Monitoring and Logs
+    metrics:
+      serviceMonitor:
+        enabled: false
+    longhornManager:
+      log:
+        format: json
 
 # ── OtterScale Server ──
 server:
@@ -367,7 +392,7 @@ keycloakx:
       pullPolicy: IfNotPresent
     persistence:
       enabled: true
-      storageClassName: "otterscale-local-path"
+      storageClassName: "longhorn"
       accessMode: ReadWriteOnce
       size: 5Gi
     resources: {}
@@ -503,20 +528,20 @@ harbor:
     enabled: true
     persistentVolumeClaim:
       registry:
-        storageClass: "otterscale-local-path"
+        storageClass: "longhorn"
         size: 50Gi
       database:
-        storageClass: "otterscale-local-path"
+        storageClass: "longhorn"
         size: 5Gi
       jobservice:
         jobLog:
-          storageClass: "otterscale-local-path"
+          storageClass: "longhorn"
           size: 1Gi
       redis:
-        storageClass: "otterscale-local-path"
+        storageClass: "longhorn"
         size: 1Gi
       trivy:
-        storageClass: "otterscale-local-path"
+        storageClass: "longhorn"
         size: 5Gi
 
   database:

@@ -6,13 +6,9 @@ Prefer .Values.namespace; fall back to .Release.Namespace.
 {{- .Values.namespace | default .Release.Namespace -}}
 {{- end -}}
 
-{{- define "otterscale.localPath.provisionerName" -}}
-{{- printf "%s/local-path" (include "otterscale.fullname" .) -}}
-{{- end -}}
-
 {{- define "otterscale.storageClassName" -}}
-{{- if .Values.storage.localPath.enabled -}}
-  {{- .Values.storage.localPath.storageClassName -}}
+{{- if .Values.longhorn.enabled -}}
+  {{- "longhorn" -}}
 {{- else if .Values.keycloakx.database.persistence.storageClassName -}}
   {{- .Values.keycloakx.database.persistence.storageClassName -}}
 {{- end -}}

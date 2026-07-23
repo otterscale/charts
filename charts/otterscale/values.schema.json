@@ -12,6 +12,13 @@
     },
     "nameOverride": { "type": "string" },
     "fullnameOverride": { "type": "string" },
+    "longhorn": {
+      "type": "object",
+      "description": "Longhorn subchart (replicated block storage). Keys other than 'enabled' pass through to the Longhorn chart.",
+      "properties": {
+        "enabled": { "type": "boolean" }
+      }
+    },
     "server": {
       "type": "object",
       "properties": {

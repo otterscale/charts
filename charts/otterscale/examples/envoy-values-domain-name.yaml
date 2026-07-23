@@ -25,9 +25,8 @@ server:
 harbor:
   externalURL: "https://cr.phison.com"
 
-storage:
-  localPath:
-    enabled: true
+longhorn:
+  enabled: true
 
 ee:
   enabled: true

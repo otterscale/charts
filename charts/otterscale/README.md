@@ -10,6 +10,7 @@ A unified platform for simplified compute, storage, and networking.
 - Kubernetes >= 1.25.0
 - Helm >= 3.10.0
 - (Optional) Envoy Gateway
+- (Optional) `open-iscsi` on every node when `longhorn.enabled=true` — see [Storage (Longhorn)](#storage-longhorn)
 
 **Components:**
 
@@ -188,15 +189,35 @@ The certificate can be supplied two ways:
 | `nameOverride`            | Override chart name in resource names  | `""`    |
 | `fullnameOverride`        | Override full resource name prefix     | `""`    |
 
-### Storage
+### Storage (Longhorn)
 
-| Parameter                            | Description                          | Default                   |
-| ------------------------------------ | ------------------------------------ | ------------------------- |
-| `storage.localPath.enabled`          | Deploy local-path-provisioner        | `false`                   |
-| `storage.localPath.path`             | Host path for volume storage         | `/opt/otterscale/storage` |
-| `storage.localPath.storageClassName` | StorageClass name                    | `otterscale-local-path`   |
-| `storage.localPath.isDefault`        | Set as cluster default StorageClass  | `true`                    |
-| `storage.localPath.reclaimPolicy`    | Reclaim policy: `Retain` or `Delete` | `Retain`                  |
+Setting `longhorn.enabled=true` deploys the [Longhorn](https://longhorn.io)
+subchart: replicated block storage backed by each node's local disk. Volumes
+survive node failures as long as a healthy replica remains (StorageClass name:
+`longhorn`). Keys under `longhorn.*` other than `enabled` pass through to the
+[Longhorn chart](https://github.com/longhorn/charts).
+
+**Node prerequisites** (every node — verify with `longhornctl check preflight`):
+
+- `open-iscsi` installed and the `iscsid` daemon running
+  (Ubuntu: `apt-get install open-iscsi`; RHEL: `dnf install iscsi-initiator-utils && systemctl enable --now iscsid`)
+- NFSv4 client (`nfs-common` / `nfs-utils`) — required for RWX volumes
+- The data path filesystem must be ext4 or XFS
+- On RHEL, blacklist Longhorn devices in `multipath.conf` if `multipathd` is enabled
+
+| Parameter                                     | Description                                                | Default                   |
+| --------------------------------------------- | ---------------------------------------------------------- | ------------------------- |
+| `longhorn.enabled`                            | Deploy the Longhorn subchart                               | `false`                   |
+| `longhorn.persistence.defaultClass`           | Set `longhorn` as cluster default StorageClass             | `true`                    |
+| `longhorn.persistence.defaultClassReplicaCount` | Replicas per volume (set `1` on single-node clusters)    | `2`                       |
+| `longhorn.persistence.reclaimPolicy`          | Reclaim policy: `Retain` or `Delete`                       | `Retain`                  |
+| `longhorn.defaultSettings.defaultDataPath`    | Host path for replica storage                              | `/opt/otterscale/storage` |
+
+> **Uninstall note:** Longhorn blocks deletion while volumes exist. Before
+> `helm uninstall`, run
+> `helm upgrade ... --set longhorn.defaultSettings.deletingConfirmationFlag=true`
+> (or edit the `deleting-confirmation-flag` setting) — otherwise the uninstall
+> hangs. Longhorn upgrades must not skip minor versions.
 
 ### Server
 

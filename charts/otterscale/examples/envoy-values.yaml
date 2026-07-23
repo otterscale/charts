@@ -17,9 +17,8 @@ server:
 harbor:
   externalURL: "http://192.168.1.100:32180"
 
-storage:
-  localPath:
-    enabled: true
+longhorn:
+  enabled: true
 
 envoy:
   enabled: true
