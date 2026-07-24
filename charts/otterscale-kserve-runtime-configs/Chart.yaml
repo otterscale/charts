@@ -1,8 +1,8 @@
 apiVersion: v2
 name: otterscale-kserve-runtime-configs
-version: 1.4.0-rc.2
+version: 1.4.0-rc.3
 # renovate: helm=kserve registry=oci://ghcr.io/kserve/charts
-appVersion: "v0.20.0-rc0"
+appVersion: "v0.20.0-rc1"
 description: >-
   KServe LLMInferenceService — Controller and resources
   for Kubernetes-native distributed LLM inference with llm-d.
