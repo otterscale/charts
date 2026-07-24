@@ -38,6 +38,7 @@ jobs:
           helm repo add valkey https://valkey.io/valkey-helm/
           helm repo add ceph-csi-operator https://ceph.github.io/ceph-csi-operator
           helm repo add topolvm https://topolvm.github.io/topolvm
+          helm repo add kyverno https://kyverno.github.io/kyverno
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.7.0
