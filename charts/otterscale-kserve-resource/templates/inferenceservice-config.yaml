@@ -1,0 +1,28 @@
+{{- /*
+  OtterScale override of the KServe `inferenceservice-config` ConfigMap.
+
+  The upstream kserve-llmisvc-resources subchart hardcodes the storageInitializer
+  JSON block and does not expose enableOciModelSupport / ociModelMode as Helm
+  values, so they cannot be injected via values.yaml. The subchart's own copy of
+  this ConfigMap is disabled (see values.yaml: kserve.inferenceServiceConfig.enabled),
+  and here we re-render it using the subchart's OWN base + patch files and merge
+  helper, then set the two OCI fields on storageInitializer.
+
+  This reuses the upstream rendering logic verbatim (via the globally-registered
+  `kserve-common.renderPatchedResource` template applied to the subchart context
+  exposed through `.Subcharts`), so the config stays in sync with the pinned
+  subchart instead of being a hand-maintained duplicate.
+*/ -}}
+{{- $sub := index .Subcharts "kserve-llmisvc-resources" -}}
+{{- $rendered := include "kserve-common.renderPatchedResource" (dict
+  "baseFile" "files/common/configmap.yaml"
+  "patchFile" "files/common/configmap-patch.yaml"
+  "replaceNamespace" true
+  "context" $sub) -}}
+{{- $cm := $rendered | fromYaml -}}
+{{- $si := $cm.data.storageInitializer | fromJson -}}
+{{- $_ := set $si "enableOciModelSupport" true -}}
+{{- $_ := set $si "ociModelMode" "native" -}}
+{{- $_ := set $cm.data "storageInitializer" (toPrettyJson $si) -}}
+---
+{{ toYaml $cm }}
