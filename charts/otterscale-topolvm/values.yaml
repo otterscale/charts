@@ -1,0 +1,87 @@
+# DaemonSet: runs on every node, checks whether the LVM volume group
+# vg_aidaptiv exists on the host, and labels the node accordingly. The TopoLVM
+# lvmd/node DaemonSets (subchart) select nodes by this label, so TopoLVM is
+# only deployed on nodes where the volume group has been confirmed.
+vgChecker:
+  enabled: true
+
+  # LVM volume group to detect. Must match the subchart's
+  # topolvm.lvmd.deviceClasses volume-group (fixed name for aiDAPTIV).
+  volumeGroup: vg_aidaptiv
+
+  # Node label applied when the volume group is present. Must match the
+  # subchart's topolvm.lvmd.nodeSelector / topolvm.node.nodeSelector.
+  nodeLabel: otterscale.io/aidaptiv
+
+  # Seconds between checks.
+  intervalSeconds: 60
+
+  # Remove the node label when the volume group disappears, which drains the
+  # TopoLVM lvmd/node pods off the node.
+  removeLabelWhenMissing: true
+
+  imagePullPolicy: IfNotPresent
+
+  # Privileged container: detects the volume group by running vgs on the host
+  # via nsenter (pod has hostPID). Official slim image: /bin/sh, util-linux.
+  checker:
+    image:
+      repository: debian
+      tag: bookworm-slim
+    securityContext:
+      runAsUser: 0
+      privileged: true
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        memory: 128Mi
+
+  # Unprivileged container: applies/removes the node label via kubectl using
+  # the chart's ServiceAccount (nodes get/patch only).
+  labeler:
+    image:
+      repository: alpine/kubectl
+      tag: "1.33.4"
+    securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL
+    resources:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        memory: 128Mi
+
+  tolerations: []
+  nodeSelector: {}
+  affinity: {}
+  priorityClassName: ""
+  podAnnotations: {}
+  podLabels: {}
+
+# StorageClasses provisioned by the TopoLVM CSI driver (provisioner
+# topolvm.io). deviceClass must match one of the subchart's
+# topolvm.lvmd.deviceClasses (default: aidaptiv → vg_aidaptiv). The subchart
+# additionally ships its own aidaptiv-cache StorageClass.
+storageClasses:
+  - name: aidaptiv
+    fsType: xfs
+    deviceClass: aidaptiv
+    isDefaultClass: false
+    volumeBindingMode: WaitForFirstConsumer
+    allowVolumeExpansion: true
+    reclaimPolicy: Delete
+    annotations: {}
+    additionalParameters: {}
+    mountOptions: []
+
+# Values passed through to the wrapped otterscale-phison-topolvm chart
+# (TopoLVM controller, lvmd + node DaemonSets, storage classes). Its defaults
+# already target vg_aidaptiv and select nodes labeled otterscale.io/aidaptiv,
+# so no overrides are required here.
+otterscale-phison-topolvm: {}

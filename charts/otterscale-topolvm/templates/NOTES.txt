@@ -1,0 +1,23 @@
+OtterScale TopoLVM has been installed.
+
+  Namespace: {{ .Release.Namespace }}
+
+  Components:
+  - TopoLVM CSI driver bundle (controller, lvmd + node plugin DaemonSets,
+    sidecars) via the otterscale-phison-topolvm subchart
+  {{- if .Values.vgChecker.enabled }}
+  - VG checker DaemonSet: verifies the LVM volume group
+    "{{ .Values.vgChecker.volumeGroup }}" on every node and labels matching
+    nodes with {{ .Values.vgChecker.nodeLabel }}=true. TopoLVM lvmd/node pods
+    only schedule on nodes carrying that label.
+  {{- end }}
+
+  Storage:
+  {{- range .Values.storageClasses }}
+  - StorageClass {{ .name }} (topolvm.io CSI, device-class {{ .deviceClass | default "aidaptiv" }}, {{ .fsType | default "xfs" }})
+  {{- end }}
+
+  Verify:
+  - kubectl get pods -n {{ .Release.Namespace }}
+  - kubectl get nodes -l {{ .Values.vgChecker.nodeLabel }}=true
+  - kubectl get storageclass

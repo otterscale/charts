@@ -1,0 +1,112 @@
+{{- if .Values.vgChecker.enabled }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "otterscale-topolvm.fullname" . }}-vg-checker
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "otterscale-topolvm.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "otterscale-topolvm.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "otterscale-topolvm.selectorLabels" . | nindent 8 }}
+        {{- range $k, $v := .Values.vgChecker.podLabels }}
+        {{ $k }}: {{ quote $v }}
+        {{- end }}
+      annotations:
+        checksum/scripts: {{ pick (include (print $.Template.BasePath "/configmap.yaml") . | fromYaml) "data" | toYaml | sha256sum }}
+        {{- with .Values.vgChecker.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      hostPID: true
+      serviceAccountName: {{ include "otterscale-topolvm.fullname" . }}-vg-checker
+      {{- with .Values.vgChecker.priorityClassName }}
+      priorityClassName: {{ . }}
+      {{- end }}
+      {{- with .Values.vgChecker.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.vgChecker.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.vgChecker.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: vg-check
+          image: "{{ .Values.vgChecker.checker.image.repository }}:{{ .Values.vgChecker.checker.image.tag }}"
+          imagePullPolicy: {{ .Values.vgChecker.imagePullPolicy }}
+          securityContext:
+            {{- toYaml .Values.vgChecker.checker.securityContext | nindent 12 }}
+          resources:
+            {{- toYaml .Values.vgChecker.checker.resources | nindent 12 }}
+          command:
+            - /bin/sh
+            - /scripts/check-volume-group.sh
+          env:
+            - name: VG_NAME
+              value: {{ .Values.vgChecker.volumeGroup | quote }}
+            - name: STATUS_FILE
+              value: /status/vg-present
+            - name: INTERVAL_SECONDS
+              value: {{ .Values.vgChecker.intervalSeconds | int | quote }}
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+            - name: status
+              mountPath: /status
+        - name: node-labeler
+          image: "{{ .Values.vgChecker.labeler.image.repository }}:{{ .Values.vgChecker.labeler.image.tag }}"
+          imagePullPolicy: {{ .Values.vgChecker.imagePullPolicy }}
+          securityContext:
+            {{- toYaml .Values.vgChecker.labeler.securityContext | nindent 12 }}
+          resources:
+            {{- toYaml .Values.vgChecker.labeler.resources | nindent 12 }}
+          command:
+            - /bin/sh
+            - /scripts/label-node.sh
+          env:
+            # kubectl writes its discovery cache under $HOME/.kube; point it
+            # at the writable emptyDir since the root filesystem is read-only.
+            - name: HOME
+              value: /tmp
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: LABEL_KEY
+              value: {{ .Values.vgChecker.nodeLabel | quote }}
+            - name: STATUS_FILE
+              value: /status/vg-present
+            - name: INTERVAL_SECONDS
+              value: {{ .Values.vgChecker.intervalSeconds | int | quote }}
+            - name: REMOVE_WHEN_MISSING
+              value: {{ .Values.vgChecker.removeLabelWhenMissing | quote }}
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+              readOnly: true
+            - name: status
+              mountPath: /status
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: scripts
+          configMap:
+            name: {{ include "otterscale-topolvm.fullname" . }}-vg-checker-scripts
+            defaultMode: 0444
+        - name: status
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+{{- end }}

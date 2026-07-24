@@ -1,0 +1,6 @@
+dependencies:
+- name: otterscale-phison-topolvm
+  repository: oci://ghcr.io/otterscale/charts
+  version: 1.4.0-rc.1
+digest: sha256:cb102a95a51180590ae89bdc513aad67e027f03be644cd2666c28b403045fd3a
+generated: "2026-07-24T18:49:10.425826+08:00"

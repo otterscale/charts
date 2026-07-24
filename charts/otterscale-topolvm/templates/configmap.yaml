@@ -1,0 +1,14 @@
+{{- if .Values.vgChecker.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "otterscale-topolvm.fullname" . }}-vg-checker-scripts
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "otterscale-topolvm.labels" . | nindent 4 }}
+data:
+  check-volume-group.sh: |
+{{ .Files.Get "files/check-volume-group.sh" | nindent 4 }}
+  label-node.sh: |
+{{ .Files.Get "files/label-node.sh" | nindent 4 }}
+{{- end }}

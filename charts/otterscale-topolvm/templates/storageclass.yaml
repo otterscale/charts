@@ -1,0 +1,32 @@
+{{- range .Values.storageClasses }}
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ .name }}
+  labels:
+    helm.sh/chart: {{ include "otterscale-topolvm.chart" $ }}
+    app.kubernetes.io/name: {{ include "otterscale-topolvm.name" $ }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/version: {{ $.Chart.AppVersion | quote }}
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+  annotations:
+    storageclass.kubernetes.io/is-default-class: {{ .isDefaultClass | default false | quote }}
+    {{- with .annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+provisioner: topolvm.io
+parameters:
+  csi.storage.k8s.io/fstype: {{ .fsType | default "xfs" | quote }}
+  topolvm.io/device-class: {{ .deviceClass | default "aidaptiv" | quote }}
+  {{- with .additionalParameters }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
+volumeBindingMode: {{ .volumeBindingMode | default "WaitForFirstConsumer" }}
+allowVolumeExpansion: {{ if hasKey . "allowVolumeExpansion" }}{{ .allowVolumeExpansion }}{{ else }}true{{ end }}
+reclaimPolicy: {{ .reclaimPolicy | default "Delete" }}
+{{- with .mountOptions }}
+mountOptions:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- end }}

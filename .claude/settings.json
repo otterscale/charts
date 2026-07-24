@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(helm show *)",
+      "Bash(curl -s \"https://hub.docker.com/v2/repositories/alpine/kubectl/tags?page_size=100&name=1.33\")",
+      "Bash(curl -s \"https://hub.docker.com/v2/repositories/alpine/kubectl/tags?page_size=25\")",
+      "Bash(curl -sS --ssl-no-revoke \"https://hub.docker.com/v2/repositories/alpine/kubectl/tags/?page_size=20\")",
+      "Bash(awk '/# Source: .*storageclass/{f=1} f{print} f&&/^---/&&NR>1&&!/# Source/{if\\(++c>1\\)exit}')"
+    ]
+  }
+}
