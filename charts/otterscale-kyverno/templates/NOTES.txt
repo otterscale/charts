@@ -1,0 +1,14 @@
+OtterScale Kyverno has been installed.
+
+  Namespace: {{ .Release.Namespace }}
+
+  Components:
+  - Admission Controller
+  - Background Controller
+  - Cleanup Controller
+  - Reports Controller
+
+  Next steps:
+  - Create ClusterPolicy / Policy resources to enforce cluster policies
+  - Verify controllers: kubectl get pods -n {{ .Release.Namespace }}
+  - Docs: https://kyverno.io/docs/
