@@ -4,9 +4,9 @@ dependencies:
   version: 7.2.2
 - name: valkey
   repository: https://valkey.io/valkey-helm/
-  version: 0.10.0
+  version: 0.11.0
 - name: harbor
   repository: https://helm.goharbor.io
   version: 1.19.1
-digest: sha256:ee90d5d3b897220166f97367c282e81534c26d2ddd70d05f0a5b60ecc7fb026e
-generated: "2026-07-16T11:28:27.5633823+08:00"
+digest: sha256:cdd1d4833e1d6f0d27c334e0a94728d06af34227b219eb2d9183692f84b291d6
+generated: "2026-07-24T06:12:16.605021277Z"
