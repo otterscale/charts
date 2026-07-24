@@ -132,6 +132,62 @@ entries:
       artifacthub.io/license: Apache-2.0
     apiVersion: v2
     appVersion: SXHR0104
+    created: "2026-07-24T03:19:39.6402633Z"
+    dependencies:
+    - condition: keycloakx.enabled
+      name: keycloakx
+      repository: https://codecentric.github.io/helm-charts
+      version: 7.2.x
+    - alias: dashboard-valkey
+      condition: dashboard-valkey.enabled
+      name: valkey
+      repository: https://valkey.io/valkey-helm/
+      version: 0.10.x
+    - condition: harbor.enabled
+      name: harbor
+      repository: https://helm.goharbor.io
+      version: 1.19.x
+    description: OtterScale - A unified platform for simplified compute, storage,
+      and networking
+    digest: a0313c9212f5f9d666d046ba452788d6c4a3bbab1241eb284e6236cc68c3baab
+    home: https://otterscale.github.io
+    icon: https://github.com/otterscale.png
+    keywords:
+    - otterscale
+    - kubernetes
+    - helm
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: terry_wu@phison.com
+      name: Yi-Lin Wu
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale
+    sources:
+    - https://github.com/otterscale/otterscale
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-1.4.0-rc.1/otterscale-1.4.0-rc.1.tgz
+    version: 1.4.0-rc.1
+  - annotations:
+      artifacthub.io/changes: |
+        - kind: added
+          description: ServiceAccount, HPA, PDB, NetworkPolicy, ServiceMonitor templates
+        - kind: added
+          description: Standard Kubernetes Ingress support
+        - kind: added
+          description: values.schema.json for input validation
+        - kind: added
+          description: NOTES.txt post-install instructions
+        - kind: added
+          description: Helm test templates for connectivity verification
+        - kind: changed
+          description: Template directory reorganization by component
+        - kind: changed
+          description: Full parameterization of resources, probes, security contexts, and service types
+      artifacthub.io/license: Apache-2.0
+    apiVersion: v2
+    appVersion: SXHR0104
     created: "2026-07-20T06:01:48.894872782Z"
     dependencies:
     - condition: keycloakx.enabled
@@ -5490,6 +5546,36 @@ entries:
       module.otterscale.io/namespace: envoy-gateway-system
     apiVersion: v2
     appVersion: 1.8.2
+    created: "2026-07-24T03:19:39.867311877Z"
+    dependencies:
+    - name: gateway-helm
+      repository: oci://docker.io/envoyproxy
+      version: 1.8.2
+    description: Envoy Gateway — Kubernetes-native Gateway API implementation powered
+      by Envoy Proxy.
+    digest: 04641502915b6228c9c76cfaf47c5ab1d2346f0af2c62e26c542fb4213a894c2
+    home: https://gateway.envoyproxy.io
+    icon: https://github.com/envoyproxy.png
+    keywords:
+    - envoy
+    - gateway-api
+    - ingress
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-envoy-gateway
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-envoy-gateway-1.4.0-rc.1/otterscale-envoy-gateway-1.4.0-rc.1.tgz
+    version: 1.4.0-rc.1
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: envoy-gateway-system
+    apiVersion: v2
+    appVersion: 1.8.2
     created: "2026-07-20T07:11:58.532215137Z"
     dependencies:
     - name: gateway-helm
@@ -8259,14 +8345,14 @@ entries:
       module.otterscale.io/namespace: kserve
     apiVersion: v2
     appVersion: v0.20.0-rc0
-    created: "2026-07-24T02:57:00.328699198Z"
+    created: "2026-07-24T03:19:40.009971599Z"
     dependencies:
     - name: kserve-llmisvc-resources
       repository: oci://ghcr.io/kserve/charts
       version: v0.20.0-rc0
     description: KServe LLMInferenceService — Controller and resources for Kubernetes-native
       distributed LLM inference with llm-d.
-    digest: 808aa1453e9ebb5a29ea746917a9a7cc707cbb2d39b1250c83cf83e6366065b6
+    digest: b0fb4be333934e4f7ae657f48d2858d9dec3bfce1e223d06541c9721c74ea4c6
     home: https://kserve.github.io/website
     icon: https://github.com/kserve.png
     keywords:
@@ -8363,6 +8449,38 @@ entries:
     description: KServe LLMInferenceService — Controller and resources for Kubernetes-native
       distributed LLM inference with llm-d.
     digest: 537f4802b6dfb936e8c1a050d76353e669651a1a074ce2d10e741d047698b09b
+    home: https://kserve.github.io/website
+    icon: https://github.com/kserve.png
+    keywords:
+    - kserve
+    - llm
+    - inference
+    - llminferenceservice
+    kubeVersion: '>=1.32.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-kserve-resource
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kserve-resource-1.4.0-rc.1/otterscale-kserve-resource-1.4.0-rc.1.tgz
+    version: 1.4.0-rc.1
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-prometheus,otterscale-envoy-gateway,otterscale-leader-worker-set,otterscale-kserve-base
+      module.otterscale.io/namespace: kserve
+    apiVersion: v2
+    appVersion: v0.20.0-rc0
+    created: "2026-07-24T02:57:00.328699198Z"
+    dependencies:
+    - name: kserve-llmisvc-resources
+      repository: oci://ghcr.io/kserve/charts
+      version: v0.20.0-rc0
+    description: KServe LLMInferenceService — Controller and resources for Kubernetes-native
+      distributed LLM inference with llm-d.
+    digest: 808aa1453e9ebb5a29ea746917a9a7cc707cbb2d39b1250c83cf83e6366065b6
     home: https://kserve.github.io/website
     icon: https://github.com/kserve.png
     keywords:
@@ -12133,4 +12251,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-24T02:57:00.329458469Z"
+generated: "2026-07-24T03:19:40.010613998Z"
