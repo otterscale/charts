@@ -1,0 +1,113 @@
+{{- /*
+Post-delete cleanup for the "longhorn" StorageClass.
+
+The StorageClass is created at runtime by longhorn-manager (reconciled from
+the longhorn-storageclass ConfigMap), so it is not a release resource and
+survives helm uninstall; deleting it earlier (pre-delete) would just get it
+re-created by the still-running manager. This post-delete hook runs after
+every release resource — including all Longhorn components — is gone, when
+nothing can recreate the class. Longhorn is deployed by this chart for
+otterscale's exclusive use, so removing the class on uninstall is safe.
+*/}}
+{{- if and .Values.longhorn.enabled .Values.longhorn.uninstallCleanup.enabled }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "otterscale.fullname" . }}-sc-cleanup
+  namespace: {{ include "otterscale.namespace" . }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+    app.kubernetes.io/component: storage-cleanup
+  annotations:
+    "helm.sh/hook": post-delete
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "otterscale.fullname" . }}-sc-cleanup
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+    app.kubernetes.io/component: storage-cleanup
+  annotations:
+    "helm.sh/hook": post-delete
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+rules:
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["storageclasses"]
+    verbs: ["get", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "otterscale.fullname" . }}-sc-cleanup
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+    app.kubernetes.io/component: storage-cleanup
+  annotations:
+    "helm.sh/hook": post-delete
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "otterscale.fullname" . }}-sc-cleanup
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "otterscale.fullname" . }}-sc-cleanup
+    namespace: {{ include "otterscale.namespace" . }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "otterscale.fullname" . }}-sc-cleanup
+  namespace: {{ include "otterscale.namespace" . }}
+  labels:
+    {{- include "otterscale.labels" . | nindent 4 }}
+    app.kubernetes.io/component: storage-cleanup
+  annotations:
+    "helm.sh/hook": post-delete
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 1
+  activeDeadlineSeconds: 120
+  template:
+    metadata:
+      labels:
+        {{- include "otterscale.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: storage-cleanup
+    spec:
+      restartPolicy: Never
+      serviceAccountName: {{ include "otterscale.fullname" . }}-sc-cleanup
+      {{- with include "otterscale.podNodeSelector" (dict "context" $) }}
+      nodeSelector:
+        {{- . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: sc-cleanup
+          image: "{{ .Values.longhorn.uninstallCleanup.image.repository }}:{{ .Values.longhorn.uninstallCleanup.image.tag }}"
+          imagePullPolicy: {{ .Values.longhorn.uninstallCleanup.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          command:
+            - sh
+            - -eu
+            - -c
+            - |
+              echo "Removing the longhorn StorageClass left behind by uninstall..."
+              kubectl delete storageclass longhorn --ignore-not-found --timeout=60s
+              echo "StorageClass cleanup done."
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+{{- end }}

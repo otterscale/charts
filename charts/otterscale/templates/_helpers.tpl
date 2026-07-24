@@ -1,16 +1,23 @@
 {{/*
-Namespace for all resources.
-Prefer .Values.namespace; fall back to .Release.Namespace.
+Namespace for all resources: always the release namespace, so chart-created
+Secrets/ConfigMaps land where subchart pods (which always render into
+.Release.Namespace) can reference them by bare name.
 */}}
 {{- define "otterscale.namespace" -}}
-{{- .Values.namespace | default .Release.Namespace -}}
+{{- .Release.Namespace -}}
 {{- end -}}
 
+{{- /*
+StorageClass for the keycloak postgres PVC. The explicit value wins so
+upgrades from the local-path era can pin their PVC back to the old class;
+"longhorn" is the fallback when Longhorn is enabled (the default values set
+the explicit value to "longhorn" anyway).
+*/}}
 {{- define "otterscale.storageClassName" -}}
-{{- if .Values.longhorn.enabled -}}
-  {{- "longhorn" -}}
-{{- else if .Values.keycloakx.database.persistence.storageClassName -}}
+{{- if .Values.keycloakx.database.persistence.storageClassName -}}
   {{- .Values.keycloakx.database.persistence.storageClassName -}}
+{{- else if .Values.longhorn.enabled -}}
+  {{- "longhorn" -}}
 {{- end -}}
 {{- end -}}
 

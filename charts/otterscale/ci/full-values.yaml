@@ -6,8 +6,6 @@ global:
   imagePullSecrets:
     - name: regcred
 
-externalURL: "https://10.0.0.1"
-
 envoy:
   enabled: true
   gateway:
@@ -17,27 +15,8 @@ envoy:
     enabled: true
     existingSecret: otterscale-tls
 
-ingress:
+longhorn:
   enabled: true
-  className: nginx
-  annotations:
-    nginx.ingress.kubernetes.io/proxy-body-size: "0"
-  hosts:
-    - host: otterscale.example.com
-      paths:
-        - path: /
-          pathType: Prefix
-          service: dashboard
-        - path: /api/
-          pathType: Prefix
-          service: server
-        - path: /auth/
-          pathType: Prefix
-          service: keycloak
-  tls:
-    - secretName: otterscale-tls
-      hosts:
-        - otterscale.example.com
 
 server:
   replicaCount: 2
@@ -47,9 +26,9 @@ server:
       eks.amazonaws.com/role-arn: "arn:aws:iam::role/otterscale"
   service:
     type: NodePort
-    nodePorts:
-      http: 30299
-      tunnel: 30300
+  tunnelService:
+    type: NodePort
+    nodePort: "30300"
   autoscaling:
     enabled: true
     minReplicas: 2
@@ -88,6 +67,7 @@ server:
           app.kubernetes.io/component: backend
 
 dashboard:
+  externalURL: "https://10.0.0.1"
   replicaCount: 2
   serviceAccount:
     create: true

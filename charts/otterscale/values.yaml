@@ -9,8 +9,6 @@ global:
   imagePullSecrets: []
   nodeSelector: {}
 
-# Namespace for all chart resources (pass --namespace to match).
-namespace: "otterscale-system"
 nameOverride: ""
 fullnameOverride: ""
 
@@ -24,14 +22,31 @@ ee:
 # NFSv4 client (nfs-common / nfs-utils) for RWX volumes.
 longhorn:
   enabled: false
+  uninstallCleanup:
+    enabled: true
+    image:
+      repository: docker.io/alpine/k8s
+      tag: "1.35.6"
+      pullPolicy: IfNotPresent
+    waitTimeoutSeconds: 300
+    resources: {}
+
+  csi:
+    attacherReplicaCount: 1
+    provisionerReplicaCount: 1
+    resizerReplicaCount: 1
+    snapshotterReplicaCount: 1
+  longhornUI:
+    replicas: 1
+
   persistence:
     defaultClass: false
     defaultFsType: ext4
-    defaultClassReplicaCount: 2
+    defaultClassReplicaCount: 1
     defaultDataLocality: best-effort
     reclaimPolicy: Retain # Retain or Delete
   defaultSettings:
-    defaultDataPath: /opt/otterscale/storage
+    defaultDataPath: /opt/hci/storage
 
     ## Data integrity
     snapshotDataIntegrity: fast-check

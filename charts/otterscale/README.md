@@ -208,16 +208,81 @@ survive node failures as long as a healthy replica remains (StorageClass name:
 | Parameter                                     | Description                                                | Default                   |
 | --------------------------------------------- | ---------------------------------------------------------- | ------------------------- |
 | `longhorn.enabled`                            | Deploy the Longhorn subchart                               | `false`                   |
-| `longhorn.persistence.defaultClass`           | Set `longhorn` as cluster default StorageClass             | `true`                    |
+| `longhorn.persistence.defaultClass`           | Set `longhorn` as cluster default StorageClass             | `false`                   |
 | `longhorn.persistence.defaultClassReplicaCount` | Replicas per volume (set `1` on single-node clusters)    | `2`                       |
 | `longhorn.persistence.reclaimPolicy`          | Reclaim policy: `Retain` or `Delete`                       | `Retain`                  |
 | `longhorn.defaultSettings.defaultDataPath`    | Host path for replica storage                              | `/opt/otterscale/storage` |
 
-> **Uninstall note:** Longhorn blocks deletion while volumes exist. Before
-> `helm uninstall`, run
-> `helm upgrade ... --set longhorn.defaultSettings.deletingConfirmationFlag=true`
-> (or edit the `deleting-confirmation-flag` setting) — otherwise the uninstall
-> hangs. Longhorn upgrades must not skip minor versions.
+#### Uninstalling with Longhorn enabled
+
+Uninstalling destroys all data on Longhorn volumes, so Longhorn requires an
+explicit confirmation flag first:
+
+```bash
+kubectl -n otterscale-system patch settings.longhorn.io deleting-confirmation-flag \
+  --type merge -p '{"value":"true"}'
+
+helm uninstall otterscale -n otterscale-system --timeout 15m
+```
+
+A chart pre-delete hook (`longhorn.uninstallCleanup`, enabled by default) then
+enforces the teardown order automatically: it scales down the PVC consumers
+and deletes all `longhorn`-class PVCs **while the CSI driver is still
+running**, before Longhorn's own uninstaller runs. Without this ordering the
+CSI driver disappears first and the uninstall hangs on pod/PVC finalizers.
+Notes:
+
+- If the flag is not set, the hook aborts the uninstall immediately with
+  instructions — nothing gets deleted.
+- A post-delete hook removes the `longhorn` StorageClass afterwards (it is
+  created at runtime by longhorn-manager, so plain uninstall leaves it
+  behind). Longhorn is deployed for otterscale's exclusive use.
+- Use a generous `--timeout` (15m): the hook waits for volume teardown.
+- `helm uninstall --no-hooks` bypasses both this hook and Longhorn's
+  uninstaller — expect stuck finalizers if you use it.
+- Never remove Longhorn with `helm upgrade --set longhorn.enabled=false`
+  while volumes exist — pre-delete hooks do not run on upgrades and Longhorn
+  CRs get stuck on finalizers.
+- Longhorn upgrades must not skip minor versions.
+
+#### Using a different StorageClass
+
+The chart pins its PVCs to the `longhorn` StorageClass. To use another one,
+override all of:
+
+```yaml
+keycloakx:
+  database:
+    persistence:
+      storageClassName: "<your-storageclass>"
+harbor:
+  persistence:
+    persistentVolumeClaim:
+      registry: { storageClass: "<your-storageclass>" }
+      database: { storageClass: "<your-storageclass>" }
+      jobservice: { jobLog: { storageClass: "<your-storageclass>" } }
+      redis: { storageClass: "<your-storageclass>" }
+      trivy: { storageClass: "<your-storageclass>" }
+```
+
+#### Upgrading from a local-path release (chart <= 1.4.0-rc.1)
+
+Releases that installed with `storage.localPath.enabled=true` have PVCs bound
+to the `otterscale-local-path` StorageClass. `storageClassName` is immutable,
+so a plain `helm upgrade` to this version **fails** when it tries to repoint
+those PVCs at `longhorn`. Existing data is not touched — the upgrade is simply
+rejected. Choose one of:
+
+1. **Keep data in place (no replication):** upgrade with every storageClass
+   value above set to `otterscale-local-path`. Bound hostPath volumes keep
+   working without the provisioner, but new volumes can no longer be
+   provisioned on that class.
+2. **Migrate to Longhorn:** back up, scale each consumer down, copy data to a
+   new Longhorn PVC (e.g. [pv-migrate](https://github.com/utkuozdemir/pv-migrate)
+   or an rsync Job), then swap the claim.
+3. **Reinstall:** if the data is reproducible (registry images can be
+   re-pushed; the Keycloak realm is re-created by the chart), uninstall and
+   install fresh with `longhorn.enabled=true`.
 
 ### Server
 

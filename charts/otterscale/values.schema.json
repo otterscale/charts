@@ -14,9 +14,17 @@
     "fullnameOverride": { "type": "string" },
     "longhorn": {
       "type": "object",
-      "description": "Longhorn subchart (replicated block storage). Keys other than 'enabled' pass through to the Longhorn chart.",
+      "description": "Longhorn subchart (replicated block storage). Keys other than 'enabled' and 'uninstallCleanup' pass through to the Longhorn chart.",
       "properties": {
-        "enabled": { "type": "boolean" }
+        "enabled": { "type": "boolean" },
+        "uninstallCleanup": {
+          "type": "object",
+          "description": "Chart-owned pre-delete hook that deletes Longhorn PVCs in order before the CSI driver is removed.",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "waitTimeoutSeconds": { "type": "integer", "minimum": 0 }
+          }
+        }
       }
     },
     "server": {

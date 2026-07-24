@@ -23,8 +23,6 @@ annotations:
     - kind: added
       description: ServiceAccount, HPA, PDB, NetworkPolicy, ServiceMonitor templates
     - kind: added
-      description: Standard Kubernetes Ingress support
-    - kind: added
       description: values.schema.json for input validation
     - kind: added
       description: NOTES.txt post-install instructions
