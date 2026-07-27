@@ -1,0 +1,29 @@
+apiVersion: v2
+name: otterscale-kyverno
+version: 1.4.0-rc.0
+# renovate: helm=kyverno registry=https://kyverno.github.io/kyverno
+appVersion: "v1.18.2"
+description: >-
+  Kyverno — Kubernetes-native policy engine for validating, mutating,
+  and generating resources with admission control policies.
+home: https://kyverno.io
+icon: https://github.com/kyverno.png
+sources:
+  - https://github.com/otterscale/charts
+maintainers:
+  - name: Yi-Lin Wu
+    email: terry_wu@phison.com
+keywords:
+  - kyverno
+  - policy
+  - admission-controller
+  - security
+type: application
+kubeVersion: ">=1.25.0-0"
+annotations:
+  module.otterscale.io/namespace: "kyverno"
+  artifacthub.io/license: Apache-2.0
+dependencies:
+  - name: kyverno
+    version: 3.8.x
+    repository: https://kyverno.github.io/kyverno
