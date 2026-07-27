@@ -10203,6 +10203,38 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/otterscale-kubevirt-base-0.1.0/otterscale-kubevirt-base-0.1.0.tgz
     version: 0.1.0
+  otterscale-kyverno:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: kyverno
+    apiVersion: v2
+    appVersion: v1.18.2
+    created: "2026-07-27T02:20:01.604471111Z"
+    dependencies:
+    - name: kyverno
+      repository: https://kyverno.github.io/kyverno
+      version: 3.8.x
+    description: Kyverno — Kubernetes-native policy engine for validating, mutating,
+      and generating resources with admission control policies.
+    digest: d6ff982c4ecb758f0c6b5de3ebeaa501e54d021642c4a8a1c097e9553a6f46df
+    home: https://kyverno.io
+    icon: https://github.com/kyverno.png
+    keywords:
+    - kyverno
+    - policy
+    - admission-controller
+    - security
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: terry_wu@phison.com
+      name: Yi-Lin Wu
+    name: otterscale-kyverno
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kyverno-1.4.0-rc.0/otterscale-kyverno-1.4.0-rc.0.tgz
+    version: 1.4.0-rc.0
   otterscale-leader-worker-set:
   - annotations:
       artifacthub.io/license: Apache-2.0
@@ -12258,4 +12290,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-24T06:11:47.464171017Z"
+generated: "2026-07-27T02:20:01.60494262Z"
