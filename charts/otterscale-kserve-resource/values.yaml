@@ -3,6 +3,25 @@ kserve-llmisvc-resources:
     controller:
       llmisvc:
         enabled: true
+    # The upstream subchart hardcodes the storageInitializer block in
+    # inferenceservice-config and does NOT expose enableOciModelSupport /
+    # ociModelMode as Helm values, so they cannot be set from here. We instead
+    # disable only the subchart's copy of that ConfigMap and re-render an
+    # OCI-enabled version from templates/inferenceservice-config.yaml.
+    #
+    # The ConfigMap is gated on `inferenceServiceConfig.enabled | default
+    # createSharedResources`. Because Helm's `default` treats `false` as empty,
+    # enabled:false alone would still fall back to createSharedResources:true.
+    # So we turn createSharedResources off and re-enable the other two shared
+    # resources (cert-manager Certificate/Issuer and the ClusterStorageContainer)
+    # explicitly to preserve current behaviour.
+    createSharedResources: false
+    certManager:
+      enabled: true
+    storagecontainer:
+      enabled: true
+    inferenceServiceConfig:
+      enabled: false
 
 envoyProxy:
   # LoadBalancer / ClusterIP / NodePort
