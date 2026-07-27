@@ -1,0 +1,13 @@
+# Wrapper chart around the upstream Kyverno chart; values below override selected upstream defaults.
+kyverno:
+  admissionController:
+    autoscaling:
+      enabled: true
+      minReplicas: 1
+      maxReplicas: 10
+  backgroundController:
+    replicas: 2
+  cleanupController:
+    replicas: 2
+  reportsController:
+    replicas: 2
