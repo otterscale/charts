@@ -1,4 +1,4 @@
-# No configurable values. Upstream chart is installed as-is.
+# Wrapper chart around the upstream Kyverno chart; values below override selected upstream defaults.
 kyverno:
   admissionController:
     autoscaling:
