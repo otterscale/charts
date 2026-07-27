@@ -44,7 +44,7 @@ longhorn:
     defaultFsType: ext4
     defaultClassReplicaCount: 1
     defaultDataLocality: best-effort
-    reclaimPolicy: Retain # Retain or Delete
+    reclaimPolicy: Retain
   defaultSettings:
     defaultDataPath: /opt/hci/storage
 

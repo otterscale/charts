@@ -2,7 +2,7 @@
 # All services are accessed through a single IP via path-based routing.
 #
 # Usage:
-#   helm install otterscale ./charts/otterscale -f examples/istio-values.yaml
+#   helm install otterscale ./charts/otterscale -f examples/envoy-values.yaml
 
 dashboard:
   externalURL: "http://192.168.1.100:30080"
