@@ -356,6 +356,62 @@ entries:
       artifacthub.io/license: Apache-2.0
     apiVersion: v2
     appVersion: SXHR0104
+    created: "2026-07-28T14:11:22.877677658Z"
+    dependencies:
+    - condition: keycloakx.enabled
+      name: keycloakx
+      repository: https://codecentric.github.io/helm-charts
+      version: 7.2.x
+    - alias: dashboard-valkey
+      condition: dashboard-valkey.enabled
+      name: valkey
+      repository: https://valkey.io/valkey-helm/
+      version: 0.11.x
+    - condition: harbor.enabled
+      name: harbor
+      repository: https://helm.goharbor.io
+      version: 1.19.x
+    description: OtterScale - A unified platform for simplified compute, storage,
+      and networking
+    digest: cb62675263d26d38d8933166f4f0a22d515b12288842da883fb47ba7344d665a
+    home: https://otterscale.github.io
+    icon: https://github.com/otterscale.png
+    keywords:
+    - otterscale
+    - kubernetes
+    - helm
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: terry_wu@phison.com
+      name: Yi-Lin Wu
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale
+    sources:
+    - https://github.com/otterscale/otterscale
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-1.4.0-rc.1/otterscale-1.4.0-rc.1.tgz
+    version: 1.4.0-rc.1
+  - annotations:
+      artifacthub.io/changes: |
+        - kind: added
+          description: ServiceAccount, HPA, PDB, NetworkPolicy, ServiceMonitor templates
+        - kind: added
+          description: Standard Kubernetes Ingress support
+        - kind: added
+          description: values.schema.json for input validation
+        - kind: added
+          description: NOTES.txt post-install instructions
+        - kind: added
+          description: Helm test templates for connectivity verification
+        - kind: changed
+          description: Template directory reorganization by component
+        - kind: changed
+          description: Full parameterization of resources, probes, security contexts, and service types
+      artifacthub.io/license: Apache-2.0
+    apiVersion: v2
+    appVersion: SXHR0104
     created: "2026-07-20T06:01:48.894872782Z"
     dependencies:
     - condition: keycloakx.enabled
@@ -10555,6 +10611,37 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/otterscale-kyverno-1.4.0-rc.0/otterscale-kyverno-1.4.0-rc.0.tgz
     version: 1.4.0-rc.0
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: kyverno
+    apiVersion: v2
+    appVersion: 3.8.2
+    created: "2026-07-28T14:11:23.140038675Z"
+    dependencies:
+    - name: kyverno
+      repository: https://kyverno.github.io/kyverno
+      version: 3.8.x
+    description: Kyverno — Kubernetes-native policy engine for validating, mutating,
+      and generating resources with admission control policies.
+    digest: 028d394c161afa0dfcc705e9556946128030e986ca7609aa3451dadb75765251
+    home: https://kyverno.io
+    icon: https://github.com/kyverno.png
+    keywords:
+    - kyverno
+    - policy
+    - admission-controller
+    - security
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: terry_wu@phison.com
+      name: Yi-Lin Wu
+    name: otterscale-kyverno
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kyverno-1.4.0-rc.0/otterscale-kyverno-1.4.0-rc.0.tgz
+    version: 1.4.0-rc.0
   otterscale-leader-worker-set:
   - annotations:
       artifacthub.io/license: Apache-2.0
@@ -12799,4 +12886,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-28T14:10:11.689514666Z"
+generated: "2026-07-28T14:11:23.140734849Z"
