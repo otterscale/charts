@@ -7,7 +7,7 @@ description: >-
   Wraps upstream node-feature-discovery (Helm dependency) plus a DaemonSet that
   runs a host script to refresh NFD local feature files under features.d.
 home: https://github.com/kubernetes-sigs/node-feature-discovery
-icon: https://kubernetes-sigs.github.io/node-feature-discovery/v0.18/assets/images/nfd/favicon.svg
+icon: https://kubernetes-sigs.github.io/node-feature-discovery/v0.19/assets/images/nfd/favicon.svg
 sources:
   - https://github.com/otterscale/charts
 maintainers:
