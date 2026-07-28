@@ -7,17 +7,15 @@ Secrets/ConfigMaps land where subchart pods (which always render into
 {{- .Release.Namespace -}}
 {{- end -}}
 
-{{- /*
-StorageClass for the keycloak postgres PVC. The explicit value wins so
-upgrades from the local-path era can pin their PVC back to the old class;
-"longhorn" is the fallback when Longhorn is enabled (the default values set
-the explicit value to "longhorn" anyway).
-*/}}
+{{- define "otterscale.localPath.provisionerName" -}}
+{{- printf "%s/local-path" (include "otterscale.fullname" .) -}}
+{{- end -}}
+
 {{- define "otterscale.storageClassName" -}}
-{{- if .Values.keycloakx.database.persistence.storageClassName -}}
+{{- if .Values.storage.localPath.enabled -}}
+  {{- .Values.storage.localPath.storageClassName -}}
+{{- else if .Values.keycloakx.database.persistence.storageClassName -}}
   {{- .Values.keycloakx.database.persistence.storageClassName -}}
-{{- else if .Values.longhorn.enabled -}}
-  {{- "longhorn" -}}
 {{- end -}}
 {{- end -}}
 

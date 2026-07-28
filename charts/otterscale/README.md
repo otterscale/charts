@@ -10,7 +10,6 @@ A unified platform for simplified compute, storage, and networking.
 - Kubernetes >= 1.25.0
 - Helm >= 3.10.0
 - (Optional) Envoy Gateway
-- (Optional) `open-iscsi` on every node when `longhorn.enabled=true` — see [Storage (Longhorn)](#storage-longhorn)
 
 **Components:**
 
@@ -189,100 +188,20 @@ The certificate can be supplied two ways:
 | `nameOverride`            | Override chart name in resource names  | `""`    |
 | `fullnameOverride`        | Override full resource name prefix     | `""`    |
 
-### Storage (Longhorn)
+### Storage
 
-Setting `longhorn.enabled=true` deploys the [Longhorn](https://longhorn.io)
-subchart: replicated block storage backed by each node's local disk. Volumes
-survive node failures as long as a healthy replica remains (StorageClass name:
-`longhorn`). Keys under `longhorn.*` other than `enabled` pass through to the
-[Longhorn chart](https://github.com/longhorn/charts).
+| Parameter                            | Description                                                       | Default                   |
+| ------------------------------------ | ----------------------------------------------------------------- | ------------------------- |
+| `storage.localPath.enabled`          | Deploy local-path-provisioner                                     | `false`                   |
+| `storage.localPath.path`             | Host path for volume storage                                      | `/opt/otterscale/storage` |
+| `storage.localPath.storageClassName` | StorageClass name                                                 | `otterscale-local-path`   |
+| `storage.localPath.reclaimPolicy`    | Reclaim policy: `Retain` or `Delete`                              | `Retain`                  |
+| `storage.localPath.nodeName`         | Pin the provisioner and mkdir hook pods to this node (empty = scheduler decides) | `""`    |
 
-**Node prerequisites** (every node — verify with `longhornctl check preflight`):
-
-- `open-iscsi` installed and the `iscsid` daemon running
-  (Ubuntu: `apt-get install open-iscsi`; RHEL: `dnf install iscsi-initiator-utils && systemctl enable --now iscsid`)
-- NFSv4 client (`nfs-common` / `nfs-utils`) — required for RWX volumes
-- The data path filesystem must be ext4 or XFS
-- On RHEL, blacklist Longhorn devices in `multipath.conf` if `multipathd` is enabled
-
-| Parameter                                     | Description                                                | Default                   |
-| --------------------------------------------- | ---------------------------------------------------------- | ------------------------- |
-| `longhorn.enabled`                            | Deploy the Longhorn subchart                               | `false`                   |
-| `longhorn.persistence.defaultClass`           | Set `longhorn` as cluster default StorageClass             | `false`                   |
-| `longhorn.persistence.defaultClassReplicaCount` | Replicas per volume (set `1` on single-node clusters)    | `2`                       |
-| `longhorn.persistence.reclaimPolicy`          | Reclaim policy: `Retain` or `Delete`                       | `Retain`                  |
-| `longhorn.defaultSettings.defaultDataPath`    | Host path for replica storage                              | `/opt/otterscale/storage` |
-
-#### Uninstalling with Longhorn enabled
-
-Uninstalling destroys all data on Longhorn volumes, so Longhorn requires an
-explicit confirmation flag first:
-
-```bash
-kubectl -n otterscale-system patch settings.longhorn.io deleting-confirmation-flag \
-  --type merge -p '{"value":"true"}'
-
-helm uninstall otterscale -n otterscale-system --timeout 15m
-```
-
-A chart pre-delete hook (`longhorn.uninstallCleanup`, enabled by default) then
-enforces the teardown order automatically: it scales down the PVC consumers
-and deletes all `longhorn`-class PVCs **while the CSI driver is still
-running**, before Longhorn's own uninstaller runs. Without this ordering the
-CSI driver disappears first and the uninstall hangs on pod/PVC finalizers.
-Notes:
-
-- If the flag is not set, the hook aborts the uninstall immediately with
-  instructions — nothing gets deleted.
-- A post-delete hook removes the `longhorn` StorageClass afterwards (it is
-  created at runtime by longhorn-manager, so plain uninstall leaves it
-  behind). Longhorn is deployed for otterscale's exclusive use.
-- Use a generous `--timeout` (15m): the hook waits for volume teardown.
-- `helm uninstall --no-hooks` bypasses both this hook and Longhorn's
-  uninstaller — expect stuck finalizers if you use it.
-- Never remove Longhorn with `helm upgrade --set longhorn.enabled=false`
-  while volumes exist — pre-delete hooks do not run on upgrades and Longhorn
-  CRs get stuck on finalizers.
-- Longhorn upgrades must not skip minor versions.
-
-#### Using a different StorageClass
-
-The chart pins its PVCs to the `longhorn` StorageClass. To use another one,
-override all of:
-
-```yaml
-keycloakx:
-  database:
-    persistence:
-      storageClassName: "<your-storageclass>"
-harbor:
-  persistence:
-    persistentVolumeClaim:
-      registry: { storageClass: "<your-storageclass>" }
-      database: { storageClass: "<your-storageclass>" }
-      jobservice: { jobLog: { storageClass: "<your-storageclass>" } }
-      redis: { storageClass: "<your-storageclass>" }
-      trivy: { storageClass: "<your-storageclass>" }
-```
-
-#### Upgrading from a local-path release (chart <= 1.4.0-rc.1)
-
-Releases that installed with `storage.localPath.enabled=true` have PVCs bound
-to the `otterscale-local-path` StorageClass. `storageClassName` is immutable,
-so a plain `helm upgrade` to this version **fails** when it tries to repoint
-those PVCs at `longhorn`. Existing data is not touched — the upgrade is simply
-rejected. Choose one of:
-
-1. **Keep data in place (no replication):** upgrade with every storageClass
-   value above set to `otterscale-local-path`. Bound hostPath volumes keep
-   working without the provisioner, but new volumes can no longer be
-   provisioned on that class.
-2. **Migrate to Longhorn:** back up, scale each consumer down, copy data to a
-   new Longhorn PVC (e.g. [pv-migrate](https://github.com/utkuozdemir/pv-migrate)
-   or an rsync Job), then swap the claim.
-3. **Reinstall:** if the data is reproducible (registry images can be
-   re-pushed; the Keycloak realm is re-created by the chart), uninstall and
-   install fresh with `longhorn.enabled=true`.
+The provisioner and mkdir hook pods tolerate all taints, so they can run on
+any node (including tainted control-plane nodes). Note that volume **data**
+always lives on the node where the consuming pod is scheduled — `nodeName`
+only pins the provisioner pod itself.
 
 ### Server
 

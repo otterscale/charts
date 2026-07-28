@@ -22,11 +22,4 @@ Keycloak Admin:
   Password: kubectl get secret -n {{ include "otterscale.namespace" . }} {{ include "otterscale.keycloakx.fullname" . }}-admin -o jsonpath="{.data.KC_BOOTSTRAP_ADMIN_PASSWORD}" | base64 -d
 {{- end }}
 
-{{- if .Values.longhorn.enabled }}
-
-To uninstall (DESTROYS all data on Longhorn volumes):
-  kubectl -n {{ include "otterscale.namespace" . }} patch settings.longhorn.io deleting-confirmation-flag --type merge -p '{"value":"true"}'
-  helm uninstall {{ .Release.Name }} -n {{ include "otterscale.namespace" . }} --timeout 15m
-{{- end }}
-
 Run 'helm test {{ .Release.Name }}' to verify the deployment.

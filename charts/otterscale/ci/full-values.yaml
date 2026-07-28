@@ -15,8 +15,9 @@ envoy:
     enabled: true
     existingSecret: otterscale-tls
 
-longhorn:
-  enabled: true
+storage:
+  localPath:
+    enabled: true
 
 server:
   replicaCount: 2

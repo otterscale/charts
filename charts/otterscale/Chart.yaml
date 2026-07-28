@@ -1,6 +1,6 @@
 apiVersion: v2
 name: otterscale
-appVersion: SXHR0104
+appVersion: SXHR0103
 version: 1.4.0-rc.2
 description: OtterScale - A unified platform for simplified compute, storage, and networking
 home: https://otterscale.github.io
@@ -34,10 +34,6 @@ annotations:
       description: Full parameterization of resources, probes, security contexts, and service types
   artifacthub.io/license: Apache-2.0
 dependencies:
-  - condition: longhorn.enabled
-    repository: "https://charts.longhorn.io"
-    name: longhorn
-    version: 1.12.x
   - condition: keycloakx.enabled
     repository: "https://codecentric.github.io/helm-charts"
     name: keycloakx

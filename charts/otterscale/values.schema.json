@@ -12,17 +12,17 @@
     },
     "nameOverride": { "type": "string" },
     "fullnameOverride": { "type": "string" },
-    "longhorn": {
+    "storage": {
       "type": "object",
-      "description": "Longhorn subchart (replicated block storage). Keys other than 'enabled' and 'uninstallCleanup' pass through to the Longhorn chart.",
       "properties": {
-        "enabled": { "type": "boolean" },
-        "uninstallCleanup": {
+        "localPath": {
           "type": "object",
-          "description": "Chart-owned pre-delete hook that deletes Longhorn PVCs in order before the CSI driver is removed.",
           "properties": {
             "enabled": { "type": "boolean" },
-            "waitTimeoutSeconds": { "type": "integer", "minimum": 0 }
+            "path": { "type": "string" },
+            "storageClassName": { "type": "string" },
+            "reclaimPolicy": { "type": "string", "enum": ["Retain", "Delete"] },
+            "nodeName": { "type": "string", "description": "Pin the provisioner and mkdir hook pods to this node. Empty = scheduler decides." }
           }
         }
       }

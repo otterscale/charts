@@ -1,7 +1,4 @@
 dependencies:
-- name: longhorn
-  repository: https://charts.longhorn.io
-  version: 1.12.0
 - name: keycloakx
   repository: https://codecentric.github.io/helm-charts
   version: 7.2.2
@@ -11,5 +8,5 @@ dependencies:
 - name: harbor
   repository: https://helm.goharbor.io
   version: 1.19.1
-digest: sha256:b86a071eacf2760dfda1cdd5b9bb867ca210a7be4163e6bf90ff4cc43cf0072f
-generated: "2026-07-27T10:37:39.402555111+08:00"
+digest: sha256:cdd1d4833e1d6f0d27c334e0a94728d06af34227b219eb2d9183692f84b291d6
+generated: "2026-07-28T22:16:42.7751415+08:00"
