@@ -244,6 +244,62 @@ entries:
       artifacthub.io/license: Apache-2.0
     apiVersion: v2
     appVersion: SXHR0104
+    created: "2026-07-28T13:44:29.648639589Z"
+    dependencies:
+    - condition: keycloakx.enabled
+      name: keycloakx
+      repository: https://codecentric.github.io/helm-charts
+      version: 7.2.x
+    - alias: dashboard-valkey
+      condition: dashboard-valkey.enabled
+      name: valkey
+      repository: https://valkey.io/valkey-helm/
+      version: 0.11.x
+    - condition: harbor.enabled
+      name: harbor
+      repository: https://helm.goharbor.io
+      version: 1.19.x
+    description: OtterScale - A unified platform for simplified compute, storage,
+      and networking
+    digest: 5069a6848fd5358984bdd9e38130a50701200837795be1f691b12313d40615ab
+    home: https://otterscale.github.io
+    icon: https://github.com/otterscale.png
+    keywords:
+    - otterscale
+    - kubernetes
+    - helm
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: terry_wu@phison.com
+      name: Yi-Lin Wu
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale
+    sources:
+    - https://github.com/otterscale/otterscale
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-1.4.0-rc.1/otterscale-1.4.0-rc.1.tgz
+    version: 1.4.0-rc.1
+  - annotations:
+      artifacthub.io/changes: |
+        - kind: added
+          description: ServiceAccount, HPA, PDB, NetworkPolicy, ServiceMonitor templates
+        - kind: added
+          description: Standard Kubernetes Ingress support
+        - kind: added
+          description: values.schema.json for input validation
+        - kind: added
+          description: NOTES.txt post-install instructions
+        - kind: added
+          description: Helm test templates for connectivity verification
+        - kind: changed
+          description: Template directory reorganization by component
+        - kind: changed
+          description: Full parameterization of resources, probes, security contexts, and service types
+      artifacthub.io/license: Apache-2.0
+    apiVersion: v2
+    appVersion: SXHR0104
     created: "2026-07-20T06:01:48.894872782Z"
     dependencies:
     - condition: keycloakx.enabled
@@ -5627,6 +5683,36 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/otterscale-envoy-gateway-1.4.0-rc.1/otterscale-envoy-gateway-1.4.0-rc.1.tgz
     version: 1.4.0-rc.1
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: envoy-gateway-system
+    apiVersion: v2
+    appVersion: 1.8.2
+    created: "2026-07-28T13:44:29.925838838Z"
+    dependencies:
+    - name: gateway-helm
+      repository: oci://docker.io/envoyproxy
+      version: 1.8.3
+    description: Envoy Gateway — Kubernetes-native Gateway API implementation powered
+      by Envoy Proxy.
+    digest: 17830d1c70ae0510bbfbbebe930cde22a37b05d8fbe6b8558789749977d6ccf7
+    home: https://gateway.envoyproxy.io
+    icon: https://github.com/envoyproxy.png
+    keywords:
+    - envoy
+    - gateway-api
+    - ingress
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-envoy-gateway
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-envoy-gateway-1.4.0-rc.0/otterscale-envoy-gateway-1.4.0-rc.0.tgz
+    version: 1.4.0-rc.0
   - annotations:
       artifacthub.io/license: Apache-2.0
       module.otterscale.io/namespace: envoy-gateway-system
@@ -11365,6 +11451,37 @@ entries:
       module.otterscale.io/depends-on: otterscale-rook-ceph-cluster
       module.otterscale.io/namespace: monitoring
     apiVersion: v2
+    appVersion: 87.21.0
+    created: "2026-07-28T13:44:30.209835065Z"
+    dependencies:
+    - name: kube-prometheus-stack
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 87.21.0
+    description: kube-prometheus-stack — Prometheus, Alertmanager, Node Exporter.
+      Grafana disabled; persistent storage with remote-write receiver.
+    digest: e809eff522c69b43f0a7c2151c6c8f878de56021db707416606847ede8f1708f
+    home: https://github.com/prometheus-community/helm-charts
+    icon: https://github.com/prometheus.png
+    keywords:
+    - prometheus
+    - monitoring
+    - alertmanager
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-prometheus
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-prometheus-1.4.0-rc.0/otterscale-prometheus-1.4.0-rc.0.tgz
+    version: 1.4.0-rc.0
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-rook-ceph-cluster
+      module.otterscale.io/namespace: monitoring
+    apiVersion: v2
     appVersion: 87.12.4
     created: "2026-07-13T04:13:23.149281784Z"
     dependencies:
@@ -12596,4 +12713,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-28T13:43:44.995358732Z"
+generated: "2026-07-28T13:44:30.210495972Z"
