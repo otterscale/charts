@@ -1,7 +1,7 @@
 topolvm:
   image:
     repository: ghcr.io/otterscale/phison-topolvm
-    reference: 1.4.0
+    reference: v1.4.0
 
   lvmd:
     managed: true
@@ -35,7 +35,7 @@ topolvm:
 
     initContainers:
       - name: nvme-check-provider
-        image: ghcr.io/otterscale/phison-sails:0.2.0
+        image: ghcr.io/otterscale/phison-sails:v0.2.0
         securityContext:
           runAsUser: 0
         volumeMounts:
