@@ -12,6 +12,21 @@
     },
     "nameOverride": { "type": "string" },
     "fullnameOverride": { "type": "string" },
+    "storage": {
+      "type": "object",
+      "properties": {
+        "localPath": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "path": { "type": "string" },
+            "storageClassName": { "type": "string" },
+            "reclaimPolicy": { "type": "string", "enum": ["Retain", "Delete"] },
+            "nodeName": { "type": "string", "description": "Pin the provisioner and mkdir hook pods to this node. Empty = scheduler decides." }
+          }
+        }
+      }
+    },
     "server": {
       "type": "object",
       "properties": {

@@ -2,7 +2,9 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "otterscale.keycloakx.fullname" . }}-postgres
+  {{- /* Named from database.hostname (like the headless Service) so the
+  subchart's non-templated hostname value stays valid for any release name. */}}
+  name: {{ .Values.keycloakx.database.hostname }}
   namespace: {{ include "otterscale.namespace" . }}
   labels:
     {{- include "otterscale.labels" . | nindent 4 }}
@@ -102,7 +104,7 @@ spec:
         - name: postgres-data
         {{- if .Values.keycloakx.database.persistence.enabled }}
           persistentVolumeClaim:
-            claimName: {{ include "otterscale.keycloakx.fullname" . }}-postgres-data
+            claimName: {{ .Values.keycloakx.database.hostname }}-data
         {{- else }}
           emptyDir: {}
         {{- end }}

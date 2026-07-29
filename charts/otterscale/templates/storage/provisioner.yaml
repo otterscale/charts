@@ -153,6 +153,12 @@ spec:
         app.kubernetes.io/component: local-path-provisioner
     spec:
       serviceAccountName: {{ include "otterscale.fullname" . }}-local-path-sa
+      {{- with .Values.storage.localPath.nodeName }}
+      nodeName: {{ . }}
+      {{- end }}
+      # Tolerate every taint so the provisioner can run on any node.
+      tolerations:
+        - operator: Exists
       {{- with include "otterscale.podNodeSelector" (dict "context" $) }}
       nodeSelector:
         {{- . | nindent 8 }}

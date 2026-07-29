@@ -190,13 +190,18 @@ The certificate can be supplied two ways:
 
 ### Storage
 
-| Parameter                            | Description                          | Default                   |
-| ------------------------------------ | ------------------------------------ | ------------------------- |
-| `storage.localPath.enabled`          | Deploy local-path-provisioner        | `false`                   |
-| `storage.localPath.path`             | Host path for volume storage         | `/opt/otterscale/storage` |
-| `storage.localPath.storageClassName` | StorageClass name                    | `otterscale-local-path`   |
-| `storage.localPath.isDefault`        | Set as cluster default StorageClass  | `true`                    |
-| `storage.localPath.reclaimPolicy`    | Reclaim policy: `Retain` or `Delete` | `Retain`                  |
+| Parameter                            | Description                                                       | Default                   |
+| ------------------------------------ | ----------------------------------------------------------------- | ------------------------- |
+| `storage.localPath.enabled`          | Deploy local-path-provisioner                                     | `false`                   |
+| `storage.localPath.path`             | Host path for volume storage                                      | `/opt/otterscale/storage` |
+| `storage.localPath.storageClassName` | StorageClass name                                                 | `otterscale-local-path`   |
+| `storage.localPath.reclaimPolicy`    | Reclaim policy: `Retain` or `Delete`                              | `Retain`                  |
+| `storage.localPath.nodeName`         | Pin the provisioner and mkdir hook pods to this node (empty = scheduler decides) | `""`    |
+
+The provisioner and mkdir hook pods tolerate all taints, so they can run on
+any node (including tainted control-plane nodes). Note that volume **data**
+always lives on the node where the consuming pod is scheduled — `nodeName`
+only pins the provisioner pod itself.
 
 ### Server
 

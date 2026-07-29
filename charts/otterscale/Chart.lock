@@ -9,4 +9,4 @@ dependencies:
   repository: https://helm.goharbor.io
   version: 1.19.1
 digest: sha256:cdd1d4833e1d6f0d27c334e0a94728d06af34227b219eb2d9183692f84b291d6
-generated: "2026-07-28T13:40:03.291533971Z"
+generated: "2026-07-28T22:16:42.7751415+08:00"

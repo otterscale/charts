@@ -9,8 +9,6 @@ global:
   imagePullSecrets: []
   nodeSelector: {}
 
-# Namespace for all chart resources (pass --namespace to match).
-namespace: "otterscale-system"
 nameOverride: ""
 fullnameOverride: ""
 
@@ -27,6 +25,10 @@ storage:
     path: /opt/otterscale/storage
     storageClassName: otterscale-local-path
     reclaimPolicy: Retain # Retain or Delete
+    # Pin the provisioner (and the mkdir hook) to a specific node. Empty =
+    # let the scheduler pick one. Note: volume DATA still lives on whichever
+    # node the consuming pod runs on, not on this node.
+    nodeName: ""
     image:
       repository: rancher/local-path-provisioner
       tag: v0.0.36

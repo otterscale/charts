@@ -1,9 +1,10 @@
 {{/*
-Namespace for all resources.
-Prefer .Values.namespace; fall back to .Release.Namespace.
+Namespace for all resources: always the release namespace, so chart-created
+Secrets/ConfigMaps land where subchart pods (which always render into
+.Release.Namespace) can reference them by bare name.
 */}}
 {{- define "otterscale.namespace" -}}
-{{- .Values.namespace | default .Release.Namespace -}}
+{{- .Release.Namespace -}}
 {{- end -}}
 
 {{- define "otterscale.localPath.provisionerName" -}}
