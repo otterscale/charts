@@ -1,13 +1,13 @@
 apiVersion: v2
 name: otterscale-node-feature-discovery
-version: 1.3.2
+version: 1.4.0-rc.0
 # renovate: helm=node-feature-discovery registry=oci://registry.k8s.io/nfd/charts
-appVersion: "0.18.3"
+appVersion: "0.19.0"
 description: >-
   Wraps upstream node-feature-discovery (Helm dependency) plus a DaemonSet that
   runs a host script to refresh NFD local feature files under features.d.
 home: https://github.com/kubernetes-sigs/node-feature-discovery
-icon: https://kubernetes-sigs.github.io/node-feature-discovery/v0.18/assets/images/nfd/favicon.svg
+icon: https://kubernetes-sigs.github.io/node-feature-discovery/v0.19/assets/images/nfd/favicon.svg
 sources:
   - https://github.com/otterscale/charts
 maintainers:
@@ -24,5 +24,5 @@ annotations:
   artifacthub.io/license: Apache-2.0
 dependencies:
   - name: node-feature-discovery
-    version: 0.18.3
+    version: 0.19.0
     repository: oci://registry.k8s.io/nfd/charts

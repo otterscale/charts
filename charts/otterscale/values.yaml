@@ -365,7 +365,7 @@ keycloakx:
     port: 5432
     image:
       repository: postgres
-      tag: "15"
+      tag: "15.18-trixie"
       pullPolicy: IfNotPresent
     persistence:
       enabled: true
@@ -437,7 +437,7 @@ keycloakInit:
     enabled: true
     image:
       repository: docker.io/curlimages/curl
-      tag: "8.14.1"
+      tag: "8.21.0"
       pullPolicy: IfNotPresent
     resources: {}
 
