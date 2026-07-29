@@ -2,7 +2,7 @@ apiVersion: v2
 name: otterscale-kyverno
 version: 1.4.0-rc.0
 # renovate: helm=kyverno registry=https://kyverno.github.io/kyverno
-appVersion: "v1.18.2"
+appVersion: "3.8.2"
 description: >-
   Kyverno — Kubernetes-native policy engine for validating, mutating,
   and generating resources with admission control policies.
