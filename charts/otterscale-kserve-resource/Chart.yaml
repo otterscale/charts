@@ -1,8 +1,8 @@
 apiVersion: v2
 name: otterscale-kserve-resource
-version: 1.4.0-rc.2
+version: 1.4.0-rc.5
 # renovate: helm=kserve registry=oci://ghcr.io/kserve/charts
-appVersion: "v0.20.0-rc0"
+appVersion: "v0.20.0-rc0+patched"
 description: >-
   KServe LLMInferenceService — Controller and resources
   for Kubernetes-native distributed LLM inference with llm-d.
@@ -20,11 +20,6 @@ keywords:
   - llminferenceservice
 type: application
 kubeVersion: ">=1.32.0-0"
-# Note: CRD chart should be installed separately before this chart
-dependencies:
-  - name: kserve-llmisvc-resources
-    version: v0.20.0-rc0
-    repository: oci://ghcr.io/kserve/charts
 annotations:
   module.otterscale.io/depends-on: "otterscale-prometheus,otterscale-envoy-gateway,otterscale-leader-worker-set,otterscale-kserve-base"
   module.otterscale.io/namespace: "kserve"
