@@ -1,1 +1,7 @@
-# No configurable values. Upstream chart is installed as-is.
+# Values passed through to the upstream kro chart.
+kro:
+  config:
+    featureGates:
+      # Required by the chartrelease RGD, which uses the omit() CEL function
+      # to drop unset optional HelmRelease fields from the rendered resource.
+      CELOmitFunction: true
