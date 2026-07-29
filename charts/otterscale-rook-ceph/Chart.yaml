@@ -2,7 +2,7 @@ apiVersion: v2
 name: otterscale-rook-ceph
 version: 1.4.0-rc.0
 # renovate: helm=rook-ceph registry=https://charts.rook.io/release
-appVersion: "1.20.2"
+appVersion: "1.20.3"
 description: >-
   Rook-Ceph Operator — Phase 1: CRDs + Operator deployment.
   Create CephCluster separately.
