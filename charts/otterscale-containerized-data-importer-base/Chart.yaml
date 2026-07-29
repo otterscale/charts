@@ -1,6 +1,6 @@
 apiVersion: v2
 name: otterscale-containerized-data-importer-base
-version: 1.4.0-rc.0
+version: 1.4.0-rc.1
 # renovate: github=kubevirt/containerized-data-importer
 appVersion: "1.65.0"
 description: >-
@@ -23,4 +23,3 @@ kubeVersion: ">=1.25.0-0"
 annotations:
   module.otterscale.io/namespace: "cdi"
   artifacthub.io/license: Apache-2.0
-  helm.sh/resource-policy: keep
