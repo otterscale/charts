@@ -36,8 +36,8 @@ storage:
     helperPod:
       # Any minimal image with a POSIX shell works.
       image:
-        repository: docker.io/library/debian
-        tag: bookworm-slim
+        repository: docker.io/library/alpine
+        tag: "3.22"
         pullPolicy: IfNotPresent
 
 # ── OtterScale Server ──
@@ -556,9 +556,10 @@ harborInit:
       public: "true"
     - name: "operator"
       public: "true"
+  # Needs a POSIX shell plus busybox-style nc/base64 (alpine, busybox).
   image:
-    repository: docker.io/library/debian
-    tag: "bookworm-slim"
+    repository: docker.io/library/alpine
+    tag: "3.22"
     pullPolicy: IfNotPresent
   waitTimeoutSeconds: 600
   resources: {}

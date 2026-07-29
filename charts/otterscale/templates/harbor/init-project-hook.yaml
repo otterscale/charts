@@ -41,34 +41,35 @@ spec:
                   name: {{ .Values.harbor.existingSecretAdminPassword | quote }}
                   key: {{ .Values.harbor.existingSecretAdminPasswordKey | quote }}
           command:
-            - bash
+            - sh
             - -c
             - |
               set -eu
 
-              # Talk to the Harbor API over bash's built-in /dev/tcp so we need
-              # neither curl/wget (no extra binaries, no apt) nor root.
+              # Talk to the Harbor API with busybox nc (POSIX sh — alpine has
+              # no bash) so we need neither curl/wget parsing nor root.
               # HTTP only (Harbor core listens plain HTTP inside the cluster).
 
-              # http_request METHOD PATH EXTRA_HEADERS BODY -> echoes HTTP status code.
+              # http_request METHOD PATH EXTRA_HEADER BODY -> echoes HTTP status code.
+              # EXTRA_HEADER is a single header line without the trailing CRLF.
               http_request() {
-                _method="$1"; _path="$2"; _headers="$3"; _body="$4"
-                exec 3<>"/dev/tcp/${HARBOR_HOST}/${HARBOR_PORT}" || { echo "000"; return 0; }
-                {
-                  printf '%s %s HTTP/1.1\r\n' "$_method" "$_path"
-                  printf 'Host: %s\r\n' "$HARBOR_HOST"
-                  printf 'Connection: close\r\n'
-                  [ -n "$_headers" ] && printf '%s' "$_headers"
-                  if [ -n "$_body" ]; then
-                    printf 'Content-Type: application/json\r\n'
-                    printf 'Content-Length: %d\r\n' "${#_body}"
-                  fi
-                  printf '\r\n'
-                  [ -n "$_body" ] && printf '%s' "$_body"
-                } >&3
+                _method="$1"; _path="$2"; _header="$3"; _body="$4"
+                _status=$(
+                  {
+                    printf '%s %s HTTP/1.1\r\n' "$_method" "$_path"
+                    printf 'Host: %s\r\n' "$HARBOR_HOST"
+                    printf 'Connection: close\r\n'
+                    [ -n "$_header" ] && printf '%s\r\n' "$_header"
+                    if [ -n "$_body" ]; then
+                      printf 'Content-Type: application/json\r\n'
+                      printf 'Content-Length: %d\r\n' "${#_body}"
+                    fi
+                    printf '\r\n'
+                    [ -n "$_body" ] && printf '%s' "$_body"
+                  } | nc -w 10 "$HARBOR_HOST" "$HARBOR_PORT" 2>/dev/null \
+                    | head -n 1 | tr -d '\r'
+                ) || _status=""
                 # First response line looks like: "HTTP/1.1 201 Created"
-                read -r _status <&3 || _status=""
-                exec 3<&- 3>&- || true
                 set -- $_status
                 echo "${2:-000}"
               }
@@ -86,7 +87,7 @@ spec:
               echo "Harbor API is healthy."
 
               auth=$(printf 'admin:%s' "${HARBOR_ADMIN_PASSWORD}" | base64 | tr -d '\n')
-              auth_header="Authorization: Basic ${auth}"$'\r\n'
+              auth_header="Authorization: Basic ${auth}"
 
               create_project() {
                 name="$1"
