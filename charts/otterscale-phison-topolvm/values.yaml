@@ -1,7 +1,7 @@
 topolvm:
   image:
     repository: ghcr.io/otterscale/phison-topolvm
-    reference: 0.1.0
+    reference: 1.4.0
 
   lvmd:
     managed: true
