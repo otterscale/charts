@@ -2,6 +2,6 @@
 kro:
   config:
     featureGates:
-      # Required by the chartrelease RGD, which uses the omit() CEL function
+      # Required by the helmrelease RGD, which uses the omit() CEL function
       # to drop unset optional HelmRelease fields from the rendered resource.
       CELOmitFunction: true

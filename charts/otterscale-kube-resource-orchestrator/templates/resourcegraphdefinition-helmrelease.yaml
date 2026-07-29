@@ -1,11 +1,11 @@
 apiVersion: kro.run/v1alpha1
 kind: ResourceGraphDefinition
 metadata:
-  name: chartrelease
+  name: helmrelease
 spec:
   schema:
     apiVersion: v1alpha1
-    kind: ChartRelease
+    kind: HelmRelease
     # The spec mirrors helm.toolkit.fluxcd.io/v2 HelmRelease spec 1:1 (same
     # fields, structure, and validation), except serviceAccountName which is
     # always overridden to workspace-reconciler. Not expressible in kro simple
