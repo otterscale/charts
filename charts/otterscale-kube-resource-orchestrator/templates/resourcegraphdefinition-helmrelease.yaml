@@ -1,0 +1,234 @@
+apiVersion: kro.run/v1alpha1
+kind: ResourceGraphDefinition
+metadata:
+  name: helmrelease
+spec:
+  schema:
+    apiVersion: v1alpha1
+    kind: HelmRelease
+    # The spec mirrors helm.toolkit.fluxcd.io/v2 HelmRelease spec 1:1 (same
+    # fields, structure, and validation), except serviceAccountName which is
+    # always overridden to workspace-reconciler. Not expressible in kro simple
+    # schema and therefore enforced only when the HelmRelease is created:
+    # x-kubernetes-validations CEL rules (chart XOR chartRef, kubeConfig
+    # configMapRef XOR secretRef, strategy.retryInterval constraints) and
+    # OpenAPI defaults (version, reconcileStrategy, deletionPropagation, ...),
+    # which the HelmRelease CRD applies on its own.
+    spec:
+      chart: HelmChartTemplate | description="Chart defines the template of the v1.HelmChart that should be created for this HelmRelease."
+      chartRef: CrossNamespaceSourceReference | description="ChartRef holds a reference to a source controller resource containing the Helm chart artifact."
+      commonMetadata: CommonMetadata | description="CommonMetadata specifies the common labels and annotations that are applied to all resources. Any existing label or annotation will be overridden if its key matches a common one."
+      dependsOn: '[]DependencyReference | description="DependsOn may contain a DependencyReference slice with references to HelmRelease resources that must be ready before this HelmRelease can be reconciled."'
+      driftDetection: DriftDetection | description="DriftDetection holds the configuration for detecting and handling differences between the manifest in the Helm storage and the resources currently existing in the cluster."
+      healthCheckExprs: '[]CustomHealthCheck | description="HealthCheckExprs is a list of healthcheck expressions for evaluating the health of custom resources using Common Expression Language (CEL)."'
+      install: Install | description="Install holds the configuration for Helm install actions for this HelmRelease."
+      interval: 'string | required=true pattern="^([0-9]+(\.[0-9]+)?(ms|s|m|h))+$" description="Interval at which to reconcile the Helm release."'
+      kubeConfig: KubeConfig | description="KubeConfig for reconciling the HelmRelease on a remote cluster."
+      maxHistory: integer | description="MaxHistory is the number of revisions saved by Helm for this HelmRelease. Use 0 for an unlimited number of revisions; defaults to 5."
+      persistentClient: boolean | description="PersistentClient tells the controller to use a persistent Kubernetes client for this release. If not set, it defaults to true."
+      postRenderStrategy: string | enum="nohooks,combined,separate" description="PostRenderStrategy defines the strategy for sending hooks to post-renderers."
+      postRenderers: '[]PostRenderer | description="PostRenderers holds an array of Helm PostRenderers, which will be applied in order of their definition."'
+      releaseName: string | minLength=1 maxLength=53 description="ReleaseName used for the Helm release. Defaults to a composition of [TargetNamespace-]Name."
+      rollback: Rollback | description="Rollback holds the configuration for Helm rollback actions for this HelmRelease."
+      serviceAccountName: string | minLength=1 maxLength=253 description="Ignored. The HelmRelease is always reconciled with the workspace-reconciler service account."
+      storageNamespace: string | minLength=1 maxLength=63 description="StorageNamespace used for the Helm storage. Defaults to the namespace of the HelmRelease."
+      suspend: boolean | description="Suspend tells the controller to suspend reconciliation for this HelmRelease, it does not apply to already started reconciliations. Defaults to false."
+      targetNamespace: string | minLength=1 maxLength=63 description="TargetNamespace to target when performing operations for the HelmRelease. Defaults to the namespace of the HelmRelease."
+      test: Test | description="Test holds the configuration for Helm test actions for this HelmRelease."
+      timeout: 'string | pattern="^([0-9]+(\.[0-9]+)?(ms|s|m|h))+$" description="Timeout is the time to wait for any individual Kubernetes operation (like Jobs for hooks) during the performance of a Helm action. Defaults to 5m0s."'
+      uninstall: Uninstall | description="Uninstall holds the configuration for Helm uninstall actions for this HelmRelease."
+      upgrade: Upgrade | description="Upgrade holds the configuration for Helm upgrade actions for this HelmRelease."
+      values: object | description="Values holds the values for this Helm release."
+      valuesFrom: '[]ValuesReference | description="ValuesFrom holds references to resources containing Helm values for this HelmRelease, and information about how they should be merged."'
+      waitStrategy: WaitStrategy | description="WaitStrategy defines Helm's wait strategy for waiting for applied resources to become ready."
+    types:
+      HelmChartTemplate:
+        metadata: HelmChartTemplateObjectMeta
+        spec: HelmChartTemplateSpec | required=true
+      HelmChartTemplateObjectMeta:
+        annotations: map[string]string
+        labels: map[string]string
+      HelmChartTemplateSpec:
+        chart: string | required=true minLength=1 maxLength=2048
+        ignoreMissingValuesFiles: boolean
+        interval: 'string | pattern="^([0-9]+(\.[0-9]+)?(ms|s|m|h))+$"'
+        reconcileStrategy: string | enum="ChartVersion,Revision"
+        sourceRef: CrossNamespaceObjectReference | required=true
+        valuesFiles: '[]string'
+        verify: HelmChartTemplateVerification
+        version: string
+      CrossNamespaceObjectReference:
+        apiVersion: string
+        kind: string | required=true enum="HelmRepository,GitRepository,Bucket"
+        name: string | required=true minLength=1 maxLength=253
+        namespace: string | minLength=1 maxLength=63
+      HelmChartTemplateVerification:
+        provider: string | required=true enum="cosign,notation"
+        secretRef: LocalObjectReference
+      LocalObjectReference:
+        name: string | required=true
+      CrossNamespaceSourceReference:
+        apiVersion: string
+        kind: string | required=true enum="OCIRepository,HelmChart,ExternalArtifact"
+        name: string | required=true minLength=1 maxLength=253
+        namespace: string | minLength=1 maxLength=63
+      CommonMetadata:
+        annotations: map[string]string
+        labels: map[string]string
+      DependencyReference:
+        name: string | required=true
+        namespace: string
+        readyExpr: string
+      DriftDetection:
+        ignore: '[]DriftIgnoreRule'
+        mode: string | enum="enabled,warn,disabled"
+      DriftIgnoreRule:
+        paths: '[]string | required=true'
+        target: KustomizeSelector
+      KustomizeSelector:
+        annotationSelector: string
+        group: string
+        kind: string
+        labelSelector: string
+        name: string
+        namespace: string
+        version: string
+      CustomHealthCheck:
+        apiVersion: string | required=true
+        current: string | required=true
+        failed: string
+        inProgress: string
+        kind: string
+      Install:
+        crds: string | enum="Skip,Create,CreateReplace"
+        createNamespace: boolean
+        disableHooks: boolean
+        disableOpenAPIValidation: boolean
+        disableSchemaValidation: boolean
+        disableTakeOwnership: boolean
+        disableWait: boolean
+        disableWaitForJobs: boolean
+        remediation: InstallRemediation
+        replace: boolean
+        serverSideApply: boolean
+        skipCRDs: boolean
+        strategy: ActionStrategy
+        timeout: 'string | pattern="^([0-9]+(\.[0-9]+)?(ms|s|m|h))+$"'
+      InstallRemediation:
+        ignoreTestFailures: boolean
+        remediateLastFailure: boolean
+        retries: integer
+      ActionStrategy:
+        name: string | required=true enum="RemediateOnFailure,RetryOnFailure"
+        retryInterval: 'string | pattern="^([0-9]+(\.[0-9]+)?(ms|s|m|h))+$"'
+      KubeConfig:
+        configMapRef: LocalObjectReference
+        secretRef: SecretKeyReference
+      SecretKeyReference:
+        key: string
+        name: string | required=true
+      PostRenderer:
+        kustomize: Kustomize
+      Kustomize:
+        images: '[]KustomizeImage'
+        patches: '[]KustomizePatch'
+      KustomizeImage:
+        digest: string
+        name: string | required=true
+        newName: string
+        newTag: string
+      KustomizePatch:
+        patch: string | required=true
+        target: KustomizeSelector
+      Rollback:
+        cleanupOnFail: boolean
+        disableHooks: boolean
+        disableWait: boolean
+        disableWaitForJobs: boolean
+        force: boolean
+        recreate: boolean
+        serverSideApply: string | enum="enabled,disabled,auto"
+        timeout: 'string | pattern="^([0-9]+(\.[0-9]+)?(ms|s|m|h))+$"'
+      Test:
+        enable: boolean
+        filters: '[]TestFilter'
+        ignoreFailures: boolean
+        timeout: 'string | pattern="^([0-9]+(\.[0-9]+)?(ms|s|m|h))+$"'
+      TestFilter:
+        exclude: boolean
+        name: string | required=true minLength=1 maxLength=253
+      Uninstall:
+        deletionPropagation: string | enum="background,foreground,orphan"
+        disableHooks: boolean
+        disableWait: boolean
+        keepHistory: boolean
+        timeout: 'string | pattern="^([0-9]+(\.[0-9]+)?(ms|s|m|h))+$"'
+      Upgrade:
+        chartNameChangeStrategy: string | enum="InPlaceUpdate,Reinstall"
+        cleanupOnFail: boolean
+        crds: string | enum="Skip,Create,CreateReplace"
+        disableHooks: boolean
+        disableOpenAPIValidation: boolean
+        disableSchemaValidation: boolean
+        disableTakeOwnership: boolean
+        disableWait: boolean
+        disableWaitForJobs: boolean
+        force: boolean
+        preserveValues: boolean
+        remediation: UpgradeRemediation
+        serverSideApply: string | enum="enabled,disabled,auto"
+        strategy: ActionStrategy
+        timeout: 'string | pattern="^([0-9]+(\.[0-9]+)?(ms|s|m|h))+$"'
+      UpgradeRemediation:
+        ignoreTestFailures: boolean
+        remediateLastFailure: boolean
+        retries: integer
+        strategy: string | enum="rollback,uninstall"
+      ValuesReference:
+        kind: string | required=true enum="Secret,ConfigMap"
+        literal: boolean
+        name: string | required=true minLength=1 maxLength=253
+        optional: boolean
+        targetPath: 'string | maxLength=250 pattern="^([a-zA-Z0-9_\-.\\\\\/]|\[[0-9]{1,5}\])+$"'
+        valuesKey: 'string | maxLength=253 pattern="^[\-._a-zA-Z0-9]+$"'
+      WaitStrategy:
+        name: string | required=true enum="poller,legacy"
+    status:
+      helmReleaseConditions: "${has(helmRelease.status.conditions) ? helmRelease.status.conditions : []}"
+
+  resources:
+    - id: helmRelease
+      template:
+        apiVersion: helm.toolkit.fluxcd.io/v2
+        kind: HelmRelease
+        metadata:
+          name: ${schema.metadata.name}
+        spec:
+          chart: "${has(schema.spec.chart) ? schema.spec.chart : omit()}"
+          chartRef: "${has(schema.spec.chartRef) ? schema.spec.chartRef : omit()}"
+          commonMetadata: "${has(schema.spec.commonMetadata) ? schema.spec.commonMetadata : omit()}"
+          healthCheckExprs: "${has(schema.spec.healthCheckExprs) ? schema.spec.healthCheckExprs : omit()}"
+          interval: ${schema.spec.interval}
+          kubeConfig: "${has(schema.spec.kubeConfig) ? schema.spec.kubeConfig : omit()}"
+          suspend: "${has(schema.spec.suspend) ? schema.spec.suspend : omit()}"
+          releaseName: "${has(schema.spec.releaseName) ? schema.spec.releaseName : omit()}"
+          targetNamespace: "${has(schema.spec.targetNamespace) ? schema.spec.targetNamespace : omit()}"
+          storageNamespace: "${has(schema.spec.storageNamespace) ? schema.spec.storageNamespace : omit()}"
+          dependsOn: "${has(schema.spec.dependsOn) ? schema.spec.dependsOn : omit()}"
+          timeout: "${has(schema.spec.timeout) ? schema.spec.timeout : omit()}"
+          maxHistory: "${has(schema.spec.maxHistory) ? schema.spec.maxHistory : omit()}"
+          # Enforced: releases always reconcile with the workspace-scoped
+          # service account, regardless of what the instance specifies.
+          serviceAccountName: workspace-reconciler
+          persistentClient: "${has(schema.spec.persistentClient) ? schema.spec.persistentClient : omit()}"
+          driftDetection: "${has(schema.spec.driftDetection) ? schema.spec.driftDetection : omit()}"
+          install: "${has(schema.spec.install) ? schema.spec.install : omit()}"
+          upgrade: "${has(schema.spec.upgrade) ? schema.spec.upgrade : omit()}"
+          test: "${has(schema.spec.test) ? schema.spec.test : omit()}"
+          rollback: "${has(schema.spec.rollback) ? schema.spec.rollback : omit()}"
+          uninstall: "${has(schema.spec.uninstall) ? schema.spec.uninstall : omit()}"
+          valuesFrom: "${has(schema.spec.valuesFrom) ? schema.spec.valuesFrom : omit()}"
+          values: "${has(schema.spec.values) ? schema.spec.values : omit()}"
+          postRenderStrategy: "${has(schema.spec.postRenderStrategy) ? schema.spec.postRenderStrategy : omit()}"
+          postRenderers: "${has(schema.spec.postRenderers) ? schema.spec.postRenderers : omit()}"
+          waitStrategy: "${has(schema.spec.waitStrategy) ? schema.spec.waitStrategy : omit()}"

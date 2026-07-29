@@ -1,0 +1,67 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+  name: kro-helmrelease-admin-role
+rules:
+  - apiGroups:
+      - kro.run
+    resources:
+      - helmreleases
+    verbs:
+      - "*"
+  - apiGroups:
+      - kro.run
+    resources:
+      - helmreleases/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+  name: kro-helmrelease-editor-role
+rules:
+  - apiGroups:
+      - kro.run
+    resources:
+      - helmreleases
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - kro.run
+    resources:
+      - helmreleases/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+  name: kro-helmrelease-viewer-role
+rules:
+  - apiGroups:
+      - kro.run
+    resources:
+      - helmreleases
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - kro.run
+    resources:
+      - helmreleases/status
+    verbs:
+      - get
