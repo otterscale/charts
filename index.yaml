@@ -5443,6 +5443,33 @@ entries:
   otterscale-containerized-data-importer-base:
   - annotations:
       artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: cdi
+    apiVersion: v2
+    appVersion: 1.65.0
+    created: "2026-07-29T16:26:54.020537355Z"
+    description: CDI CRDs — Custom Resource Definitions for Containerized Data Importer.
+      Deploys namespace and CRDs only.
+    digest: f0c9e0f53c261f803f014e7d2aa292c1a293fc60c48bce9a3b6b70e5ad6f9610
+    home: https://github.com/kubevirt/containerized-data-importer
+    icon: https://github.com/kubevirt.png
+    keywords:
+    - cdi
+    - kubevirt
+    - storage
+    - pvc
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-containerized-data-importer-base
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-containerized-data-importer-base-1.4.0-rc.1/otterscale-containerized-data-importer-base-1.4.0-rc.1.tgz
+    version: 1.4.0-rc.1
+  - annotations:
+      artifacthub.io/license: Apache-2.0
       helm.sh/resource-policy: keep
       module.otterscale.io/namespace: cdi
     apiVersion: v2
@@ -8244,6 +8271,37 @@ entries:
   otterscale-kserve-base:
   - annotations:
       artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: kserve
+    apiVersion: v2
+    appVersion: v0.20.0-rc0
+    created: "2026-07-29T16:26:54.263614845Z"
+    dependencies:
+    - name: kserve-llmisvc-crd
+      repository: oci://ghcr.io/kserve/charts
+      version: v0.20.0-rc0
+    description: KServe LLMInferenceService CRDs — Custom Resource Definitions for
+      KServe LLM inference. Deploys CRDs only.
+    digest: 3aab27860ed78435b71a93af5debe092b4e20d1018a33cc20aa5854c16741438
+    home: https://kserve.github.io/website
+    icon: https://github.com/kserve.png
+    keywords:
+    - kserve
+    - llm
+    - inference
+    - llminferenceservice
+    kubeVersion: '>=1.32.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-kserve-base
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kserve-base-1.4.0-rc.1/otterscale-kserve-base-1.4.0-rc.1.tgz
+    version: 1.4.0-rc.1
+  - annotations:
+      artifacthub.io/license: Apache-2.0
       helm.sh/resource-policy: keep
       module.otterscale.io/namespace: kserve
     apiVersion: v2
@@ -10958,6 +11016,32 @@ entries:
   otterscale-kubevirt-base:
   - annotations:
       artifacthub.io/license: Apache-2.0
+      meta.helm.sh/release-name: kubevirt-crd
+    apiVersion: v2
+    appVersion: 1.8.4
+    created: "2026-07-29T16:26:54.461891315Z"
+    description: KubeVirt CRDs — Custom Resource Definitions for KubeVirt. Deploys
+      namespace and CRDs only.
+    digest: 7a3e69a4fffbaeb6850403db2da78902776e1f7dd5372bbbc51e47e912d2441e
+    home: https://kubevirt.io
+    icon: https://github.com/kubevirt.png
+    keywords:
+    - kubevirt
+    - virtualization
+    - vm
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-kubevirt-base
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kubevirt-base-1.4.0-rc.1/otterscale-kubevirt-base-1.4.0-rc.1.tgz
+    version: 1.4.0-rc.1
+  - annotations:
+      artifacthub.io/license: Apache-2.0
       helm.sh/resource-policy: keep
       meta.helm.sh/release-name: kubevirt-crd
     apiVersion: v2
@@ -13654,4 +13738,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-29T16:18:23.675673496Z"
+generated: "2026-07-29T16:26:54.462617784Z"
