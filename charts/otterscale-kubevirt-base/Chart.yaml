@@ -1,6 +1,6 @@
 apiVersion: v2
 name: otterscale-kubevirt-base
-version: 1.4.0-rc.0
+version: 1.4.0-rc.1
 # renovate: github=kubevirt/kubevirt
 appVersion: "1.8.4"
 description: >-
@@ -22,4 +22,3 @@ kubeVersion: ">=1.25.0-0"
 annotations:
   meta.helm.sh/release-name: "kubevirt-crd"
   artifacthub.io/license: Apache-2.0
-  helm.sh/resource-policy: keep
