@@ -12081,6 +12081,38 @@ entries:
       module.otterscale.io/depends-on: otterscale-node-feature-discovery
       module.otterscale.io/namespace: phison-topolvm-system
     apiVersion: v2
+    appVersion: 17.0.0
+    created: "2026-07-29T14:50:24.374692519Z"
+    dependencies:
+    - name: topolvm
+      repository: https://topolvm.github.io/topolvm
+      version: 17.0.0
+    description: TopoLVM — CSI driver for dynamic LVM logical volume provisioning.
+      Manages the vg_aidaptiv volume group with topology-aware scheduling.
+    digest: 88e131fa7618cbe985ddc1fe3882bcbe4470ff5ed8109bef4ed1332a8525c050
+    home: https://github.com/otterscale/topolvm
+    icon: https://www.phison.com/wp-content/uploads/2025/11/Phison-Favicon-512-150x150.png
+    keywords:
+    - topolvm
+    - lvm
+    - csi
+    - storage
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-phison-topolvm
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-phison-topolvm-1.4.0-rc.2/otterscale-phison-topolvm-1.4.0-rc.2.tgz
+    version: 1.4.0-rc.2
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-node-feature-discovery
+      module.otterscale.io/namespace: phison-topolvm-system
+    apiVersion: v2
     appVersion: 0.1.0
     created: "2026-07-20T07:28:20.787369064Z"
     dependencies:
@@ -13536,4 +13568,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-29T12:53:34.494648674Z"
+generated: "2026-07-29T14:50:24.375101277Z"
