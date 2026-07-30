@@ -1,8 +1,8 @@
 apiVersion: v2
 name: otterscale-envoy-gateway
-version: 1.4.0-rc.0
+version: 1.4.0-rc.1
 # renovate: helm=gateway-helm registry=oci://docker.io/envoyproxy
-appVersion: "1.8.2"
+appVersion: "1.8.3"
 description: >-
   Envoy Gateway — Kubernetes-native Gateway API implementation
   powered by Envoy Proxy.
