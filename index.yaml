@@ -9250,6 +9250,34 @@ entries:
       module.otterscale.io/namespace: kserve
     apiVersion: v2
     appVersion: v0.20.0-rc0.1
+    created: "2026-07-30T04:31:05.668685234Z"
+    description: KServe LLMInferenceService — Controller and resources for Kubernetes-native
+      distributed LLM inference with llm-d.
+    digest: 0004236c39083ed39b32ff3271f2b297072c6b95fd7243a9aa5cfee522b1b854
+    home: https://kserve.github.io/website
+    icon: https://github.com/kserve.png
+    keywords:
+    - kserve
+    - llm
+    - inference
+    - llminferenceservice
+    kubeVersion: '>=1.32.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-kserve-resource
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kserve-resource-1.4.0-rc.7/otterscale-kserve-resource-1.4.0-rc.7.tgz
+    version: 1.4.0-rc.7
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-prometheus,otterscale-envoy-gateway,otterscale-leader-worker-set,otterscale-kserve-base
+      module.otterscale.io/namespace: kserve
+    apiVersion: v2
+    appVersion: v0.20.0-rc0.1
     created: "2026-07-30T02:07:03.727266204Z"
     description: KServe LLMInferenceService — Controller and resources for Kubernetes-native
       distributed LLM inference with llm-d.
@@ -9338,46 +9366,14 @@ entries:
       module.otterscale.io/namespace: kserve
     apiVersion: v2
     appVersion: v0.20.0-rc0
-    created: "2026-07-24T02:57:00.328699198Z"
+    created: "2026-07-20T10:26:20.361081707Z"
     dependencies:
     - name: kserve-llmisvc-resources
       repository: oci://ghcr.io/kserve/charts
       version: v0.20.0-rc0
     description: KServe LLMInferenceService — Controller and resources for Kubernetes-native
       distributed LLM inference with llm-d.
-    digest: 808aa1453e9ebb5a29ea746917a9a7cc707cbb2d39b1250c83cf83e6366065b6
-    home: https://kserve.github.io/website
-    icon: https://github.com/kserve.png
-    keywords:
-    - kserve
-    - llm
-    - inference
-    - llminferenceservice
-    kubeVersion: '>=1.32.0-0'
-    maintainers:
-    - email: paul_tsai@phison.com
-      name: Chung-Hsuan Tsai
-    name: otterscale-kserve-resource
-    sources:
-    - https://github.com/otterscale/charts
-    type: application
-    urls:
-    - https://github.com/otterscale/charts/releases/download/otterscale-kserve-resource-1.4.0-rc.1/otterscale-kserve-resource-1.4.0-rc.1.tgz
-    version: 1.4.0-rc.1
-  - annotations:
-      artifacthub.io/license: Apache-2.0
-      module.otterscale.io/depends-on: otterscale-prometheus,otterscale-envoy-gateway,otterscale-leader-worker-set,otterscale-kserve-base
-      module.otterscale.io/namespace: kserve
-    apiVersion: v2
-    appVersion: v0.20.0-rc0
-    created: "2026-07-22T11:29:09.438245326Z"
-    dependencies:
-    - name: kserve-llmisvc-resources
-      repository: oci://ghcr.io/kserve/charts
-      version: v0.20.0-rc0
-    description: KServe LLMInferenceService — Controller and resources for Kubernetes-native
-      distributed LLM inference with llm-d.
-    digest: 9bd94829270d8ae695d67c2b0743f008f71c4bcdf8033752793359062bad8081
+    digest: df9bdceca26f38aa87418c6ca92d01f5faab598722573b64d774a4c321c33ba6
     home: https://kserve.github.io/website
     icon: https://github.com/kserve.png
     keywords:
@@ -9434,14 +9430,14 @@ entries:
       module.otterscale.io/namespace: kserve
     apiVersion: v2
     appVersion: v0.20.0-rc0
-    created: "2026-07-20T10:26:20.361081707Z"
+    created: "2026-07-22T11:29:09.438245326Z"
     dependencies:
     - name: kserve-llmisvc-resources
       repository: oci://ghcr.io/kserve/charts
       version: v0.20.0-rc0
     description: KServe LLMInferenceService — Controller and resources for Kubernetes-native
       distributed LLM inference with llm-d.
-    digest: df9bdceca26f38aa87418c6ca92d01f5faab598722573b64d774a4c321c33ba6
+    digest: 9bd94829270d8ae695d67c2b0743f008f71c4bcdf8033752793359062bad8081
     home: https://kserve.github.io/website
     icon: https://github.com/kserve.png
     keywords:
@@ -9474,6 +9470,38 @@ entries:
     description: KServe LLMInferenceService — Controller and resources for Kubernetes-native
       distributed LLM inference with llm-d.
     digest: b0fb4be333934e4f7ae657f48d2858d9dec3bfce1e223d06541c9721c74ea4c6
+    home: https://kserve.github.io/website
+    icon: https://github.com/kserve.png
+    keywords:
+    - kserve
+    - llm
+    - inference
+    - llminferenceservice
+    kubeVersion: '>=1.32.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-kserve-resource
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-kserve-resource-1.4.0-rc.1/otterscale-kserve-resource-1.4.0-rc.1.tgz
+    version: 1.4.0-rc.1
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-prometheus,otterscale-envoy-gateway,otterscale-leader-worker-set,otterscale-kserve-base
+      module.otterscale.io/namespace: kserve
+    apiVersion: v2
+    appVersion: v0.20.0-rc0
+    created: "2026-07-24T02:57:00.328699198Z"
+    dependencies:
+    - name: kserve-llmisvc-resources
+      repository: oci://ghcr.io/kserve/charts
+      version: v0.20.0-rc0
+    description: KServe LLMInferenceService — Controller and resources for Kubernetes-native
+      distributed LLM inference with llm-d.
+    digest: 808aa1453e9ebb5a29ea746917a9a7cc707cbb2d39b1250c83cf83e6366065b6
     home: https://kserve.github.io/website
     icon: https://github.com/kserve.png
     keywords:
@@ -13934,4 +13962,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-30T03:31:52.380555716Z"
+generated: "2026-07-30T04:31:05.669325383Z"
