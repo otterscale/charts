@@ -37,7 +37,7 @@ storage:
       # Any minimal image with a POSIX shell works.
       image:
         repository: docker.io/library/alpine
-        tag: "3.22"
+        tag: "3.24"
         pullPolicy: IfNotPresent
 
 # ── OtterScale Server ──
