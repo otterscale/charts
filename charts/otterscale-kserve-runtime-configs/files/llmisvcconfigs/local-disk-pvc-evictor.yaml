@@ -1,0 +1,52 @@
+apiVersion: serving.kserve.io/v1alpha2
+kind: LLMInferenceServiceConfig
+metadata:
+  name: local-disk-pvc-evictor
+  namespace: kserve
+spec:
+  model:
+    uri: ""
+  template:
+    containers:
+      - env:
+          - name: PVC_MOUNT_PATH
+            value: /mnt/kv-cache-0
+          - name: CACHE_DIRECTORY
+            value: ""
+          - name: NUM_CRAWLER_PROCESSES
+            value: "2"
+          - name: CLEANUP_THRESHOLD
+            value: "85.0"
+          - name: TARGET_THRESHOLD
+            value: "70.0"
+          - name: FILE_ACCESS_TIME_THRESHOLD_MINUTES
+            value: "60"
+          - name: ENABLE_DIR_CLEANUP
+            value: "true"
+          - name: DRY_RUN
+            value: "false"
+          - name: LOG_LEVEL
+            value: INFO
+        image: quay.io/pvc-evictor/pvc-evictor:llm-d-v0.8
+        imagePullPolicy: IfNotPresent
+        name: evictor
+        resources:
+          limits:
+            cpu: "2"
+            memory: 1Gi
+          requests:
+            cpu: 500m
+            memory: 512Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          runAsGroup: 0
+          runAsNonRoot: true
+          runAsUser: 2000
+          seccompProfile:
+            type: RuntimeDefault
+        volumeMounts:
+          - mountPath: /mnt/kv-cache-0
+            name: kv-cache-secondary-0
