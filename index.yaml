@@ -7497,6 +7497,43 @@ entries:
         postRenderers[0].kustomize.patches[0].patch[1].value.type=spc_t
     apiVersion: v2
     appVersion: 2.9.0
+    created: "2026-07-30T14:54:29.324841164Z"
+    dependencies:
+    - name: hami
+      repository: https://project-hami.github.io/HAMi/
+      version: 2.9.0
+    description: HAMI — GPU sharing (vGPU) with device split, memory/core scaling.
+      Integrates with NVIDIA GPU Operator.
+    digest: b32bda96cc14743d6ccc29994f50e579f6b02952ea6c116335baace8118ec656
+    home: https://github.com/Project-HAMi/HAMi
+    icon: https://github.com/Project-HAMi.png
+    keywords:
+    - gpu
+    - vgpu
+    - hami
+    - sharing
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-hami
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-hami-1.4.0-rc.1/otterscale-hami-1.4.0-rc.1.tgz
+    version: 1.4.0-rc.1
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-gpu-operator
+      module.otterscale.io/namespace: kube-system
+      module.otterscale.io/post-renderer: postRenderers[0].kustomize.patches[0].target.kind=DaemonSet,
+        postRenderers[0].kustomize.patches[0].target.name=otterscale-hami-device-plugin,
+        postRenderers[0].kustomize.patches[0].patch[0].op=remove, postRenderers[0].kustomize.patches[0].patch[0].path=/spec/template/spec/nodeSelector/gpu,
+        postRenderers[0].kustomize.patches[0].patch[1].op=add, postRenderers[0].kustomize.patches[0].patch[1].path=/spec/template/spec/containers/1/securityContext/seLinuxOptions,
+        postRenderers[0].kustomize.patches[0].patch[1].value.type=spc_t
+    apiVersion: v2
+    appVersion: 2.9.0
     created: "2026-07-29T07:21:31.18349072Z"
     dependencies:
     - name: hami
@@ -14218,4 +14255,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-30T11:02:17.985806798Z"
+generated: "2026-07-30T14:54:29.326059355Z"
