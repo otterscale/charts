@@ -12945,6 +12945,36 @@ entries:
       artifacthub.io/license: Apache-2.0
       module.otterscale.io/namespace: rook-ceph
     apiVersion: v2
+    appVersion: 1.20.3
+    created: "2026-07-30T03:31:52.380096498Z"
+    dependencies:
+    - name: rook-ceph
+      repository: https://charts.rook.io/release
+      version: v1.20.3
+    description: 'Rook-Ceph Operator — Phase 1: CRDs + Operator deployment. Create
+      CephCluster separately.'
+    digest: 9f36dcc6c24be369aca825a65273e13c8a09bf5df3b0039fdec2262ab635831a
+    home: https://rook.io
+    icon: https://github.com/rook.png
+    keywords:
+    - rook
+    - ceph
+    - storage
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-rook-ceph
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-rook-ceph-1.4.0-rc.1/otterscale-rook-ceph-1.4.0-rc.1.tgz
+    version: 1.4.0-rc.1
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: rook-ceph
+    apiVersion: v2
     appVersion: 1.20.2
     created: "2026-07-10T15:18:12.329548179Z"
     dependencies:
@@ -13904,4 +13934,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-30T02:07:03.933262239Z"
+generated: "2026-07-30T03:31:52.380555716Z"
