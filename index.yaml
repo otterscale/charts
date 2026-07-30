@@ -6346,6 +6346,36 @@ entries:
       module.otterscale.io/namespace: envoy-gateway-system
     apiVersion: v2
     appVersion: 1.8.2
+    created: "2026-07-30T05:49:57.675765684Z"
+    dependencies:
+    - name: gateway-helm
+      repository: oci://docker.io/envoyproxy
+      version: 1.8.3
+    description: Envoy Gateway — Kubernetes-native Gateway API implementation powered
+      by Envoy Proxy.
+    digest: e6815e99585803fd67ba07f56129f17fced2babf49b33c997b0944b5f94f5ee0
+    home: https://gateway.envoyproxy.io
+    icon: https://github.com/envoyproxy.png
+    keywords:
+    - envoy
+    - gateway-api
+    - ingress
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-envoy-gateway
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-envoy-gateway-1.4.0-rc.0/otterscale-envoy-gateway-1.4.0-rc.0.tgz
+    version: 1.4.0-rc.0
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: envoy-gateway-system
+    apiVersion: v2
+    appVersion: 1.8.2
     created: "2026-07-28T13:44:29.925838838Z"
     dependencies:
     - name: gateway-helm
@@ -14100,4 +14130,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-30T05:31:11.747182972Z"
+generated: "2026-07-30T05:49:57.678035826Z"
