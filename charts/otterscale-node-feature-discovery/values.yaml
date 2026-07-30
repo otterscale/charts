@@ -14,10 +14,10 @@ node-feature-discovery:
 # /etc/kubernetes/node-feature-discovery/features.d/ for the NFD local source.
 featureWriter:
   enabled: true
-  # Official slim image: /bin/sh (dash), coreutils, util-linux.
+  # Official alpine image: /bin/sh (ash), busybox coreutils.
   image:
-    repository: debian
-    tag: bookworm-slim
+    repository: alpine
+    tag: "3.24"
   imagePullPolicy: IfNotPresent
   intervalSeconds: 60
   volumeGroupFeatureFileName: otterscale-volume-group-features

@@ -559,7 +559,7 @@ harborInit:
   # Needs a POSIX shell plus busybox-style nc/base64 (alpine, busybox).
   image:
     repository: docker.io/library/alpine
-    tag: "3.22"
+    tag: "3.24"
     pullPolicy: IfNotPresent
   waitTimeoutSeconds: 600
   resources: {}
