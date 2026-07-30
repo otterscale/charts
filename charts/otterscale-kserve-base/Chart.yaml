@@ -1,8 +1,8 @@
 apiVersion: v2
 name: otterscale-kserve-base
-version: 1.4.0-rc.2
+version: 1.4.0-rc.6
 # renovate: helm=kserve registry=oci://ghcr.io/kserve/charts
-appVersion: "v0.20.0-rc0+patched"
+appVersion: "v0.20.0-rc0.1"
 description: >-
   KServe LLMInferenceService CRDs — Custom Resource Definitions for KServe LLM inference.
   Deploys CRDs only.
