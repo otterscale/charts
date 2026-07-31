@@ -554,7 +554,7 @@ harborInit:
       public: "true"
     - name: "models"
       public: "true"
-    - name: "operator"
+    - name: "operators"
       public: "true"
   # Needs a POSIX shell plus busybox-style nc/base64 (alpine, busybox).
   image:
