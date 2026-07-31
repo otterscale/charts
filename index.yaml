@@ -18,6 +18,60 @@ entries:
       artifacthub.io/license: Apache-2.0
     apiVersion: v2
     appVersion: SXHR0103
+    created: "2026-07-31T13:01:36.063501227Z"
+    dependencies:
+    - condition: keycloakx.enabled
+      name: keycloakx
+      repository: https://codecentric.github.io/helm-charts
+      version: 7.2.x
+    - alias: dashboard-valkey
+      condition: dashboard-valkey.enabled
+      name: valkey
+      repository: https://valkey.io/valkey-helm/
+      version: 0.11.x
+    - condition: harbor.enabled
+      name: harbor
+      repository: https://helm.goharbor.io
+      version: 1.19.x
+    description: OtterScale - A unified platform for simplified compute, storage,
+      and networking
+    digest: 33a2782951995c13b837e203aefa0290cb869165999bb01116dfac360fc1aec3
+    home: https://otterscale.github.io
+    icon: https://github.com/otterscale.png
+    keywords:
+    - otterscale
+    - kubernetes
+    - helm
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: terry_wu@phison.com
+      name: Yi-Lin Wu
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale
+    sources:
+    - https://github.com/otterscale/otterscale
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-1.4.0-rc.8/otterscale-1.4.0-rc.8.tgz
+    version: 1.4.0-rc.8
+  - annotations:
+      artifacthub.io/changes: |
+        - kind: added
+          description: ServiceAccount, HPA, PDB, NetworkPolicy, ServiceMonitor templates
+        - kind: added
+          description: values.schema.json for input validation
+        - kind: added
+          description: NOTES.txt post-install instructions
+        - kind: added
+          description: Helm test templates for connectivity verification
+        - kind: changed
+          description: Template directory reorganization by component
+        - kind: changed
+          description: Full parameterization of resources, probes, security contexts, and service types
+      artifacthub.io/license: Apache-2.0
+    apiVersion: v2
+    appVersion: SXHR0103
     created: "2026-07-31T12:37:07.154470325Z"
     dependencies:
     - condition: keycloakx.enabled
@@ -14341,4 +14395,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-07-31T12:59:58.683392109Z"
+generated: "2026-07-31T13:01:36.064144835Z"
