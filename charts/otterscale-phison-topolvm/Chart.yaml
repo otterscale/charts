@@ -1,6 +1,6 @@
 apiVersion: v2
 name: otterscale-phison-topolvm
-version: 1.4.0-rc.3
+version: 1.4.0-rc.4
 # renovate: helm=topolvm registry=https://topolvm.github.io/topolvm
 appVersion: "17.0.0"
 description: >-

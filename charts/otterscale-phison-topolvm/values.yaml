@@ -47,7 +47,7 @@ topolvm:
       otterscale.io/aidaptiv: "true"
 
   controller:
-    replicaCount: 2
+    replicaCount: 1
 
   storageClasses:
     - name: aidaptiv-cache
