@@ -1,6 +1,6 @@
 apiVersion: v2
 name: otterscale-ceph-csi-drivers
-version: 1.4.0-rc.0
+version: 1.4.0
 appVersion: "1.0.4"
 description: A Helm chart for Ceph CSI drivers
 icon: https://github.com/ceph.png
