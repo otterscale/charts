@@ -59,6 +59,20 @@ hami:
         enabled: true
         # If you are using gpu driver on host, you need to set this to false
         containerDriver: true
+  
+  devices:
+    kunlun:
+      enabled: false
+    enflame:
+      enabled: false
+    mthreads:
+      enabled: false
+    vastai:
+      enabled: false
+    ascend:
+      enabled: false
+    iluvatar:
+      enabled: false
 
 # ServiceMonitor configuration for Prometheus
 serviceMonitor:
