@@ -35,14 +35,14 @@ A unified platform for simplified compute, storage, and networking.
 
 ```bash
 # Download the example values (Envoy Gateway, HTTP via IP:port)
-curl -o envoy-values.yaml https://raw.githubusercontent.com/otterscale/charts/refs/tags/otterscale-1.3.0/charts/otterscale/examples/envoy-values.yaml
+curl -o envoy-values.yaml https://raw.githubusercontent.com/otterscale/charts/refs/tags/otterscale-1.4.0/charts/otterscale/examples/envoy-values.yaml
 
 helm repo add otterscale https://otterscale.github.io/charts
 helm repo update
 
 helm upgrade --install otterscale otterscale/otterscale \
   -n otterscale-system --create-namespace \
-  --version 1.3.0 \
+  --version 1.4.0 \
   -f envoy-values.yaml
 ```
 
@@ -56,11 +56,11 @@ To serve OtterScale and Harbor over HTTPS on your own domains, use the
 walkthrough.
 
 ```bash
-curl -o envoy-values-domain-name.yaml https://raw.githubusercontent.com/otterscale/charts/refs/tags/otterscale-1.3.0/charts/otterscale/examples/envoy-values-domain-name.yaml
+curl -o envoy-values-domain-name.yaml https://raw.githubusercontent.com/otterscale/charts/refs/tags/otterscale-1.4.0/charts/otterscale/examples/envoy-values-domain-name.yaml
 
 helm upgrade --install otterscale otterscale/otterscale \
   -n otterscale-system --create-namespace \
-  --version 1.3.0 \
+  --version 1.4.0 \
   -f envoy-values-domain-name.yaml
 ```
 
