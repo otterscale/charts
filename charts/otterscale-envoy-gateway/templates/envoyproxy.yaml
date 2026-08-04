@@ -16,6 +16,7 @@ spec:
           gateway.envoyproxy.io/owning-gateway-name: "rook-ceph-ingress-gateway"
           gateway.envoyproxy.io/owning-gateway-namespace: "rook-ceph"
         type: NodePort
+        externalTrafficPolicy: Cluster
         patch:
           type: StrategicMerge
           value:
