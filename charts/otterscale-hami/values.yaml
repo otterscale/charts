@@ -15,7 +15,7 @@ hami:
       image:
         registry: "registry.k8s.io"
         repository: "kube-scheduler"
-        tag: "v1.35.7"
+        tag: "v1.36.3"
     certManager:
       enabled: true
     patch: 
