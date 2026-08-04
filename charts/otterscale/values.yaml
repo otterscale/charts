@@ -304,14 +304,12 @@ dashboard-valkey:
     default:
       permissions: "~* &* +@all"
   password: ""
-  nodeSelector: *nodeSelector
 
 # ── Keycloak (codecentric keycloakx subchart) ──
 keycloakx:
   enabled: true
   nameOverride: keycloak
   podLabels: {}
-  nodeSelector: *nodeSelector
   realm: otterscale
   auth:
     adminUser: admin
@@ -450,17 +448,14 @@ harbor:
   existingSecretAdminPasswordKey: "HARBOR_ADMIN_PASSWORD"
 
   nginx:
-    nodeSelector: *nodeSelector
     image:
       tag: v2.15.2
 
   portal:
-    nodeSelector: *nodeSelector
     image:
       tag: v2.15.2
 
   core:
-    nodeSelector: *nodeSelector
     image:
       tag: v2.15.2
     # INTERNAL WIRING (do not edit): name must match harbor.oidc.configSecretName.
@@ -472,12 +467,10 @@ harbor:
             key: CONFIG_OVERWRITE_JSON
 
   jobservice:
-    nodeSelector: *nodeSelector
     image:
       tag: v2.15.2
 
   registry:
-    nodeSelector: *nodeSelector
     registry:
       image:
         tag: v2.15.2
@@ -486,7 +479,6 @@ harbor:
         tag: v2.15.2
 
   trivy:
-    nodeSelector: *nodeSelector
     image:
       tag: v2.15.2
 
@@ -526,13 +518,11 @@ harbor:
         size: 5Gi
 
   database:
-    nodeSelector: *nodeSelector
     internal:
       image:
         tag: v2.15.2
 
   redis:
-    nodeSelector: *nodeSelector
     internal:
       image:
         repository: docker.io/goharbor/valkey-photon
