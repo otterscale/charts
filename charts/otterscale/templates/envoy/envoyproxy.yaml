@@ -37,3 +37,4 @@ spec:
               {{- if and (eq $svc.type "LoadBalancer") $svc.loadBalancerIP }}
               loadBalancerIP: {{ $svc.loadBalancerIP | quote }}
               {{- end }}
+{{- end }}
