@@ -2,7 +2,7 @@
 #
 #   Dashboard : https://otterscale.phison.com
 #   Server API: https://otterscale.phison.com/api/
-#   Tunnel    : https://otterscale.phison.com:30300
+#   Tunnel    : https://NODE_IP:30300
 #   Harbor    : https://cr.phison.com
 #
 # The chart creates the Gateway (HTTP + HTTPS listeners), the Harbor HTTPRoute
@@ -11,15 +11,6 @@
 # Usage:
 #   helm install otterscale -n otterscale-system --create-namespace ./ \
 #     -f examples/envoy-values-domain-name.yaml
-global:
-  nodeSelector: &nodeSelector
-    kubernetes.io/hostname: hci-beta-master1
-
-keycloakx:
-  nodeSelector: *nodeSelector
-
-dashboard-valkey:
-  nodeSelector: *nodeSelector
 
 dashboard:
   externalURL: "https://otterscale.phison.com"
@@ -33,24 +24,6 @@ server:
 
 harbor:
   externalURL: "https://cr.phison.com"
-  nginx:
-    nodeSelector: *nodeSelector
-  portal:
-    nodeSelector: *nodeSelector
-  core:
-    nodeSelector: *nodeSelector
-  jobservice:
-    nodeSelector: *nodeSelector
-  registry:
-    nodeSelector: *nodeSelector
-  trivy:
-    nodeSelector: *nodeSelector
-  database:
-    internal:
-      nodeSelector: *nodeSelector
-  redis:
-    internal:
-      nodeSelector: *nodeSelector
 
 storage:
   localPath:
