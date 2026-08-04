@@ -1,12 +1,3 @@
-# Example: Envoy Gateway with TLS + IP (HTTPS)
-#
-# The chart creates the Gateway (HTTP + HTTPS listeners), the Harbor HTTPRoute
-# and an HTTP->HTTPS redirect. No manual post-install editing required.
-#
-# Usage:
-#   helm install otterscale -n otterscale-system --create-namespace ./ \
-#     -f examples/envoy-values-domain-name.yaml
-
 global:
   nodeSelector: &nodeSelector
     kubernetes.io/hostname: hci-beta-master1
@@ -18,17 +9,17 @@ dashboard-valkey:
   nodeSelector: *nodeSelector
 
 dashboard:
-  externalURL: "https://10.102.197.210"                ## Envoy LB IP
+  externalURL: "http://10.102.197.210"
 
 server:
-  externalURL: "https://10.102.197.210/api/"           ## Envoy LB IP
-  externalTunnelURL: "https://10.102.197.214:30300"    ## K8S VIP or Node IP
+  externalURL: "http://10.102.197.210/api/"
+  externalTunnelURL: "https://10.102.197.214:30300"
   tunnelService:
     type: NodePort
     nodePort: "30300"
 
 harbor:
-  externalURL: "https://10.102.197.210"                ## Envoy LB IP
+  externalURL: "http://10.102.197.214:32180"
   nginx:
     nodeSelector: *nodeSelector
   portal:
@@ -62,22 +53,5 @@ envoy:
       type: LoadBalancer
       loadBalancerIP: "10.102.197.210"
   tls:
-    enabled: true
-    redirectToHTTPS: true
-
-    # ---- 憑證來源（二選一）----
-
-    # 方式 A：引用已存在的 Secret（必須事先建立在 envoy-gateway-system）
-    #   kubectl create secret tls phison-new-2026 \
-    #     --cert=tls.crt --key=tls.key -n envoy-gateway-system
-    existingSecret: "phison-new-2026"
-
-    # 方式 B：直接貼上憑證，由 chart 自動建立 Secret（留空 existingSecret 即用此）
-    # crt: |
-    #   -----BEGIN CERTIFICATE-----
-    #   ...貼上 tls.crt (PEM)...
-    #   -----END CERTIFICATE-----
-    # key: |
-    #   -----BEGIN PRIVATE KEY-----
-    #   ...貼上 tls.key (PEM)...
-    #   -----END PRIVATE KEY-----
+    enabled: false
+    redirectToHTTPS: false
