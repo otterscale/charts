@@ -17,7 +17,6 @@ spec:
     kubernetes:
       envoyService:
         type: {{ $svc.type }}
-        {{- if eq $svc.type "NodePort" }}
         patch:
           type: StrategicMerge
           value:
@@ -35,11 +34,6 @@ spec:
                   targetPort: 10443
                   nodePort: {{ $svc.httpsNodePort }}
                 {{- end }}
-        {{- else if and (eq $svc.type "LoadBalancer") $svc.loadBalancerIP }}
-        patch:
-          type: StrategicMerge
-          value:
-            spec:
+              {{ - if and (eq $svc.type "LoadBalancer") $svc.loadBalancerIP }}
               loadBalancerIP: {{ $svc.loadBalancerIP | quote }}
-        {{- end }}
-{{- end }}
+              {{- end }}
