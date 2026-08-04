@@ -34,6 +34,6 @@ spec:
                   targetPort: 10443
                   nodePort: {{ $svc.httpsNodePort }}
                 {{- end }}
-              {{ - if and (eq $svc.type "LoadBalancer") $svc.loadBalancerIP }}
+              {{- if and (eq $svc.type "LoadBalancer") $svc.loadBalancerIP }}
               loadBalancerIP: {{ $svc.loadBalancerIP | quote }}
               {{- end }}
