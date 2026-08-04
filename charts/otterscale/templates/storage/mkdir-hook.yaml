@@ -21,9 +21,6 @@ spec:
         app.kubernetes.io/component: local-path-mkdir
     spec:
       restartPolicy: OnFailure
-      {{- with .Values.storage.localPath.nodeName }}
-      nodeName: {{ . }}
-      {{- end }}
       # Tolerate every taint so the hook can run on any node.
       tolerations:
         - operator: Exists
