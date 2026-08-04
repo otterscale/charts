@@ -1,0 +1,57 @@
+global:
+  nodeSelector: &nodeSelector
+    kubernetes.io/hostname: hci-beta-master1
+
+keycloakx:
+  nodeSelector: *nodeSelector
+
+dashboard-valkey:
+  nodeSelector: *nodeSelector
+
+dashboard:
+  externalURL: "http://10.102.197.210"
+
+server:
+  externalURL: "http://10.102.197.210/api/"
+  externalTunnelURL: "https://10.102.197.214:30300"
+  tunnelService:
+    type: NodePort
+    nodePort: "30300"
+
+harbor:
+  externalURL: "http://10.102.197.214:32180"
+  nginx:
+    nodeSelector: *nodeSelector
+  portal:
+    nodeSelector: *nodeSelector
+  core:
+    nodeSelector: *nodeSelector
+  jobservice:
+    nodeSelector: *nodeSelector
+  registry:
+    nodeSelector: *nodeSelector
+  trivy:
+    nodeSelector: *nodeSelector
+  database:
+    internal:
+      nodeSelector: *nodeSelector
+  redis:
+    internal:
+      nodeSelector: *nodeSelector
+
+storage:
+  localPath:
+    enabled: true
+
+ee:
+  enabled: true
+
+envoy:
+  enabled: true
+  gateway:
+    service:
+      type: LoadBalancer
+      loadBalancerIP: "10.102.197.210"
+  tls:
+    enabled: false
+    redirectToHTTPS: false

@@ -1,9 +1,4 @@
-# Example: Envoy Gateway with TLS + domain names (HTTPS)
-#
-#   Dashboard : https://otterscale.phison.com
-#   Server API: https://otterscale.phison.com/api/
-#   Tunnel    : https://otterscale.phison.com:30300
-#   Harbor    : https://cr.phison.com
+# Example: Envoy Gateway with TLS + IP (HTTPS)
 #
 # The chart creates the Gateway (HTTP + HTTPS listeners), the Harbor HTTPRoute
 # and an HTTP->HTTPS redirect. No manual post-install editing required.
@@ -13,17 +8,17 @@
 #     -f examples/envoy-values-domain-name.yaml
 
 dashboard:
-  externalURL: "https://otterscale.phison.com"
+  externalURL: "https://10.102.197.210"                ## Envoy LB IP
 
 server:
-  externalURL: "https://otterscale.phison.com/api/"
-  externalTunnelURL: "https://192.168.1.100:30300"
+  externalURL: "https://10.102.197.210/api/"           ## Envoy LB IP
+  externalTunnelURL: "https://10.102.197.214:30300"    ## K8S VIP or Node IP
   tunnelService:
     type: NodePort
     nodePort: "30300"
 
 harbor:
-  externalURL: "https://cr.phison.com"
+  externalURL: "https://10.102.197.210"                ## Envoy LB IP
 
 storage:
   localPath:
@@ -36,7 +31,8 @@ envoy:
   enabled: true
   gateway:
     service:
-      type: ClusterIP
+      type: LoadBalancer
+      loadBalancerIP: "10.102.197.210"
   tls:
     enabled: true
     redirectToHTTPS: true
