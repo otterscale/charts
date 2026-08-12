@@ -11,4 +11,4 @@ spec:
       port: 32080
       allowedRoutes:
         namespaces:
-          from: Same
+          from: All
