@@ -143,17 +143,39 @@ kind: ClusterRole
 metadata:
   labels:
     rbac.authorization.k8s.io/aggregate-to-admin: "true"
-    rbac.authorization.k8s.io/aggregate-to-view: "true"
-    rbac.authorization.k8s.io/aggregate-to-edit: "true"
-  name: otterscale-gateway-viewer
+  name: otterscale-gateway-admin
 rules:
   - apiGroups:
       - gateway.networking.k8s.io
     resources:
       - gateways
     verbs:
+      - "*"
+  - apiGroups:
+      - gateway.networking.k8s.io
+    resources:
+      - gateways/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+  name: otterscale-gateway-editor
+rules:
+  - apiGroups:
+      - gateway.networking.k8s.io
+    resources:
+      - gateways
+    verbs:
+      - create
+      - delete
       - get
       - list
+      - patch
+      - update
       - watch
   - apiGroups:
       - gateway.networking.k8s.io
@@ -166,15 +188,17 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
-    rbac.authorization.k8s.io/aggregate-to-admin: "true"
-  name: otterscale-gateway-admin
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+  name: otterscale-gateway-viewer
 rules:
   - apiGroups:
       - gateway.networking.k8s.io
     resources:
       - gateways
     verbs:
-      - "*"
+      - get
+      - list
+      - watch
   - apiGroups:
       - gateway.networking.k8s.io
     resources:
@@ -206,6 +230,54 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+  name: otterscale-backendtrafficpolicy-editor
+rules:
+  - apiGroups:
+      - gateway.envoyproxy.io
+    resources:
+      - backendtrafficpolicies
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - gateway.envoyproxy.io
+    resources:
+      - backendtrafficpolicies/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+  name: otterscale-backendtrafficpolicy-viewer
+rules:
+  - apiGroups:
+      - gateway.envoyproxy.io
+    resources:
+      - backendtrafficpolicies
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - gateway.envoyproxy.io
+    resources:
+      - backendtrafficpolicies/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
     rbac.authorization.k8s.io/aggregate-to-admin: "true"
   name: otterscale-securitypolicy-admin
 rules:
@@ -226,6 +298,54 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+  name: otterscale-securitypolicy-editor
+rules:
+  - apiGroups:
+      - gateway.envoyproxy.io
+    resources:
+      - securitypolicies
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - gateway.envoyproxy.io
+    resources:
+      - securitypolicies/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+  name: otterscale-securitypolicy-viewer
+rules:
+  - apiGroups:
+      - gateway.envoyproxy.io
+    resources:
+      - securitypolicies
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - gateway.envoyproxy.io
+    resources:
+      - securitypolicies/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
     rbac.authorization.k8s.io/aggregate-to-admin: "true"
   name: otterscale-clienttrafficpolicy-admin
 rules:
@@ -235,6 +355,54 @@ rules:
       - clienttrafficpolicies
     verbs:
       - "*"
+  - apiGroups:
+      - gateway.envoyproxy.io
+    resources:
+      - clienttrafficpolicies/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+  name: otterscale-clienttrafficpolicy-editor
+rules:
+  - apiGroups:
+      - gateway.envoyproxy.io
+    resources:
+      - clienttrafficpolicies
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - gateway.envoyproxy.io
+    resources:
+      - clienttrafficpolicies/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+  name: otterscale-clienttrafficpolicy-viewer
+rules:
+  - apiGroups:
+      - gateway.envoyproxy.io
+    resources:
+      - clienttrafficpolicies
+    verbs:
+      - get
+      - list
+      - watch
   - apiGroups:
       - gateway.envoyproxy.io
     resources:
