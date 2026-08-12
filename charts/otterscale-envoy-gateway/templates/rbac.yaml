@@ -162,6 +162,86 @@ rules:
     verbs:
       - get
 ---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+  name: otterscale-gateway-admin
+rules:
+  - apiGroups:
+      - gateway.networking.k8s.io
+    resources:
+      - gateways
+    verbs:
+      - "*"
+  - apiGroups:
+      - gateway.networking.k8s.io
+    resources:
+      - gateways/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+  name: otterscale-backendtrafficpolicy-admin
+rules:
+  - apiGroups:
+      - gateway.envoyproxy.io
+    resources:
+      - backendtrafficpolicies
+    verbs:
+      - "*"
+  - apiGroups:
+      - gateway.envoyproxy.io
+    resources:
+      - backendtrafficpolicies/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+  name: otterscale-securitypolicy-admin
+rules:
+  - apiGroups:
+      - gateway.envoyproxy.io
+    resources:
+      - securitypolicies
+    verbs:
+      - "*"
+  - apiGroups:
+      - gateway.envoyproxy.io
+    resources:
+      - securitypolicies/status
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    rbac.authorization.k8s.io/aggregate-to-admin: "true"
+  name: otterscale-clienttrafficpolicy-admin
+rules:
+  - apiGroups:
+      - gateway.envoyproxy.io
+    resources:
+      - clienttrafficpolicies
+    verbs:
+      - "*"
+  - apiGroups:
+      - gateway.envoyproxy.io
+    resources:
+      - clienttrafficpolicies/status
+    verbs:
+      - get
+---
 # ============================================================================
 # Controller RBAC: grant envoy-gateway SA access to InferencePool resources.
 # Required because gateway-helm 1.8.0 watches inference.networking.k8s.io/v1
