@@ -12,9 +12,6 @@ spec:
     type: Kubernetes
     kubernetes:
       envoyService:
-        labels:
-          gateway.envoyproxy.io/owning-gateway-name: "rook-ceph-ingress-gateway"
-          gateway.envoyproxy.io/owning-gateway-namespace: "rook-ceph"
         type: NodePort
         externalTrafficPolicy: Local
         patch:
@@ -27,8 +24,3 @@ spec:
                   protocol: TCP
                   targetPort: 10080
                   nodePort: 30080
-                - name: http-rook-ceph
-                  port: 83
-                  protocol: TCP
-                  targetPort: 10083
-                  nodePort: 30083
