@@ -6679,6 +6679,36 @@ entries:
       module.otterscale.io/namespace: envoy-gateway-system
     apiVersion: v2
     appVersion: 1.8.3
+    created: "2026-08-14T06:50:16.57580075Z"
+    dependencies:
+    - name: gateway-helm
+      repository: oci://docker.io/envoyproxy
+      version: 1.8.3
+    description: Envoy Gateway — Kubernetes-native Gateway API implementation powered
+      by Envoy Proxy.
+    digest: 59f9df3478278788a40f915f050819ae05f16fbf44af6ea4c7243ef264f9cd11
+    home: https://gateway.envoyproxy.io
+    icon: https://github.com/envoyproxy.png
+    keywords:
+    - envoy
+    - gateway-api
+    - ingress
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-envoy-gateway
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-envoy-gateway-1.4.1/otterscale-envoy-gateway-1.4.1.tgz
+    version: 1.4.1
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: envoy-gateway-system
+    apiVersion: v2
+    appVersion: 1.8.3
     created: "2026-08-03T05:24:41.40629755Z"
     dependencies:
     - name: gateway-helm
@@ -6799,14 +6829,14 @@ entries:
       module.otterscale.io/namespace: envoy-gateway-system
     apiVersion: v2
     appVersion: 1.8.2
-    created: "2026-07-30T05:49:57.675765684Z"
+    created: "2026-07-28T13:43:44.99449609Z"
     dependencies:
     - name: gateway-helm
       repository: oci://docker.io/envoyproxy
       version: 1.8.3
     description: Envoy Gateway — Kubernetes-native Gateway API implementation powered
       by Envoy Proxy.
-    digest: e6815e99585803fd67ba07f56129f17fced2babf49b33c997b0944b5f94f5ee0
+    digest: 70d3dcc4721b5d23d8e59dda22851677e64b5ba0bc2201d3e7d1674844e9e8ff
     home: https://gateway.envoyproxy.io
     icon: https://github.com/envoyproxy.png
     keywords:
@@ -6837,36 +6867,6 @@ entries:
     description: Envoy Gateway — Kubernetes-native Gateway API implementation powered
       by Envoy Proxy.
     digest: 17830d1c70ae0510bbfbbebe930cde22a37b05d8fbe6b8558789749977d6ccf7
-    home: https://gateway.envoyproxy.io
-    icon: https://github.com/envoyproxy.png
-    keywords:
-    - envoy
-    - gateway-api
-    - ingress
-    kubeVersion: '>=1.25.0-0'
-    maintainers:
-    - email: paul_tsai@phison.com
-      name: Chung-Hsuan Tsai
-    name: otterscale-envoy-gateway
-    sources:
-    - https://github.com/otterscale/charts
-    type: application
-    urls:
-    - https://github.com/otterscale/charts/releases/download/otterscale-envoy-gateway-1.4.0-rc.0/otterscale-envoy-gateway-1.4.0-rc.0.tgz
-    version: 1.4.0-rc.0
-  - annotations:
-      artifacthub.io/license: Apache-2.0
-      module.otterscale.io/namespace: envoy-gateway-system
-    apiVersion: v2
-    appVersion: 1.8.2
-    created: "2026-07-28T13:43:44.99449609Z"
-    dependencies:
-    - name: gateway-helm
-      repository: oci://docker.io/envoyproxy
-      version: 1.8.3
-    description: Envoy Gateway — Kubernetes-native Gateway API implementation powered
-      by Envoy Proxy.
-    digest: 70d3dcc4721b5d23d8e59dda22851677e64b5ba0bc2201d3e7d1674844e9e8ff
     home: https://gateway.envoyproxy.io
     icon: https://github.com/envoyproxy.png
     keywords:
@@ -6927,6 +6927,36 @@ entries:
     description: Envoy Gateway — Kubernetes-native Gateway API implementation powered
       by Envoy Proxy.
     digest: 8f82cd77851d051b05f78121ec0528ca03a4bd2ab84eb00473d2f8a3cc71794f
+    home: https://gateway.envoyproxy.io
+    icon: https://github.com/envoyproxy.png
+    keywords:
+    - envoy
+    - gateway-api
+    - ingress
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-envoy-gateway
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-envoy-gateway-1.4.0-rc.0/otterscale-envoy-gateway-1.4.0-rc.0.tgz
+    version: 1.4.0-rc.0
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      module.otterscale.io/namespace: envoy-gateway-system
+    apiVersion: v2
+    appVersion: 1.8.2
+    created: "2026-07-30T05:49:57.675765684Z"
+    dependencies:
+    - name: gateway-helm
+      repository: oci://docker.io/envoyproxy
+      version: 1.8.3
+    description: Envoy Gateway — Kubernetes-native Gateway API implementation powered
+      by Envoy Proxy.
+    digest: e6815e99585803fd67ba07f56129f17fced2babf49b33c997b0944b5f94f5ee0
     home: https://gateway.envoyproxy.io
     icon: https://github.com/envoyproxy.png
     keywords:
@@ -14395,6 +14425,38 @@ entries:
   otterscale-rook-ceph-cluster:
   - annotations:
       artifacthub.io/license: Apache-2.0
+      module.otterscale.io/depends-on: otterscale-rook-ceph,otterscale-node-feature-discovery
+      module.otterscale.io/namespace: rook-ceph
+    apiVersion: v2
+    appVersion: 1.20.3
+    created: "2026-08-14T06:50:17.188080711Z"
+    dependencies:
+    - name: rook-ceph-cluster
+      repository: https://charts.rook.io/release
+      version: v1.20.3
+    description: 'Rook-Ceph Cluster — Phase 2: CephCluster, CephBlockPool, CephFilesystem,
+      StorageClass provisioning. Requires otterscale-rook-ceph operator first.'
+    digest: 524eb61e345871d62334be1ae094327e32f84831d44dd0de8253746b106dbe2d
+    home: https://rook.io
+    icon: https://github.com/rook.png
+    keywords:
+    - rook
+    - ceph
+    - storage
+    - cluster
+    kubeVersion: '>=1.25.0-0'
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-rook-ceph-cluster
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-rook-ceph-cluster-1.4.1/otterscale-rook-ceph-cluster-1.4.1.tgz
+    version: 1.4.1
+  - annotations:
+      artifacthub.io/license: Apache-2.0
       module.otterscale.io/depends-on: otterscale-rook-ceph,otterscale-node-feature-discovery,otterscale-envoy-gateway
       module.otterscale.io/namespace: rook-ceph
     apiVersion: v2
@@ -15117,4 +15179,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-08-03T05:24:43.572415739Z"
+generated: "2026-08-14T06:50:17.188929877Z"
