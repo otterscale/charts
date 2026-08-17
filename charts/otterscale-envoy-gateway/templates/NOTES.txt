@@ -3,12 +3,26 @@ OtterScale Envoy Gateway has been installed.
   Namespace: {{ .Release.Namespace }}
 
   Components:
-  - Envoy Gateway controller
-  - GatewayClass: envoy
-  - Gateway: gateway
+  - Envoy Gateway controller (+ Gateway API CRDs)
+{{- if .Values.gatewayClass.create }}
+  - GatewayClass: {{ .Values.gatewayClass.name }}
+{{- end }}
+{{- if .Values.envoyProxy.create }}
+  - EnvoyProxy: otterscale-envoyproxy (mergeGateways — all Gateways of the
+    class share one proxy fleet)
+{{- end }}
+
+  This chart owns the shared infrastructure for the kserve / AI gateway stack.
+  Gateways and routes are created by the consumer charts
+  (otterscale-kserve-resource, otterscale-envoy-ai-gateway, ...).
+
+  The otterscale chart is NOT a consumer: it bundles its own isolated Envoy
+  Gateway controller (class "otterscale") and is unaffected by this chart.
 
   Next steps:
   - Install otterscale-envoy-ai-gateway for AI/ML inference routing
+  - Install otterscale-kserve-resource (its Gateway attaches to
+    {{ .Values.gatewayClass.name }})
 
   Verify:
   - kubectl get pods -n {{ .Release.Namespace }}

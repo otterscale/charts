@@ -273,12 +273,10 @@ dashboard:
 # ── Envoy Gateway (Gateway API) ──
 envoy:
   enabled: false
-  # GatewayClass backed by the Envoy Gateway controller (envoy-gateway-system).
-  gatewayClassName: "envoy-otterscale"
+  controllerName: "gateway.envoyproxy.io/otterscale-gatewayclass-controller"
+  gatewayClassName: "otterscale"
   httpRoute:
     hostnames: [] # empty = derive from dashboard.externalURL host
-  # TLS on: supply crt+key (raw PEM) OR existingSecret (must already exist in
-  # the Gateway namespace). TLS off: HTTP only via ip:port.
   tls:
     enabled: false
     crt: ""
@@ -286,14 +284,26 @@ envoy:
     existingSecret: ""
     redirectToHTTPS: true
   gateway:
+    # false = attach HTTPRoutes to an existing Gateway (name/namespace below).
     create: true
     name: "otterscale-gateway"
-    namespace: "envoy-gateway-system"
+    namespace: ""
     service:
-      type: NodePort # NodePort (ip:port) | LoadBalancer (domain)
+      type: NodePort
       httpNodePort: 30080
       httpsNodePort: 30443
-      loadBalancerIP: "" # LoadBalancer only (e.g. MetalLB)
+      loadBalancerIP: ""
+
+# ── Envoy Gateway controller (bundled gateway-helm subchart) ──
+# INTERNAL WIRING — installed only when envoy.enabled is true.
+gateway-helm:
+  config:
+    envoyGateway:
+      gateway:
+        controllerName: gateway.envoyproxy.io/otterscale-gatewayclass-controller
+      logging:
+        level:
+          default: info
 
 # ── Valkey (dashboard session cache) ──
 dashboard-valkey:

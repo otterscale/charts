@@ -6,7 +6,7 @@ metadata:
   labels:
     {{- include "otterscale.labels" . | nindent 4 }}
 spec:
-  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+  controllerName: {{ .Values.envoy.controllerName }}
   parametersRef:
     group: gateway.envoyproxy.io
     kind: EnvoyProxy

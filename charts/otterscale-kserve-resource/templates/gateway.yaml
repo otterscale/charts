@@ -4,7 +4,7 @@ metadata:
   name: {{ .Values.gateway.name }}
   namespace: {{ .Release.Namespace }}
 spec:
-  gatewayClassName: envoy-otterscale
+  gatewayClassName: {{ .Values.gateway.className }}
   listeners:
     - name: http
       protocol: HTTP

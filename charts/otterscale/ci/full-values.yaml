@@ -10,7 +10,6 @@ envoy:
   enabled: true
   gateway:
     name: gateway
-    namespace: envoy-gateway-system
   tls:
     enabled: true
     existingSecret: otterscale-tls

@@ -1,3 +1,5 @@
+{{- if .Values.envoyProxy.create }}
+{{- $svc := .Values.envoyProxy.service }}
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: EnvoyProxy
 metadata:
@@ -6,21 +8,33 @@ metadata:
 spec:
   logging:
     level:
-      default: warn
+      default: {{ .Values.envoyProxy.logLevel }}
   mergeGateways: true
   provider:
     type: Kubernetes
     kubernetes:
+      envoyDeployment:
+        replicas: {{ .Values.envoyProxy.replicas }}
+      {{- if gt (int .Values.envoyProxy.podDisruptionBudget.minAvailable) 0 }}
+      envoyPDB:
+        minAvailable: {{ .Values.envoyProxy.podDisruptionBudget.minAvailable }}
+      {{- end }}
       envoyService:
-        type: NodePort
-        externalTrafficPolicy: Local
+        type: {{ $svc.type }}
+        {{- if ne $svc.type "ClusterIP" }}
+        externalTrafficPolicy: {{ $svc.externalTrafficPolicy }}
+        {{- end }}
+        {{- if or $svc.ports (and (eq $svc.type "LoadBalancer") $svc.loadBalancerIP) }}
         patch:
           type: StrategicMerge
           value:
             spec:
+              {{- with $svc.ports }}
               ports:
-                - name: http
-                  port: 80
-                  protocol: TCP
-                  targetPort: 10080
-                  nodePort: 30080
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+              {{- if and (eq $svc.type "LoadBalancer") $svc.loadBalancerIP }}
+              loadBalancerIP: {{ $svc.loadBalancerIP | quote }}
+              {{- end }}
+        {{- end }}
+{{- end }}

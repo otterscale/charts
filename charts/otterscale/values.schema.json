@@ -186,6 +186,7 @@
       "type": "object",
       "properties": {
         "enabled": { "type": "boolean" },
+        "controllerName": { "type": "string" },
         "gatewayClassName": { "type": "string" },
         "httpRoute": {
           "type": "object",

@@ -49,3 +49,34 @@ gateway-helm:
             # Default if you followed the installation steps above:
             hostname: ai-gateway-controller.envoy-ai-gateway-system.svc.cluster.local
             port: 1063
+
+# ── Gateway API shared infrastructure (kserve / AI gateway traffic) ──
+# NOTE: the otterscale chart runs its OWN bundled Envoy Gateway controller with
+# a different controllerName and class ("otterscale") — the two stacks are
+# fully isolated. Keep this chart's nodePorts distinct from otterscale's
+# (default 30080/30443).
+gatewayClass:
+  create: true
+  name: envoy-otterscale
+
+envoyProxy:
+  create: true
+  logLevel: warn
+  replicas: 1
+  podDisruptionBudget:
+    minAvailable: 0
+  service:
+    type: NodePort
+    externalTrafficPolicy: Local
+    loadBalancerIP: ""
+    ports:
+      - name: http-kserve
+        port: 80
+        protocol: TCP
+        targetPort: 32080
+        nodePort: 32080
+      - name: https-kserve
+        port: 443
+        protocol: TCP
+        targetPort: 32443
+        nodePort: 32443

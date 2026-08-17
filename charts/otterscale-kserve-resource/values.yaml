@@ -206,12 +206,9 @@ kserve:
 commonLabels: {}
 commonAnnotations: {}
 
-envoyProxy:
-  # LoadBalancer / ClusterIP / NodePort
-  type: NodePort
-
 gateway:
   name: kserve-ingress-gateway
+  className: envoy-otterscale
 
 prometheus:
   serviceMonitor:
