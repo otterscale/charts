@@ -12685,6 +12685,27 @@ entries:
   - annotations:
       module.otterscale.io/depends-on: otterscale-node-feature-discovery
     apiVersion: v2
+    appVersion: 1.4.2
+    created: "2026-08-18T04:25:43.929016264Z"
+    description: Otterscale license operator chart.
+    digest: f77251f12606f9a7ad71c49645f27a907fc847e88fdce93e4ab6c3e8abf2e670
+    home: https://otterscale.github.io
+    keywords:
+    - otterscale
+    - license
+    maintainers:
+    - email: paul_tsai@phison.com
+      name: Chung-Hsuan Tsai
+    name: otterscale-license-operator
+    sources:
+    - https://github.com/otterscale/charts
+    type: application
+    urls:
+    - https://github.com/otterscale/charts/releases/download/otterscale-license-operator-1.4.1/otterscale-license-operator-1.4.1.tgz
+    version: 1.4.1
+  - annotations:
+      module.otterscale.io/depends-on: otterscale-node-feature-discovery
+    apiVersion: v2
     appVersion: 1.4.1
     created: "2026-08-03T05:24:42.757977858Z"
     description: Otterscale license operator chart.
@@ -15179,4 +15200,4 @@ entries:
     urls:
     - https://github.com/otterscale/charts/releases/download/ubuntu-0.1.0/ubuntu-0.1.0.tgz
     version: 0.1.0
-generated: "2026-08-14T06:50:17.188929877Z"
+generated: "2026-08-18T04:25:43.930217135Z"
