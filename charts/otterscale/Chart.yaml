@@ -1,7 +1,7 @@
 apiVersion: v2
 name: otterscale
-appVersion: SXHR0104
-version: 1.4.0
+appVersion: SYHR0100T0
+version: 1.4.1
 description: OtterScale - A unified platform for simplified compute, storage, and networking
 home: https://otterscale.github.io
 icon: https://github.com/otterscale.png
