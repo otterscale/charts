@@ -112,7 +112,7 @@ kserve:
     controller:
       image: ghcr.io/otterscale/kserve-llmisvc-controller
       tag: ""
-      imagePullPolicy: Always
+      imagePullPolicy: IfNotPresent
       imagePullSecrets: []
       labels: {}
       podLabels: {}
