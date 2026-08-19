@@ -274,7 +274,7 @@ dashboard:
 envoy:
   enabled: false
   controllerName: "gateway.envoyproxy.io/otterscale-gatewayclass-controller"
-  gatewayClassName: "otterscale"
+  gatewayClassName: "envoy-otterscale"
   httpRoute:
     hostnames: [] # empty = derive from dashboard.externalURL host
   tls:

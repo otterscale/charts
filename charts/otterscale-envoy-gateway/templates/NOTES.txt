@@ -8,7 +8,7 @@ OtterScale Envoy Gateway has been installed.
   - GatewayClass: {{ .Values.gatewayClass.name }}
 {{- end }}
 {{- if .Values.envoyProxy.create }}
-  - EnvoyProxy: otterscale-envoyproxy (mergeGateways — all Gateways of the
+  - EnvoyProxy: kserve-envoyproxy (mergeGateways — all Gateways of the
     class share one proxy fleet)
 {{- end }}
 
@@ -17,7 +17,7 @@ OtterScale Envoy Gateway has been installed.
   (otterscale-kserve-resource, otterscale-envoy-ai-gateway, ...).
 
   The otterscale chart is NOT a consumer: it bundles its own isolated Envoy
-  Gateway controller (class "otterscale") and is unaffected by this chart.
+  Gateway controller (class "envoy-otterscale") and is unaffected by this chart.
 
   Next steps:
   - Install otterscale-envoy-ai-gateway for AI/ML inference routing

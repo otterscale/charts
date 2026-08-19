@@ -52,12 +52,14 @@ gateway-helm:
 
 # ── Gateway API shared infrastructure (kserve / AI gateway traffic) ──
 # NOTE: the otterscale chart runs its OWN bundled Envoy Gateway controller with
-# a different controllerName and class ("otterscale") — the two stacks are
-# fully isolated. Keep this chart's nodePorts distinct from otterscale's
+# a different controllerName and class ("envoy-otterscale") — the two stacks
+# are fully isolated. Keep this chart's nodePorts distinct from otterscale's
 # (default 30080/30443).
 gatewayClass:
   create: true
-  name: envoy-otterscale
+  # Referenced by otterscale-kserve-resource (gateway.className) — keep them
+  # in sync.
+  name: envoy-kserve
 
 envoyProxy:
   create: true

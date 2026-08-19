@@ -208,7 +208,7 @@ commonAnnotations: {}
 
 gateway:
   name: kserve-ingress-gateway
-  className: envoy-otterscale
+  className: envoy-kserve
 
 prometheus:
   serviceMonitor:

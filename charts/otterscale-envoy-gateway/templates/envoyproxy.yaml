@@ -3,7 +3,7 @@
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: EnvoyProxy
 metadata:
-  name: otterscale-envoyproxy
+  name: kserve-envoyproxy
   namespace: {{ .Release.Namespace }}
 spec:
   logging:

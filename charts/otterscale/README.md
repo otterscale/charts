@@ -80,7 +80,7 @@ Gateway API CRDs), and with `envoy.gateway.create: true` (default) the chart
 provisions its own `GatewayClass`, `EnvoyProxy`, `Gateway` and `HTTPRoute` —
 OtterScale is reachable right after install, no other chart required. The
 `otterscale-envoy-gateway` chart runs a separate, isolated controller (class
-`envoy-otterscale`) for kserve/AI traffic; upgrades of either never affect the
+`envoy-kserve`) for kserve/AI traffic; upgrades of either never affect the
 other.
 
 **HTTP, accessed by IP\:port** — see [`examples/envoy-values.yaml`](examples/envoy-values.yaml):
@@ -101,10 +101,10 @@ harbor:
 
 envoy:
   enabled: true
-  gatewayClassName: "otterscale"
+  gatewayClassName: "envoy-otterscale"
   gateway:
     create: true
-    name: "otterscale"
+    name: "otterscale-gateway"
 ```
 
 Routing (single host, path-based):
@@ -139,10 +139,10 @@ harbor:
 
 envoy:
   enabled: true
-  gatewayClassName: "otterscale"
+  gatewayClassName: "envoy-otterscale"
   gateway:
     create: true
-    name: "otterscale"
+    name: "otterscale-gateway"
   tls:
     enabled: true
     redirectToHTTPS: true
@@ -259,7 +259,7 @@ only pins the provisioner pod itself.
 | --------------------------- | ----------------------------------------------------------------------------- | ------------------------ |
 | `envoy.enabled`             | Enable Envoy Gateway integration                                              | `false`                  |
 | `envoy.controllerName`      | Bundled controller's name (must differ from `otterscale-envoy-gateway`'s)     | `"gateway.envoyproxy.io/otterscale-gatewayclass-controller"` |
-| `envoy.gatewayClassName`    | Dedicated GatewayClass owned by this chart                                    | `"otterscale"`           |
+| `envoy.gatewayClassName`    | Dedicated GatewayClass owned by this chart                                    | `"envoy-otterscale"`     |
 | `envoy.httpRoute.hostnames` | Override HTTPRoute hostnames (defaults to the `externalURL` host when TLS on) | `[]`                     |
 | `envoy.tls.enabled`         | Add an HTTPS listener (TLS termination at the Gateway)                        | `false`                  |
 | `envoy.tls.crt`             | PEM certificate; chart creates the TLS Secret (raw PEM, not base64)           | `""`                     |
@@ -267,7 +267,7 @@ only pins the provisioner pod itself.
 | `envoy.tls.existingSecret`  | Reference an existing TLS Secret (must be in the Gateway namespace)           | `""`                     |
 | `envoy.tls.redirectToHTTPS` | Add an HTTP→HTTPS 301 redirect HTTPRoute                                      | `true`                   |
 | `envoy.gateway.create`      | Let the chart create the Gateway / GatewayClass / EnvoyProxy                  | `true`                   |
-| `envoy.gateway.name`        | Gateway resource name                                                         | `"otterscale"`           |
+| `envoy.gateway.name`        | Gateway resource name                                                         | `"otterscale-gateway"`   |
 | `envoy.gateway.namespace`   | Namespace for the Gateway, EnvoyProxy and chart-managed TLS Secret (empty = release namespace) | `""`     |
 
 ### Keycloak
