@@ -34,9 +34,7 @@ jobs:
           helm repo add harbor https://helm.goharbor.io
           helm repo add nvidia https://nvidia.github.io/gpu-operator
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm repo add rook-ceph https://charts.rook.io/release
           helm repo add valkey https://valkey.io/valkey-helm/
-          helm repo add ceph-csi-operator https://ceph.github.io/ceph-csi-operator
           helm repo add topolvm https://topolvm.github.io/topolvm
           helm repo add kyverno https://kyverno.github.io/kyverno
 
