@@ -21,9 +21,6 @@ gpu-operator:
     cleanupCRD: true
     upgradeCRD: false
 
-  dcgm:
-    enabled: true
-
   dcgmExporter:
     enabled: true
     serviceMonitor:
