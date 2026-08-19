@@ -27,7 +27,7 @@ storage:
     reclaimPolicy: Retain # Retain or Delete
     image:
       repository: rancher/local-path-provisioner
-      tag: v0.0.36
+      tag: v0.0.37
       pullPolicy: IfNotPresent
     helperPod:
       # Any minimal image with a POSIX shell works.
@@ -361,7 +361,7 @@ keycloakx:
     port: 5432
     image:
       repository: postgres
-      tag: "15.18-trixie"
+      tag: "15.19-trixie"
       pullPolicy: IfNotPresent
     persistence:
       enabled: true
