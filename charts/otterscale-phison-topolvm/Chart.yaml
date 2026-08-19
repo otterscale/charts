@@ -1,8 +1,8 @@
 apiVersion: v2
 name: otterscale-phison-topolvm
-version: 1.4.0
+version: 1.5.0
 # renovate: helm=topolvm registry=https://topolvm.github.io/topolvm
-appVersion: "17.0.0"
+appVersion: "17.1.0"
 description: >-
   TopoLVM — CSI driver for dynamic LVM logical volume provisioning.
   Manages the vg_aidaptiv volume group with topology-aware scheduling.
@@ -26,5 +26,5 @@ annotations:
   artifacthub.io/license: Apache-2.0
 dependencies:
   - name: topolvm
-    version: 17.0.0
+    version: 17.1.0
     repository: https://topolvm.github.io/topolvm
