@@ -1495,7 +1495,7 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
         image: kserve/llmisvc-controller:latest
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         livenessProbe:
           failureThreshold: 5
           httpGet:
