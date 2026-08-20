@@ -9,11 +9,8 @@ gateway-helm:
   config:
     envoyGateway:
       gateway:
-        # Dedicated controllerName: MUST differ from the pre-deployed
-        # otterscale-system Envoy Gateway (which keeps the EG default
-        # gateway.envoyproxy.io/gatewayclass-controller), so the two
-        # controllers on the same cluster never claim each other's
-        # GatewayClass. The GatewayClass template reads this value.
+        # Must differ from the pre-deployed otterscale-system EG (EG default
+        # name) so the two controllers never claim each other's GatewayClass.
         controllerName: gateway.envoyproxy.io/envoy-kserve-controller
       logging:
         level:
@@ -55,21 +52,10 @@ gateway-helm:
             hostname: ai-gateway-controller.envoy-ai-gateway-system.svc.cluster.local
             port: 1063
 
-# ── Gateway API infrastructure (generic, ListenerSet-based) ──
-# This chart provisions a controller + a GENERIC zero-listener Gateway
-# (allowedListeners: All). App charts contribute listeners via ListenerSet and
-# attach HTTPRoutes to their own ListenerSet — they never modify the
-# resources below, so their upgrades cannot disrupt each other or the proxy.
-#
-# Deployment layout (two isolated Envoy Gateway stacks):
-# - otterscale-system : pre-deployed BEFORE the otterscale chart — upstream
-#   gateway-helm 1.9.0 + static base manifests (helm-release-free; see
-#   otterscale/examples/envoy-gateway-base.yaml): EG default controllerName,
-#   class envoy-otterscale, gateway otterscale-gateway, ports 80/443/32080.
-# - this chart        : installed with the other charts; kserve / AI gateway
-#   stack (envoy-gateway-system), dedicated controllerName + class
-#   envoy-kserve. On the non-otterscale cluster (split-cluster mode) this
-#   chart is the only Envoy Gateway.
+# ── Gateway API infrastructure (kserve / AI stack) ──
+# Generic zero-listener Gateway; consumer charts bring ListenerSet + HTTPRoute.
+# The otterscale stack is a SEPARATE pre-deployed EG in otterscale-system
+# (see otterscale/examples/envoy-gateway-base.yaml).
 
 gatewayClass:
   create: true
@@ -77,7 +63,6 @@ gatewayClass:
 
 gateway:
   create: true
-  # Zero-listener generic Gateway; ListenerSets attach from any namespace.
   name: otterscale-gateway
 
 envoyProxy:
@@ -85,20 +70,11 @@ envoyProxy:
     type: NodePort # NodePort | LoadBalancer | ClusterIP
     externalTrafficPolicy: Local
     loadBalancerIP: "" # LoadBalancer only (e.g. MetalLB)
-    # Pin Service ports/nodePorts (StrategicMerge patch). ListenerSet
-    # listeners land on this one proxy Service — every port that must stay
-    # stable belongs here (unpinned listener ports get random NodePorts).
+    # Pin nodePorts here; unpinned listener ports get random NodePorts.
     ports:
-      # kserve ListenerSet listener (otterscale-kserve-resource)
       - name: http-kserve
         port: 32080
         protocol: TCP
         targetPort: 32080
         nodePort: 32080
-      # kserve ListenerSet https — uncomment together with the
-      # otterscale-kserve-resource chart's listenerSet.tls.enabled
-      # - name: https-kserve
-      #   port: 32443
-      #   protocol: TCP
-      #   targetPort: 32443
-      #   nodePort: 32443
+

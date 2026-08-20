@@ -28,9 +28,8 @@ harbor:
 ee:
   enabled: true
 
-# 通用 Gateway（零 listener）已先行部署在 otterscale-system;其 EnvoyProxy
-# service type 此情境設 ClusterIP。本 chart 以 ListenerSet 提供 80/443 listener
-# 與憑證（都在 release namespace），並掛上 HTTPRoute。
+# 通用 Gateway 已先行部署在 otterscale-system（此情境其 EnvoyProxy service
+# 設 ClusterIP）
 envoy:
   enabled: true
   gateway:

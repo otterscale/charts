@@ -181,6 +181,7 @@
           "type": "object",
           "properties": {
             "enabled": { "type": "boolean" },
+            "hostname": { "type": "string", "description": "SNI hostname of the https listener. Empty = catch-all (required empty when Harbor shares this entry)." },
             "crt": { "type": "string" },
             "key": { "type": "string" },
             "existingSecret": { "type": "string" },

@@ -92,12 +92,7 @@ Names of the GIE CRDs bundled with this chart.
 {{- end }}
 
 
-{{/*
-Name of the TLS Secret the kserve ListenerSet https listener references.
-  - crt + key set      : a kubernetes.io/tls Secret this chart creates.
-  - existingSecret set : a Secret created out-of-band in the RELEASE namespace
-                         (ListenerSet certificateRefs resolve locally).
-*/}}
+{{/* TLS Secret name: crt+key => chart-created "<listenerSet.name>-tls", else existingSecret (release ns). */}}
 {{- define "llm-isvc-resources.tls.secretName" -}}
 {{- $tls := .Values.listenerSet.tls -}}
 {{- if and $tls.crt $tls.key -}}

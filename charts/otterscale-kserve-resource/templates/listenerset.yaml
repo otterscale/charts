@@ -21,6 +21,7 @@ spec:
     - name: https
       protocol: HTTPS
       port: {{ .Values.listenerSet.tls.httpsPort }}
+      hostname: {{ required "listenerSet.tls.hostname is required when tls is enabled — SNI separates kserve from otterscale on the shared 443 (e.g. *.llm.example.com)" .Values.listenerSet.tls.hostname | quote }}
       tls:
         mode: Terminate
         certificateRefs:

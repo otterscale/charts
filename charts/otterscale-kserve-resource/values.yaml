@@ -199,8 +199,7 @@ kserve:
         knativeGatewayService: ""
       ingressGateway:
         enableGatewayApi: false
-        # <namespace>/<name> of the kserve ListenerSet below — llmisvc
-        # attaches its generated HTTPRoutes to it.
+        # <ns>/<name> of the ListenerSet below (llmisvc route parentRef)
         kserveGateway: kserve/kserve-ingress-gateway
         createGateway: false
         gateway: knative-serving/knative-ingress-gateway
@@ -208,28 +207,23 @@ kserve:
 commonLabels: {}
 commonAnnotations: {}
 
-# parentRef of the kserve ListenerSet: the generic zero-listener Gateway.
-# Same cluster as otterscale : otterscale-gateway @ otterscale-system
-#   (pre-deployed Envoy Gateway; pin nodePort 32080 on its EnvoyProxy).
-# Split-cluster              : the otterscale-envoy-gateway chart's gateway,
-#   e.g. otterscale-gateway @ envoy-gateway-system.
+# ListenerSet parentRef. Same cluster as otterscale: the pre-deployed gateway
+# below; split-cluster: this cluster's otterscale-envoy-gateway gateway.
 gateway:
   name: otterscale-gateway
   namespace: otterscale-system
 
-# Contributes the kserve listener to that Gateway. Name must match the
-# kserveGateway value above (<release namespace>/<name>).
+# Name must match kserveGateway above (<release ns>/<name>).
 listenerSet:
   name: kserve-ingress-gateway
   port: 32080
-  # HTTPS listener (off by default). Certificate lives in the RELEASE
-  # namespace (ListenerSet certificateRefs resolve locally) — use a wildcard
-  # cert covering the inference domain. When enabling, also pin httpsPort on
-  # the base EnvoyProxy service ports patch and set
-  # kserve.controller.gateway.urlScheme to https.
+  # Shares 443 with otterscale via SNI: hostname required (wildcard cert in
+  # the release ns); also set gateway.urlScheme=https. httpsPort 32443 only
+  # for TLS over plain ip:port (no SNI).
   tls:
     enabled: false
-    httpsPort: 32443
+    hostname: "" # e.g. "*.llm.example.com"
+    httpsPort: 443
     crt: ""
     key: ""
     existingSecret: ""

@@ -23,6 +23,9 @@ spec:
     - name: https
       protocol: HTTPS
       port: 443
+      {{- with .Values.envoy.tls.hostname }}
+      hostname: {{ . | quote }}
+      {{- end }}
       tls:
         mode: Terminate
         certificateRefs:

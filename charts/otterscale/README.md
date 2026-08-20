@@ -252,6 +252,7 @@ The certificate can be supplied two ways:
 | `envoy.listenerSet.name`    | Name of the ListenerSet this chart creates (http 80 / https 443)              | `"otterscale-listeners"` |
 | `envoy.httpRoute.hostnames` | Override HTTPRoute hostnames (defaults to the `externalURL` host when TLS on) | `[]`                     |
 | `envoy.tls.enabled`         | Add an https listener to the ListenerSet (TLS terminates there)               | `false`                  |
+| `envoy.tls.hostname`        | SNI hostname of the https listener (empty = catch-all; keep empty when Harbor shares the entry) | `""`    |
 | `envoy.tls.crt`             | PEM certificate; chart creates the TLS Secret (raw PEM, not base64)           | `""`                     |
 | `envoy.tls.key`             | PEM private key paired with `envoy.tls.crt`                                   | `""`                     |
 | `envoy.tls.existingSecret`  | Reference an existing TLS Secret (must be in the release namespace)           | `""`                     |

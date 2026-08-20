@@ -252,14 +252,10 @@ dashboard:
   initContainers: []
 
 # ── Envoy Gateway (Gateway API) ──
-# A generic zero-listener Gateway (allowedListeners: All) is pre-deployed in
-# otterscale-system BEFORE this chart. This chart contributes its listeners
-# via a ListenerSet (http 80 / https 443, TLS Secret in the RELEASE
-# namespace) and attaches HTTPRoutes to that ListenerSet — it never touches
-# the Gateway/EnvoyProxy, so upgrades here can't disrupt other charts.
+# The generic zero-listener Gateway is pre-deployed in otterscale-system
+# (examples/envoy-gateway-base.yaml); this chart only adds ListenerSet + HTTPRoutes.
 envoy:
   enabled: false
-  # parentRef of the ListenerSet: the pre-deployed generic Gateway.
   gateway:
     name: "otterscale-gateway"
     namespace: "otterscale-system"
@@ -267,13 +263,10 @@ envoy:
     name: "otterscale-listeners"
   httpRoute:
     hostnames: [] # empty = derive from dashboard.externalURL host
-  # TLS on: adds an https listener to the ListenerSet. Supply crt+key (raw
-  # PEM, chart creates the Secret) OR existingSecret — both live in the
-  # RELEASE namespace (ListenerSet certificateRefs resolve locally, no
-  # ReferenceGrant needed). Remember to pin the 443 nodePort on the
-  # pre-deployed EnvoyProxy.
+  # crt+key (chart creates the Secret) OR existingSecret, both in the release ns.
   tls:
     enabled: false
+    hostname: "" # SNI; empty = catch-all (keep empty when Harbor shares 443)
     crt: ""
     key: ""
     existingSecret: ""
@@ -349,9 +342,7 @@ keycloakx:
       pullPolicy: IfNotPresent
     persistence:
       enabled: true
-      # Empty = the cluster's default StorageClass (the environment always
-      # provides at least one usable StorageClass).
-      storageClassName: ""
+      storageClassName: "" # empty = cluster default StorageClass
       accessMode: ReadWriteOnce
       size: 5Gi
     resources: {}
@@ -483,8 +474,7 @@ harbor:
     ipv6:
       enabled: false
 
-  # Empty storageClass = the cluster's default StorageClass (the environment
-  # always provides at least one usable StorageClass).
+  # Empty storageClass = cluster default StorageClass.
   persistence:
     enabled: true
     persistentVolumeClaim:

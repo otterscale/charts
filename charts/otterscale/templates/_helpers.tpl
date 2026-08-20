@@ -56,12 +56,7 @@ app.kubernetes.io/name: {{ include "otterscale.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
-{{/*
-Name of the TLS Secret the ListenerSet https listener references.
-  - crt + key set      : a kubernetes.io/tls Secret this chart creates.
-  - existingSecret set : a Secret created out-of-band in the RELEASE namespace
-                         (ListenerSet certificateRefs resolve locally).
-*/}}
+{{/* TLS Secret name: crt+key => chart-created "<fullname>-tls", else existingSecret (release ns). */}}
 {{- define "otterscale.tls.secretName" -}}
 {{- if and .Values.envoy.tls.crt .Values.envoy.tls.key -}}
   {{- printf "%s-tls" (include "otterscale.fullname" .) -}}
@@ -76,12 +71,7 @@ Name of the TLS Secret the ListenerSet https listener references.
 {{- .Values.envoy.gateway.name | required "envoy.gateway.name must be set when envoy is enabled" -}}
 {{- end -}}
 
-{{/*
-Namespace of the external Gateway (created by the otterscale-envoy-gateway
-chart; default: envoy-gateway-system). HTTPRoutes stay in the release
-namespace and attach cross-namespace — the Gateway listeners use
-allowedRoutes.from: All.
-*/}}
+{{/* Namespace of the pre-deployed generic Gateway (empty value = release namespace). */}}
 {{- define "otterscale.gateway.namespace" -}}
 {{- .Values.envoy.gateway.namespace | default (include "otterscale.namespace" .) -}}
 {{- end -}}

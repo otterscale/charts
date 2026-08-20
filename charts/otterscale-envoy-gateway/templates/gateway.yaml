@@ -1,11 +1,6 @@
 {{- $g := .Values.gateway }}
 {{- if $g.create }}
-{{- /*
-Generic Gateway: zero listeners of its own. App charts contribute listeners
-via ListenerSet (otterscale: 80/443 + TLS cert in its own namespace; kserve:
-32080) and attach HTTPRoutes to their own ListenerSet — so upgrading an app
-chart never touches this Gateway or the proxy infrastructure.
-*/}}
+{{- /* Zero-listener Gateway; consumer charts attach listeners via ListenerSet. */}}
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
