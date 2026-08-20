@@ -73,7 +73,16 @@ metadata:
   namespace: otterscale-system
 spec:
   gatewayClassName: envoy-otterscale
-  # 零 listener：所有 listener 由各 chart 的 ListenerSet 提供
   allowedListeners:
     namespaces:
       from: All
+  # 實際 listener 全由各 chart 的 ListenerSet 提供；此為佔位（CRD 要求
+  # minItems: 1），hostname 永不匹配、不收 route
+  listeners:
+    - name: placeholder
+      protocol: HTTP
+      port: 19080
+      hostname: "placeholder.invalid"
+      allowedRoutes:
+        namespaces:
+          from: Same

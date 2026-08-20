@@ -1,6 +1,7 @@
 {{- $g := .Values.gateway }}
 {{- if $g.create }}
-{{- /* Zero-listener Gateway; consumer charts attach listeners via ListenerSet. */}}
+{{- /* Real listeners come from consumer ListenerSets; the placeholder only
+satisfies the CRD's minItems: 1 (never matches, accepts no routes). */}}
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
@@ -11,4 +12,12 @@ spec:
   allowedListeners:
     namespaces:
       from: All
+  listeners:
+    - name: placeholder
+      protocol: HTTP
+      port: 19080
+      hostname: "placeholder.invalid"
+      allowedRoutes:
+        namespaces:
+          from: Same
 {{- end }}
