@@ -3,13 +3,32 @@ OtterScale Envoy Gateway has been installed.
   Namespace: {{ .Release.Namespace }}
 
   Components:
-  - Envoy Gateway controller
-  - GatewayClass: envoy
-  - Gateway: gateway
+  - Envoy Gateway controller (+ Gateway API CRDs, incl. ListenerSet)
+{{- if .Values.gatewayClass.create }}
+  - GatewayClass: {{ .Values.gatewayClass.name }}
+    (controllerName: {{ (index .Values "gateway-helm").config.envoyGateway.gateway.controllerName }})
+{{- end }}
+  - EnvoyProxy: otterscale-envoyproxy
+{{- if .Values.gateway.create }}
+  - Gateway: {{ .Values.gateway.name }} (zero listeners; allowedListeners: All)
+{{- end }}
+
+  App charts contribute listeners via ListenerSet and attach HTTPRoutes to
+  their own ListenerSet — they never modify the resources above, so upgrading
+  them cannot disrupt the proxy.
+
+  NOTE: the otterscale chart does NOT use this stack. Its traffic runs on the
+  Envoy Gateway pre-deployed in otterscale-system (upstream gateway-helm +
+  static base manifests, EG default controllerName, class envoy-otterscale) —
+  the two controllers are fully isolated.
 
   Next steps:
+  - kserve on the SAME cluster as otterscale: keep its default ListenerSet
+    parentRef (otterscale-gateway @ otterscale-system)
+  - kserve on THIS cluster (split-cluster mode): point its ListenerSet
+    parentRef at "{{ .Values.gateway.name }}" / "{{ .Release.Namespace }}"
   - Install otterscale-envoy-ai-gateway for AI/ML inference routing
 
   Verify:
   - kubectl get pods -n {{ .Release.Namespace }}
-  - kubectl get gatewayclass
+  - kubectl get gatewayclass,gateway,listenerset -A

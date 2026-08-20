@@ -39,10 +39,6 @@ harbor:
     internal:
       nodeSelector: *nodeSelector
 
-storage:
-  localPath:
-    enabled: true
-
 ee:
   enabled: true
 

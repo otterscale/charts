@@ -1,14 +1,19 @@
+{{- $g := .Values.gateway }}
+{{- if $g.create }}
+{{- /*
+Generic Gateway: zero listeners of its own. App charts contribute listeners
+via ListenerSet (otterscale: 80/443 + TLS cert in its own namespace; kserve:
+32080) and attach HTTPRoutes to their own ListenerSet — so upgrading an app
+chart never touches this Gateway or the proxy infrastructure.
+*/}}
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: otterscale-gateway
+  name: {{ $g.name }}
   namespace: {{ .Release.Namespace }}
 spec:
-  gatewayClassName: envoy-otterscale
-  listeners:
-    - name: http
-      protocol: HTTP
-      port: 80
-      allowedRoutes:
-        namespaces:
-          from: All
+  gatewayClassName: {{ .Values.gatewayClass.name }}
+  allowedListeners:
+    namespaces:
+      from: All
+{{- end }}

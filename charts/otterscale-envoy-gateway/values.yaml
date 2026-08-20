@@ -9,7 +9,12 @@ gateway-helm:
   config:
     envoyGateway:
       gateway:
-        controllerName: gateway.envoyproxy.io/gatewayclass-controller
+        # Dedicated controllerName: MUST differ from the pre-deployed
+        # otterscale-system Envoy Gateway (which keeps the EG default
+        # gateway.envoyproxy.io/gatewayclass-controller), so the two
+        # controllers on the same cluster never claim each other's
+        # GatewayClass. The GatewayClass template reads this value.
+        controllerName: gateway.envoyproxy.io/envoy-kserve-controller
       logging:
         level:
           default: info
@@ -49,3 +54,44 @@ gateway-helm:
             # Default if you followed the installation steps above:
             hostname: ai-gateway-controller.envoy-ai-gateway-system.svc.cluster.local
             port: 1063
+
+# ── Gateway API infrastructure (generic, ListenerSet-based) ──
+# This chart provisions a controller + a GENERIC zero-listener Gateway
+# (allowedListeners: All). App charts contribute listeners via ListenerSet and
+# attach HTTPRoutes to their own ListenerSet — they never modify the
+# resources below, so their upgrades cannot disrupt each other or the proxy.
+#
+# Deployment layout (two isolated Envoy Gateway stacks):
+# - otterscale-system : pre-deployed BEFORE the otterscale chart — upstream
+#   gateway-helm 1.9.0 + static base manifests (helm-release-free; see
+#   otterscale/examples/envoy-gateway-base.yaml): EG default controllerName,
+#   class envoy-otterscale, gateway otterscale-gateway, ports 80/443/32080.
+# - this chart        : installed with the other charts; kserve / AI gateway
+#   stack (envoy-gateway-system), dedicated controllerName + class
+#   envoy-kserve. On the non-otterscale cluster (split-cluster mode) this
+#   chart is the only Envoy Gateway.
+
+gatewayClass:
+  create: true
+  name: envoy-kserve
+
+gateway:
+  create: true
+  # Zero-listener generic Gateway; ListenerSets attach from any namespace.
+  name: otterscale-gateway
+
+envoyProxy:
+  service:
+    type: NodePort # NodePort | LoadBalancer | ClusterIP
+    externalTrafficPolicy: Local
+    loadBalancerIP: "" # LoadBalancer only (e.g. MetalLB)
+    # Pin Service ports/nodePorts (StrategicMerge patch). ListenerSet
+    # listeners land on this one proxy Service — every port that must stay
+    # stable belongs here (unpinned listener ports get random NodePorts).
+    ports:
+      # kserve ListenerSet listener (otterscale-kserve-resource)
+      - name: http-kserve
+        port: 32080
+        protocol: TCP
+        targetPort: 32080
+        nodePort: 32080

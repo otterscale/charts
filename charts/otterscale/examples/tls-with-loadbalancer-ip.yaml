@@ -20,28 +20,27 @@ server:
 harbor:
   externalURL: "https://10.102.197.210"                ## Envoy LB IP
 
-storage:
-  localPath:
-    enabled: true
-
 ee:
   enabled: true
 
+# 通用 Gateway（零 listener）已先行部署在 otterscale-system;其 EnvoyProxy
+# service 此情境設 type: LoadBalancer + loadBalancerIP: "10.102.197.210"。
+# 本 chart 以 ListenerSet 提供 80/443 listener 與憑證（都在 release
+# namespace），並掛上 HTTPRoute。
 envoy:
   enabled: true
   gateway:
-    service:
-      type: LoadBalancer
-      loadBalancerIP: "10.102.197.210"
+    name: "otterscale-gateway"
+    namespace: "otterscale-system"
   tls:
     enabled: true
     redirectToHTTPS: true
 
-    # ---- 憑證來源（二選一）----
+    # ---- 憑證來源（二選一，皆位於 release namespace）----
 
-    # 方式 A：引用已存在的 Secret（必須事先建立在 envoy-gateway-system）
+    # 方式 A：引用已存在的 Secret
     #   kubectl create secret tls phison-new-2026 \
-    #     --cert=tls.crt --key=tls.key -n envoy-gateway-system
+    #     --cert=tls.crt --key=tls.key -n <release-namespace>
     existingSecret: "phison-new-2026"
 
     # 方式 B：直接貼上憑證，由 chart 自動建立 Secret（留空 existingSecret 即用此）

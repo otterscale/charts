@@ -74,9 +74,13 @@ from it.
 ### Envoy Gateway (recommended)
 
 Single entry point with path-based routing via the [Kubernetes Gateway
-API](https://gateway-api.sigs.k8s.io/). When `envoy.gateway.create` is `true`
-(default), the chart provisions the `GatewayClass`, `EnvoyProxy`, `Gateway` and
-`HTTPRoute` resources for you.
+API](https://gateway-api.sigs.k8s.io/). A generic **zero-listener** `Gateway`
+(`allowedListeners: All`) plus controller/`GatewayClass`/`EnvoyProxy` is
+pre-deployed in `otterscale-system` **before** this chart. This chart
+contributes its own listeners via a `ListenerSet` (http 80 / https 443, TLS
+Secret in the release namespace) and attaches `HTTPRoute`s to that
+`ListenerSet` — it never modifies the Gateway or proxy infrastructure, so
+upgrading this chart cannot disrupt other charts' traffic.
 
 **HTTP, accessed by IP\:port** — see [`examples/envoy-values.yaml`](examples/envoy-values.yaml):
 
@@ -96,11 +100,9 @@ harbor:
 
 envoy:
   enabled: true
-  gatewayClassName: "eg"
   gateway:
-    create: true
-    name: "otterscale"
-    namespace: "envoy-gateway-system"
+    name: "otterscale-gateway"
+    namespace: "otterscale-system"
 ```
 
 Routing (single host, path-based):
@@ -114,8 +116,11 @@ http://<ip>:32180/        -> Harbor (its own NodePort)
 
 ### TLS / HTTPS with custom domains
 
-Set `envoy.tls.enabled: true` to add an HTTPS listener (port 443, NodePort 30443) and serve OtterScale and Harbor on separate domains. The chart then also
-generates a Harbor `HTTPRoute` and an HTTP→HTTPS 301 redirect. See
+Set `envoy.tls.enabled: true` to add an https (443) listener to this chart's
+`ListenerSet` — TLS terminates there with a certificate from the **release
+namespace** (ListenerSet `certificateRefs` resolve locally, no ReferenceGrant
+needed). The chart then serves OtterScale and Harbor on separate domains and
+also generates a Harbor `HTTPRoute` and an HTTP→HTTPS 301 redirect. See
 [`examples/envoy-values-domain-name.yaml`](examples/envoy-values-domain-name.yaml):
 
 ```yaml
@@ -134,11 +139,9 @@ harbor:
 
 envoy:
   enabled: true
-  gatewayClassName: "eg"
   gateway:
-    create: true
-    name: "otterscale"
-    namespace: "envoy-gateway-system"
+    name: "otterscale-gateway"
+    namespace: "otterscale-system"
   tls:
     enabled: true
     redirectToHTTPS: true
@@ -153,20 +156,20 @@ envoy:
 
 The certificate can be supplied two ways:
 
-| Option              | How                                         | Notes                                                                                                                                       |
-| ------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Existing Secret** | `envoy.tls.existingSecret: <name>`          | The `kubernetes.io/tls` Secret **must already exist in the Gateway namespace** (`envoy.gateway.namespace`, default `envoy-gateway-system`). |
-| **Inline cert**     | `envoy.tls.crt` + `envoy.tls.key` (raw PEM) | The chart creates the Secret for you in the Gateway namespace. Takes priority over `existingSecret`.                                        |
+| Option              | How                                         | Notes                                                                              |
+| ------------------- | ------------------------------------------- | ----------------------------------------------------------------------------------- |
+| **Existing Secret** | `envoy.tls.existingSecret: <name>`          | The `kubernetes.io/tls` Secret **must already exist in the release namespace**.      |
+| **Inline cert**     | `envoy.tls.crt` + `envoy.tls.key` (raw PEM) | The chart creates the Secret in the release namespace. Takes priority over `existingSecret`. |
 
 **Before installing the HTTPS variant:**
 
-1. **Envoy Gateway is installed** in the cluster (its controller lives in
-   `envoy-gateway-system`).
-2. **TLS Secret** exists in `envoy-gateway-system` when using `existingSecret`:
+1. **The pre-deployed EnvoyProxy pins the 443 port** (e.g. NodePort `30443`
+   in its service ports patch).
+2. **TLS Secret** exists in the release namespace when using `existingSecret`:
 
    ```bash
    kubectl create secret tls phison-new-2026 \
-     --cert=tls.crt --key=tls.key -n envoy-gateway-system
+     --cert=tls.crt --key=tls.key -n <release-namespace>
    ```
 
 3. **DNS** for both domains resolves to the cluster ingress (Envoy's 443 —
@@ -187,21 +190,6 @@ The certificate can be supplied two ways:
 | `global.nodeSelector`     | nodeSelector for every chart-rendered pod (subchart pods excluded; component-level entries win) | `{}` |
 | `nameOverride`            | Override chart name in resource names  | `""`    |
 | `fullnameOverride`        | Override full resource name prefix     | `""`    |
-
-### Storage
-
-| Parameter                            | Description                                                       | Default                   |
-| ------------------------------------ | ----------------------------------------------------------------- | ------------------------- |
-| `storage.localPath.enabled`          | Deploy local-path-provisioner                                     | `false`                   |
-| `storage.localPath.path`             | Host path for volume storage                                      | `/opt/otterscale/storage` |
-| `storage.localPath.storageClassName` | StorageClass name                                                 | `otterscale-local-path`   |
-| `storage.localPath.reclaimPolicy`    | Reclaim policy: `Retain` or `Delete`                              | `Retain`                  |
-| `storage.localPath.nodeName`         | Pin the provisioner and mkdir hook pods to this node (empty = scheduler decides) | `""`    |
-
-The provisioner and mkdir hook pods tolerate all taints, so they can run on
-any node (including tainted control-plane nodes). Note that volume **data**
-always lives on the node where the consuming pod is scheduled — `nodeName`
-only pins the provisioner pod itself.
 
 ### Server
 
@@ -248,23 +236,26 @@ only pins the provisioner pod itself.
 
 ### Envoy Gateway (Gateway API)
 
-> **Prerequisites:** Envoy Gateway must be installed in the cluster (it provides
-> the [Gateway API](https://gateway-api.sigs.k8s.io/) CRDs and the controller in
-> `envoy-gateway-system`).
+> **Prerequisites:** an Envoy Gateway (>= 1.9, Gateway API 1.5 CRDs incl.
+> ListenerSet) with a generic zero-listener Gateway
+> (`allowedListeners: All`) is pre-deployed in `otterscale-system` before
+> this chart — upstream gateway-helm plus the helm-release-free base
+> manifests in [`examples/envoy-gateway-base.yaml`](examples/envoy-gateway-base.yaml).
+> This chart only creates a `ListenerSet` (its listeners + TLS) and
+> `HTTPRoute`s attached to it.
 
 | Parameter                   | Description                                                                   | Default                  |
 | --------------------------- | ----------------------------------------------------------------------------- | ------------------------ |
-| `envoy.enabled`             | Enable Envoy Gateway integration                                              | `false`                  |
-| `envoy.gatewayClassName`    | GatewayClass name backed by the Envoy Gateway controller                      | `"eg"`                   |
+| `envoy.enabled`             | Enable Envoy Gateway integration (ListenerSet + HTTPRoutes)                   | `false`                  |
+| `envoy.gateway.name`        | Name of the pre-deployed generic Gateway (ListenerSet parentRef)              | `"otterscale-gateway"`   |
+| `envoy.gateway.namespace`   | Namespace of the pre-deployed generic Gateway                                 | `"otterscale-system"`    |
+| `envoy.listenerSet.name`    | Name of the ListenerSet this chart creates (http 80 / https 443)              | `"otterscale-listeners"` |
 | `envoy.httpRoute.hostnames` | Override HTTPRoute hostnames (defaults to the `externalURL` host when TLS on) | `[]`                     |
-| `envoy.tls.enabled`         | Add an HTTPS listener (TLS termination at the Gateway)                        | `false`                  |
+| `envoy.tls.enabled`         | Add an https listener to the ListenerSet (TLS terminates there)               | `false`                  |
 | `envoy.tls.crt`             | PEM certificate; chart creates the TLS Secret (raw PEM, not base64)           | `""`                     |
 | `envoy.tls.key`             | PEM private key paired with `envoy.tls.crt`                                   | `""`                     |
-| `envoy.tls.existingSecret`  | Reference an existing TLS Secret (must be in the Gateway namespace)           | `""`                     |
+| `envoy.tls.existingSecret`  | Reference an existing TLS Secret (must be in the release namespace)           | `""`                     |
 | `envoy.tls.redirectToHTTPS` | Add an HTTP→HTTPS 301 redirect HTTPRoute                                      | `true`                   |
-| `envoy.gateway.create`      | Let the chart create the Gateway / GatewayClass / EnvoyProxy                  | `true`                   |
-| `envoy.gateway.name`        | Gateway resource name                                                         | `"otterscale"`           |
-| `envoy.gateway.namespace`   | Namespace for the Gateway, EnvoyProxy and chart-managed TLS Secret            | `"envoy-gateway-system"` |
 
 ### Keycloak
 
