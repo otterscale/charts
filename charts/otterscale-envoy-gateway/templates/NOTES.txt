@@ -3,27 +3,32 @@ OtterScale Envoy Gateway has been installed.
   Namespace: {{ .Release.Namespace }}
 
   Components:
-  - Envoy Gateway controller (+ Gateway API CRDs)
+  - Envoy Gateway controller (+ Gateway API CRDs, incl. ListenerSet)
 {{- if .Values.gatewayClass.create }}
   - GatewayClass: {{ .Values.gatewayClass.name }}
+    (controllerName: {{ (index .Values "gateway-helm").config.envoyGateway.gateway.controllerName }})
 {{- end }}
-{{- if .Values.envoyProxy.create }}
-  - EnvoyProxy: kserve-envoyproxy (mergeGateways — all Gateways of the
-    class share one proxy fleet)
+  - EnvoyProxy: otterscale-envoyproxy
+{{- if .Values.gateway.create }}
+  - Gateway: {{ .Values.gateway.name }} (zero listeners; allowedListeners: All)
 {{- end }}
 
-  This chart owns the shared infrastructure for the kserve / AI gateway stack.
-  Gateways and routes are created by the consumer charts
-  (otterscale-kserve-resource, otterscale-envoy-ai-gateway, ...).
+  App charts contribute listeners via ListenerSet and attach HTTPRoutes to
+  their own ListenerSet — they never modify the resources above, so upgrading
+  them cannot disrupt the proxy.
 
-  The otterscale chart is NOT a consumer: it bundles its own isolated Envoy
-  Gateway controller (class "envoy-otterscale") and is unaffected by this chart.
+  NOTE: the otterscale chart does NOT use this stack. Its traffic runs on the
+  Envoy Gateway pre-deployed in otterscale-system (upstream gateway-helm +
+  static base manifests, EG default controllerName, class envoy-otterscale) —
+  the two controllers are fully isolated.
 
   Next steps:
+  - kserve on the SAME cluster as otterscale: keep its default ListenerSet
+    parentRef (otterscale-gateway @ otterscale-system)
+  - kserve on THIS cluster (split-cluster mode): point its ListenerSet
+    parentRef at "{{ .Values.gateway.name }}" / "{{ .Release.Namespace }}"
   - Install otterscale-envoy-ai-gateway for AI/ML inference routing
-  - Install otterscale-kserve-resource (its Gateway attaches to
-    {{ .Values.gatewayClass.name }})
 
   Verify:
   - kubectl get pods -n {{ .Release.Namespace }}
-  - kubectl get gatewayclass
+  - kubectl get gatewayclass,gateway,listenerset -A

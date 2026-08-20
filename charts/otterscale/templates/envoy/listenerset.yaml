@@ -1,20 +1,24 @@
-{{- if and .Values.envoy.enabled .Values.envoy.gateway.create }}
+{{- if .Values.envoy.enabled }}
 apiVersion: gateway.networking.k8s.io/v1
-kind: Gateway
+kind: ListenerSet
 metadata:
-  name: {{ include "otterscale.gatewayRef" . }}
-  namespace: {{ include "otterscale.gateway.namespace" . }}
+  name: {{ .Values.envoy.listenerSet.name }}
+  namespace: {{ include "otterscale.namespace" . }}
   labels:
     {{- include "otterscale.labels" . | nindent 4 }}
 spec:
-  gatewayClassName: {{ .Values.envoy.gatewayClassName | required "envoy.gatewayClassName must be set when envoy.gateway.create is true" }}
+  parentRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: {{ include "otterscale.gatewayRef" . }}
+    namespace: {{ include "otterscale.gateway.namespace" . }}
   listeners:
     - name: http
       protocol: HTTP
       port: 80
       allowedRoutes:
         namespaces:
-          from: All
+          from: Same
     {{- if .Values.envoy.tls.enabled }}
     - name: https
       protocol: HTTPS
@@ -26,6 +30,6 @@ spec:
             name: {{ include "otterscale.tls.secretName" . }}
       allowedRoutes:
         namespaces:
-          from: All
+          from: Same
     {{- end }}
 {{- end }}

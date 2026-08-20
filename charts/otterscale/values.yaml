@@ -17,25 +17,6 @@ fullnameOverride: ""
 ee:
   enabled: false
 
-# ── Storage ──
-# localPath.enabled deploys rancher/local-path-provisioner + a StorageClass.
-storage:
-  localPath:
-    enabled: false
-    path: /opt/otterscale/storage
-    storageClassName: otterscale-local-path
-    reclaimPolicy: Retain # Retain or Delete
-    image:
-      repository: rancher/local-path-provisioner
-      tag: v0.0.36
-      pullPolicy: IfNotPresent
-    helperPod:
-      # Any minimal image with a POSIX shell works.
-      image:
-        repository: docker.io/library/alpine
-        tag: "3.24"
-        pullPolicy: IfNotPresent
-
 # ── OtterScale Server ──
 server:
   # Empty = derive from dashboard.externalURL.
@@ -46,7 +27,7 @@ server:
   image:
     repository: ghcr.io/otterscale/otterscale
     # renovate: image=ghcr.io/otterscale/otterscale
-    tag: "v1.4.0"
+    tag: "v1.4.1"
     pullPolicy: IfNotPresent
   ports:
     http: 8299
@@ -164,7 +145,7 @@ dashboard:
   image:
     repository: ghcr.io/otterscale/dashboard
     # renovate: image=ghcr.io/otterscale/dashboard
-    tag: "v1.4.0"
+    tag: "v1.4.4"
     pullPolicy: IfNotPresent
   ports:
     http: 3000
@@ -271,39 +252,32 @@ dashboard:
   initContainers: []
 
 # ── Envoy Gateway (Gateway API) ──
+# A generic zero-listener Gateway (allowedListeners: All) is pre-deployed in
+# otterscale-system BEFORE this chart. This chart contributes its listeners
+# via a ListenerSet (http 80 / https 443, TLS Secret in the RELEASE
+# namespace) and attaches HTTPRoutes to that ListenerSet — it never touches
+# the Gateway/EnvoyProxy, so upgrades here can't disrupt other charts.
 envoy:
   enabled: false
-  controllerName: "gateway.envoyproxy.io/otterscale-gatewayclass-controller"
-  gatewayClassName: "envoy-otterscale"
+  # parentRef of the ListenerSet: the pre-deployed generic Gateway.
+  gateway:
+    name: "otterscale-gateway"
+    namespace: "otterscale-system"
+  listenerSet:
+    name: "otterscale-listeners"
   httpRoute:
     hostnames: [] # empty = derive from dashboard.externalURL host
+  # TLS on: adds an https listener to the ListenerSet. Supply crt+key (raw
+  # PEM, chart creates the Secret) OR existingSecret — both live in the
+  # RELEASE namespace (ListenerSet certificateRefs resolve locally, no
+  # ReferenceGrant needed). Remember to pin the 443 nodePort on the
+  # pre-deployed EnvoyProxy.
   tls:
     enabled: false
     crt: ""
     key: ""
     existingSecret: ""
     redirectToHTTPS: true
-  gateway:
-    # false = attach HTTPRoutes to an existing Gateway (name/namespace below).
-    create: true
-    name: "otterscale-gateway"
-    namespace: ""
-    service:
-      type: NodePort
-      httpNodePort: 30080
-      httpsNodePort: 30443
-      loadBalancerIP: ""
-
-# ── Envoy Gateway controller (bundled gateway-helm subchart) ──
-# INTERNAL WIRING — installed only when envoy.enabled is true.
-gateway-helm:
-  config:
-    envoyGateway:
-      gateway:
-        controllerName: gateway.envoyproxy.io/otterscale-gatewayclass-controller
-      logging:
-        level:
-          default: info
 
 # ── Valkey (dashboard session cache) ──
 dashboard-valkey:
@@ -375,7 +349,9 @@ keycloakx:
       pullPolicy: IfNotPresent
     persistence:
       enabled: true
-      storageClassName: "otterscale-local-path"
+      # Empty = the cluster's default StorageClass (the environment always
+      # provides at least one usable StorageClass).
+      storageClassName: ""
       accessMode: ReadWriteOnce
       size: 5Gi
     resources: {}
@@ -507,24 +483,26 @@ harbor:
     ipv6:
       enabled: false
 
+  # Empty storageClass = the cluster's default StorageClass (the environment
+  # always provides at least one usable StorageClass).
   persistence:
     enabled: true
     persistentVolumeClaim:
       registry:
-        storageClass: "otterscale-local-path"
+        storageClass: ""
         size: 50Gi
       database:
-        storageClass: "otterscale-local-path"
+        storageClass: ""
         size: 5Gi
       jobservice:
         jobLog:
-          storageClass: "otterscale-local-path"
+          storageClass: ""
           size: 1Gi
       redis:
-        storageClass: "otterscale-local-path"
+        storageClass: ""
         size: 1Gi
       trivy:
-        storageClass: "otterscale-local-path"
+        storageClass: ""
         size: 5Gi
 
   database:

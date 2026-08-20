@@ -91,3 +91,20 @@ Names of the GIE CRDs bundled with this chart.
 - inferencepools.inference.networking.x-k8s.io
 {{- end }}
 
+
+{{/*
+Name of the TLS Secret the kserve ListenerSet https listener references.
+  - crt + key set      : a kubernetes.io/tls Secret this chart creates.
+  - existingSecret set : a Secret created out-of-band in the RELEASE namespace
+                         (ListenerSet certificateRefs resolve locally).
+*/}}
+{{- define "llm-isvc-resources.tls.secretName" -}}
+{{- $tls := .Values.listenerSet.tls -}}
+{{- if and $tls.crt $tls.key -}}
+  {{- printf "%s-tls" .Values.listenerSet.name -}}
+{{- else if $tls.existingSecret -}}
+  {{- $tls.existingSecret -}}
+{{- else -}}
+  {{- required "listenerSet.tls: set crt+key (chart creates the Secret) or existingSecret when tls.enabled is true" "" -}}
+{{- end -}}
+{{- end }}

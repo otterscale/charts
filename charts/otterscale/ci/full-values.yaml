@@ -10,13 +10,10 @@ envoy:
   enabled: true
   gateway:
     name: gateway
+    namespace: otterscale-system
   tls:
     enabled: true
     existingSecret: otterscale-tls
-
-storage:
-  localPath:
-    enabled: true
 
 server:
   replicaCount: 2

@@ -7,16 +7,12 @@ Secrets/ConfigMaps land where subchart pods (which always render into
 {{- .Release.Namespace -}}
 {{- end -}}
 
-{{- define "otterscale.localPath.provisionerName" -}}
-{{- printf "%s/local-path" (include "otterscale.fullname" .) -}}
-{{- end -}}
-
+{{/*
+StorageClass for chart-created PVCs. Empty = the cluster's default
+StorageClass (the environment always provides at least one).
+*/}}
 {{- define "otterscale.storageClassName" -}}
-{{- if .Values.storage.localPath.enabled -}}
-  {{- .Values.storage.localPath.storageClassName -}}
-{{- else if .Values.keycloakx.database.persistence.storageClassName -}}
-  {{- .Values.keycloakx.database.persistence.storageClassName -}}
-{{- end -}}
+{{- .Values.keycloakx.database.persistence.storageClassName -}}
 {{- end -}}
 
 {{- define "otterscale.name" -}}
@@ -61,9 +57,10 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
-Name of the TLS Secret the Gateway HTTPS listener references.
-  - crt + key set     : a kubernetes.io/tls Secret this chart creates.
-  - existingSecret set : a Secret the user created out-of-band (in the Gateway ns).
+Name of the TLS Secret the ListenerSet https listener references.
+  - crt + key set      : a kubernetes.io/tls Secret this chart creates.
+  - existingSecret set : a Secret created out-of-band in the RELEASE namespace
+                         (ListenerSet certificateRefs resolve locally).
 */}}
 {{- define "otterscale.tls.secretName" -}}
 {{- if and .Values.envoy.tls.crt .Values.envoy.tls.key -}}
@@ -80,11 +77,10 @@ Name of the TLS Secret the Gateway HTTPS listener references.
 {{- end -}}
 
 {{/*
-Namespace the Gateway, EnvoyProxy and the chart-managed TLS Secret/Certificate
-live in (default: envoy-gateway-system). HTTPRoutes stay in the release
-namespace and attach cross-namespace, so the Gateway listeners use
-allowedRoutes.from: All. Co-locating the TLS Secret with the Gateway avoids
-needing a ReferenceGrant for the HTTPS listener's certificateRef.
+Namespace of the external Gateway (created by the otterscale-envoy-gateway
+chart; default: envoy-gateway-system). HTTPRoutes stay in the release
+namespace and attach cross-namespace — the Gateway listeners use
+allowedRoutes.from: All.
 */}}
 {{- define "otterscale.gateway.namespace" -}}
 {{- .Values.envoy.gateway.namespace | default (include "otterscale.namespace" .) -}}

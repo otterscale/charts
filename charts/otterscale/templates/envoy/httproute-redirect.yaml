@@ -8,8 +8,9 @@ metadata:
     {{- include "otterscale.labels" . | nindent 4 }}
 spec:
   parentRefs:
-  - name: {{ include "otterscale.gatewayRef" . }}
-    namespace: {{ include "otterscale.gateway.namespace" . }}
+  - group: gateway.networking.k8s.io
+    kind: ListenerSet
+    name: {{ .Values.envoy.listenerSet.name }}
     sectionName: http
   hostnames:
   - {{ include "otterscale.host" . | quote }}

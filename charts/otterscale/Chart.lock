@@ -1,7 +1,4 @@
 dependencies:
-- name: gateway-helm
-  repository: oci://docker.io/envoyproxy
-  version: 1.8.3
 - name: keycloakx
   repository: https://codecentric.github.io/helm-charts
   version: 7.2.2
@@ -10,6 +7,6 @@ dependencies:
   version: 0.11.0
 - name: harbor
   repository: https://helm.goharbor.io
-  version: 1.19.2
-digest: sha256:a4185d5dfffb1b67787f306a4f371d32d1afe8ebd45fc503093e35e9973daa95
-generated: "2026-08-17T19:33:45.2711621+08:00"
+  version: 1.19.1
+digest: sha256:cdd1d4833e1d6f0d27c334e0a94728d06af34227b219eb2d9183692f84b291d6
+generated: "2026-07-28T22:16:42.7751415+08:00"

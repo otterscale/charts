@@ -1,0 +1,32 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: {{ .Values.listenerSet.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  parentRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: {{ .Values.gateway.name }}
+    namespace: {{ .Values.gateway.namespace }}
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: {{ .Values.listenerSet.port }}
+      # llmisvc creates HTTPRoutes in model namespaces
+      allowedRoutes:
+        namespaces:
+          from: All
+    {{- if .Values.listenerSet.tls.enabled }}
+    - name: https
+      protocol: HTTPS
+      port: {{ .Values.listenerSet.tls.httpsPort }}
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: {{ include "llm-isvc-resources.tls.secretName" . }}
+      allowedRoutes:
+        namespaces:
+          from: All
+    {{- end }}

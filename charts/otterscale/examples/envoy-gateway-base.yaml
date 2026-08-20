@@ -1,0 +1,88 @@
+# ── Envoy Gateway 基礎層（step 0，安裝 otterscale 之前）──
+#
+# 1. 安裝 Envoy Gateway controller（上游 helm chart）：
+#
+#      helm install envoy-gateway oci://docker.io/envoyproxy/gateway-helm \
+#        --version 1.9.0 -n otterscale-system --create-namespace
+#
+# 2. 套用本檔（最通用的 GatewayClass / EnvoyProxy / Gateway）：
+#
+#      kubectl apply -f envoy-gateway-base.yaml
+#
+# 這三個資源不屬於任何 helm release，之後任何 chart 的 helm upgrade 都
+# 不會碰到它們。otterscale 與 kserve 只透過 ListenerSet 提供 listener、
+# 用 HTTPRoute 掛路由。
+#
+# 注意：otterscale-envoy-gateway chart（kserve/AI stack，envoy-gateway-system）
+# 使用不同的 controllerName（gateway.envoyproxy.io/envoy-kserve-controller）
+# 與 class（envoy-kserve），與本檔這套完全隔離。
+---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: EnvoyProxy
+metadata:
+  name: otterscale-envoyproxy
+  namespace: otterscale-system
+spec:
+  logging:
+    level:
+      default: warn
+  provider:
+    type: Kubernetes
+    kubernetes:
+      envoyService:
+        # NodePort（ip:port）| LoadBalancer（domain，可加 loadBalancerIP patch）
+        type: NodePort
+        externalTrafficPolicy: Local
+        patch:
+          type: StrategicMerge
+          value:
+            spec:
+              ports:
+                # otterscale ListenerSet: http
+                - name: http
+                  port: 80
+                  protocol: TCP
+                  targetPort: 10080
+                  nodePort: 30080
+                # otterscale ListenerSet: https（envoy.tls.enabled 時）
+                - name: https
+                  port: 443
+                  protocol: TCP
+                  targetPort: 10443
+                  nodePort: 30443
+                # kserve ListenerSet（同 cluster 模式）
+                - name: http-kserve
+                  port: 32080
+                  protocol: TCP
+                  targetPort: 32080
+                  nodePort: 32080
+                # kserve ListenerSet https（listenerSet.tls.enabled 時取消註解）
+                # - name: https-kserve
+                #   port: 32443
+                #   protocol: TCP
+                #   targetPort: 32443
+                #   nodePort: 32443
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: envoy-otterscale
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
+  parametersRef:
+    group: gateway.envoyproxy.io
+    kind: EnvoyProxy
+    name: otterscale-envoyproxy
+    namespace: otterscale-system
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: otterscale-gateway
+  namespace: otterscale-system
+spec:
+  gatewayClassName: envoy-otterscale
+  # 零 listener：所有 listener 由各 chart 的 ListenerSet 提供
+  allowedListeners:
+    namespaces:
+      from: All

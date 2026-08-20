@@ -4,12 +4,11 @@ kind: GatewayClass
 metadata:
   name: {{ .Values.gatewayClass.name }}
 spec:
-  controllerName: gateway.envoyproxy.io/gatewayclass-controller
-  {{- if .Values.envoyProxy.create }}
+  # Single source of truth: the bundled controller's configured name.
+  controllerName: {{ (index .Values "gateway-helm").config.envoyGateway.gateway.controllerName }}
   parametersRef:
     group: gateway.envoyproxy.io
     kind: EnvoyProxy
-    name: kserve-envoyproxy
+    name: otterscale-envoyproxy
     namespace: {{ .Release.Namespace }}
-  {{- end }}
 {{- end }}

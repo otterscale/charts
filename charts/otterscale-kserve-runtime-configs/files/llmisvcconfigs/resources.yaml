@@ -1785,7 +1785,7 @@ spec:
         spec:
           parentRefs:
           - group: gateway.networking.k8s.io
-            kind: Gateway
+            kind: ListenerSet
             name: '{{ .GlobalConfig.IngressGatewayName }}'
             namespace: '{{ .GlobalConfig.IngressGatewayNamespace }}'
           rules:

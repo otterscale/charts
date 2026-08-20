@@ -1,24 +1,16 @@
-{{- if .Values.envoyProxy.create }}
 {{- $svc := .Values.envoyProxy.service }}
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: EnvoyProxy
 metadata:
-  name: kserve-envoyproxy
+  name: otterscale-envoyproxy
   namespace: {{ .Release.Namespace }}
 spec:
   logging:
     level:
-      default: {{ .Values.envoyProxy.logLevel }}
-  mergeGateways: true
+      default: warn
   provider:
     type: Kubernetes
     kubernetes:
-      envoyDeployment:
-        replicas: {{ .Values.envoyProxy.replicas }}
-      {{- if gt (int .Values.envoyProxy.podDisruptionBudget.minAvailable) 0 }}
-      envoyPDB:
-        minAvailable: {{ .Values.envoyProxy.podDisruptionBudget.minAvailable }}
-      {{- end }}
       envoyService:
         type: {{ $svc.type }}
         {{- if ne $svc.type "ClusterIP" }}
@@ -37,4 +29,3 @@ spec:
               loadBalancerIP: {{ $svc.loadBalancerIP | quote }}
               {{- end }}
         {{- end }}
-{{- end }}

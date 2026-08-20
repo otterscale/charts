@@ -199,6 +199,8 @@ kserve:
         knativeGatewayService: ""
       ingressGateway:
         enableGatewayApi: false
+        # <namespace>/<name> of the kserve ListenerSet below — llmisvc
+        # attaches its generated HTTPRoutes to it.
         kserveGateway: kserve/kserve-ingress-gateway
         createGateway: false
         gateway: knative-serving/knative-ingress-gateway
@@ -206,9 +208,31 @@ kserve:
 commonLabels: {}
 commonAnnotations: {}
 
+# parentRef of the kserve ListenerSet: the generic zero-listener Gateway.
+# Same cluster as otterscale : otterscale-gateway @ otterscale-system
+#   (pre-deployed Envoy Gateway; pin nodePort 32080 on its EnvoyProxy).
+# Split-cluster              : the otterscale-envoy-gateway chart's gateway,
+#   e.g. otterscale-gateway @ envoy-gateway-system.
 gateway:
+  name: otterscale-gateway
+  namespace: otterscale-system
+
+# Contributes the kserve listener to that Gateway. Name must match the
+# kserveGateway value above (<release namespace>/<name>).
+listenerSet:
   name: kserve-ingress-gateway
-  className: envoy-kserve
+  port: 32080
+  # HTTPS listener (off by default). Certificate lives in the RELEASE
+  # namespace (ListenerSet certificateRefs resolve locally) — use a wildcard
+  # cert covering the inference domain. When enabling, also pin httpsPort on
+  # the base EnvoyProxy service ports patch and set
+  # kserve.controller.gateway.urlScheme to https.
+  tls:
+    enabled: false
+    httpsPort: 32443
+    crt: ""
+    key: ""
+    existingSecret: ""
 
 prometheus:
   serviceMonitor:
