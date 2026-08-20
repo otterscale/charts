@@ -222,6 +222,17 @@ gateway:
 listenerSet:
   name: kserve-ingress-gateway
   port: 32080
+  # HTTPS listener (off by default). Certificate lives in the RELEASE
+  # namespace (ListenerSet certificateRefs resolve locally) — use a wildcard
+  # cert covering the inference domain. When enabling, also pin httpsPort on
+  # the base EnvoyProxy service ports patch and set
+  # kserve.controller.gateway.urlScheme to https.
+  tls:
+    enabled: false
+    httpsPort: 32443
+    crt: ""
+    key: ""
+    existingSecret: ""
 
 prometheus:
   serviceMonitor:

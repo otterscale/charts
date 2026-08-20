@@ -56,6 +56,12 @@ spec:
                   protocol: TCP
                   targetPort: 32080
                   nodePort: 32080
+                # kserve ListenerSet https（listenerSet.tls.enabled 時取消註解）
+                # - name: https-kserve
+                #   port: 32443
+                #   protocol: TCP
+                #   targetPort: 32443
+                #   nodePort: 32443
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: GatewayClass

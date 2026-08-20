@@ -95,3 +95,10 @@ envoyProxy:
         protocol: TCP
         targetPort: 32080
         nodePort: 32080
+      # kserve ListenerSet https — uncomment together with the
+      # otterscale-kserve-resource chart's listenerSet.tls.enabled
+      # - name: https-kserve
+      #   port: 32443
+      #   protocol: TCP
+      #   targetPort: 32443
+      #   nodePort: 32443

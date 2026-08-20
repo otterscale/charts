@@ -17,3 +17,16 @@ spec:
       allowedRoutes:
         namespaces:
           from: All
+    {{- if .Values.listenerSet.tls.enabled }}
+    - name: https
+      protocol: HTTPS
+      port: {{ .Values.listenerSet.tls.httpsPort }}
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: {{ include "llm-isvc-resources.tls.secretName" . }}
+      allowedRoutes:
+        namespaces:
+          from: All
+    {{- end }}
