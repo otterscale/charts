@@ -154,6 +154,15 @@ Combines externalURL + relativePath + realms/<realm>.
 {{- end -}}
 
 {{/*
+Realm HTML display name (EE): logo served from the dashboard externalURL.
+Shared by the realm import (first boot) and the sync hook (upgrades) so the
+logo URL follows dashboard.externalURL changes.
+*/}}
+{{- define "otterscale.keycloakx.displayNameHtml" -}}
+{{- printf "<img src='%s/phison_hci.svg' alt='Phison HCI' width='176' height='28' />" (include "otterscale.externalURL" .) -}}
+{{- end -}}
+
+{{/*
 Keycloak fullname: release-name + nameOverride (or "keycloakx" if unset).
 */}}
 {{- define "otterscale.keycloakx.fullname" -}}

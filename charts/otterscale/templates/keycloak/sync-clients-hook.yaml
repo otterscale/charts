@@ -50,6 +50,10 @@ spec:
               value: {{ .Values.keycloakx.clients.dashboard.id | quote }}
             - name: DASHBOARD_URL
               value: {{ include "otterscale.externalURL" . | quote }}
+            {{- if .Values.ee.enabled }}
+            - name: REALM_DISPLAY_NAME_HTML
+              value: {{ include "otterscale.keycloakx.displayNameHtml" . | quote }}
+            {{- end }}
             {{- if .Values.harbor.enabled }}
             - name: HARBOR_CLIENT_ID
               value: {{ .Values.keycloakx.clients.harbor.id | quote }}
@@ -115,6 +119,13 @@ spec:
               sync_client "${DASHBOARD_CLIENT_ID}" "${DASHBOARD_URL}" "${DASHBOARD_URL}"
               {{- if .Values.harbor.enabled }}
               sync_client "${HARBOR_CLIENT_ID}" "${HARBOR_URL}" "${DASHBOARD_URL}"
+              {{- end }}
+              {{- if .Values.ee.enabled }}
+
+              # Realm import only seeds displayNameHtml once — re-point the
+              # logo at the current dashboard URL on every upgrade.
+              kcadm update "realms/${KC_REALM}" -s "displayNameHtml=${REALM_DISPLAY_NAME_HTML}"
+              echo "Realm '${KC_REALM}': displayNameHtml logo -> ${DASHBOARD_URL}/phison_hci.svg"
               {{- end }}
 
               echo "Keycloak client URL sync complete."
