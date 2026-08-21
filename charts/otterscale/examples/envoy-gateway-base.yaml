@@ -1,21 +1,12 @@
 # ── Envoy Gateway 基礎層（step 0，安裝 otterscale 之前）──
 #
-# 1. 安裝 Envoy Gateway controller（上游 helm chart）：
+#   helm install envoy-gateway oci://docker.io/envoyproxy/gateway-helm \
+#     --version 1.9.0 -n otterscale-system --create-namespace
+#   kubectl apply -f envoy-gateway-base.yaml
 #
-#      helm install envoy-gateway oci://docker.io/envoyproxy/gateway-helm \
-#        --version 1.9.0 -n otterscale-system --create-namespace
-#
-# 2. 套用本檔（最通用的 GatewayClass / EnvoyProxy / Gateway）：
-#
-#      kubectl apply -f envoy-gateway-base.yaml
-#
-# 這三個資源不屬於任何 helm release，之後任何 chart 的 helm upgrade 都
-# 不會碰到它們。otterscale 與 kserve 只透過 ListenerSet 提供 listener、
-# 用 HTTPRoute 掛路由。
-#
-# 注意：otterscale-envoy-gateway chart（kserve/AI stack，envoy-gateway-system）
-# 使用不同的 controllerName（gateway.envoyproxy.io/envoy-kserve-controller）
-# 與 class（envoy-kserve），與本檔這套完全隔離。
+# 本檔資源不屬於任何 helm release，chart 升級永遠碰不到；otterscale/kserve
+# 僅以 ListenerSet + HTTPRoute 掛上。otterscale-envoy-gateway chart 用獨立的
+# controllerName 與 class（envoy-kserve），與本套完全隔離。
 ---
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: EnvoyProxy
@@ -56,7 +47,7 @@ spec:
                   protocol: TCP
                   targetPort: 32080
                   nodePort: 32080
-                # kserve ListenerSet https（listenerSet.tls.enabled 時取消註解）
+                # 僅純 ip:port 要 TLS 分流時使用（預設 kserve 走 443/SNI）：
                 # - name: https-kserve
                 #   port: 32443
                 #   protocol: TCP
@@ -82,7 +73,16 @@ metadata:
   namespace: otterscale-system
 spec:
   gatewayClassName: envoy-otterscale
-  # 零 listener：所有 listener 由各 chart 的 ListenerSet 提供
   allowedListeners:
     namespaces:
       from: All
+  # 實際 listener 全由各 chart 的 ListenerSet 提供；此為佔位（CRD 要求
+  # minItems: 1），hostname 永不匹配、不收 route
+  listeners:
+    - name: placeholder
+      protocol: HTTP
+      port: 19080
+      hostname: "placeholder.invalid"
+      allowedRoutes:
+        namespaces:
+          from: Same
